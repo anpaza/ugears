@@ -87,20 +87,23 @@ the appropiate HARDWARE definition.
 Now run 'make' in root project directory and see what targets it can build.
 Look at the 'tests' section, that's where the test apps are grouped.
 Go into the tests/$(HARDWARE)/ directory to see the source code.
-The tests are ordered in the order of increasing complexity.
+The tests are sorted by increasing complexity.
 
 Build a test by, say, typing
+
     make tfirst
 
 If everything goes well, you'll end with tfirst.elf in build directory.
 Now you can flash it into your board. Connect the board to SWD debugger
 and run:
+
     make flash-tfirst
 
 This will use the st-flash utility to flash the binary file (which is
 converted from the elf file). If st-link doesn't support your SWD debugger,
 you may use other tools, but you will have to flash manually. You can
 build either a .bin or .hex file from the .elf file manually:
+
     make ihex-tfirst, or
     make bin-tfirst
 
@@ -111,6 +114,32 @@ everything will proceed as it should.
 Also, a very helpful thing to have would be one of those cheap USB-UART
 dongles. Connect it to USART1 pins and launch a terminal program,
 as many test programs will print useful information there.
+
+
+### Adding new platforms
+
+Adding a new hardware platform is easy.
+
+1. Choose a name for the platform. Look if your hardware is already listed
+in `tibs/extra/stm32-board.csv`. There you will find most well-known STM32
+evaluation boards. Assign the board name to HARDWARE variable in
+your `local-config.mak` file.
+
+2. If it's not there, it's not a problem. Invent a new board name and assign
+it to HARDWARE in your `local-config.mak` file as usual. Then, define what
+MCU type your board uses. A list of valid MCU types can be found in
+`tibs/extra/stm32-mcu.csv`. Assign MCU type to MCU.TYPE variable just
+below HARDWARE in `local-config.mak`. Always use lower case for both
+HARDWARE and MCU.TYPE, but if you don't, TIBS will lowercase it for you.
+
+3. Create hardware definitions file include/hardware/$(HARDWARE).h.
+You can use include/hardware/template.h as a template.
+
+4. Fill the file as suggested by instructions inside template.h.
+
+5. Now you may create your own tests/$(HARDWARE) subdirectory and start
+filling it with simple tests. Start with something simple, and then
+move on.
 
 
 ## Copyright

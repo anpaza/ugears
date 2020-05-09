@@ -35,8 +35,11 @@ MCU.TYPE = $(word 2,$(subst $(COMMA),$(SPACE),$(shell grep -i '^$(HARDWARE),' ti
 ifeq ($(MCU.TYPE),)
 $(error Board $(HARDWARE) not defined in tibs/extra/stm32-board.csv!)
 endif
-MCU.TYPE := $(call asciidown,$(MCU.TYPE))
 endif
+
+# Just in case, always use lower case
+HARDWARE := $(call asciidown,$(HARDWARE))
+MCU.TYPE := $(call asciidown,$(MCU.TYPE))
 
 # Replace empty fields (",,") with "None" (",None,") otherwise we'll lose correct field numbering
 MCU_DESC = $(subst $(COMMA),$(SPACE),\

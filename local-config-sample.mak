@@ -4,6 +4,10 @@
 #HARDWARE = stm32f103bluepill
 #HARDWARE = stm32f4discovery
 
+# Define your MCU in the case your board is not listed in tibs/extra/stm32-board.csv
+# A list of supported MCUs is in tibs/extra/stm32-mcu.csv
+#MCU.TYPE = STM32F103C8Tx
+
 # Default build mode
 MODE = debug
 
