@@ -108,6 +108,10 @@ Note that you don't have to execute `make tfirst` every time you change
 a source file. Just enter `make flash-tfirst` or `make ihex-tfirst` and
 everything will proceed as it should.
 
+Also, a very helpful thing to have would be one of those cheap USB-UART
+dongles. Connect it to USART1 pins and launch a terminal program,
+as many test programs will print useful information there.
+
 
 ## Copyright
 

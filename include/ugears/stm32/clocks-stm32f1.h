@@ -96,7 +96,7 @@
 #endif
 #ifndef PLL_STARTUP_TIMEOUT
 /// PLL takes more time to start up
-#define PLL_STARTUP_TIMEOUT		0xA000
+#define PLL_STARTUP_TIMEOUT		0x222A000
 #endif
 
 #if defined RCC_CFGR_OTGFSPRE || defined RCC_CFGR_USBPRE

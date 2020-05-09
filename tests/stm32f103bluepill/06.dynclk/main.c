@@ -5,12 +5,6 @@
 
 #include "stm32f103bluepill.h"
 
-#ifdef RCC_CFGR2_PREDIV2
-#  define ARGS_PLL2 0,0
-#else
-#  define ARGS_PLL2
-#endif
-
 uint32_t clk_errors = 0;
 uint32_t systick = 0;
 
@@ -54,6 +48,7 @@ void RTC_IRQHandler ()
         uint32_t expected_freq = 0;
 
         // STM32F103 is 72MHz maximum
+        // and supports only HSE PLL pre-divider only 1 or 2
         switch ((clock >> 8) & 7)
         {
             case 0:
@@ -71,41 +66,44 @@ void RTC_IRQHandler ()
             case 2:
                 clksrc = "PLL = (HSI / 2) * 2";
                 expected_freq = (HSI_VALUE / 2) * 2;
-                if (sysclk_PLL (CLKSRC_HSI, 2, 2 ARGS_PLL2) != 0)
+                if (sysclk_PLL (CLKSRC_HSI, 2, 2) != 0)
                     clk_errors |= 4;
                 break;
             case 3:
                 clksrc = "PLL = (HSI / 2) * 3";
                 expected_freq = (HSI_VALUE / 2) * 3;
-                if (sysclk_PLL (CLKSRC_HSI, 2, 3 ARGS_PLL2) != 0)
+                if (sysclk_PLL (CLKSRC_HSI, 2, 3) != 0)
                     clk_errors |= 4;
                 break;
             case 4:
-                // This is the minimum clock we can get
-                clksrc = "PLL = (HSE / 16) * 2";
-                expected_freq = (HSE_VALUE / 16) * 2;
-                if (sysclk_PLL (CLKSRC_HSE, 16, 2 ARGS_PLL2) != 0)
+                // We can divide HSE only by 1 or 2, start from the lowest clock
+                clksrc = "PLL = (HSE / 2) * 2";
+                expected_freq = (HSE_VALUE / 2) * 2;
+                if (sysclk_PLL (CLKSRC_HSE, 2, 2) != 0)
                     clk_errors |= 4;
                 break;
             case 5:
-                clksrc = "PLL = (HSE / 3) * 5";
-                expected_freq = (HSE_VALUE / 3) * 5;
-                if (sysclk_PLL (CLKSRC_HSE, 3, 5 ARGS_PLL2) != 0)
+                clksrc = "PLL = (HSE / 2) * 5";
+                expected_freq = (HSE_VALUE / 2) * 5;
+                if (sysclk_PLL (CLKSRC_HSE, 2, 5) != 0)
                     clk_errors |= 4;
                 break;
             case 6:
-                clksrc = "PLL = (HSE / 5) * 10";
-                expected_freq = (HSE_VALUE / 5) * 10;
-                if (sysclk_PLL (CLKSRC_HSE, 5, 10 ARGS_PLL2) != 0)
+                clksrc = "PLL = HSE * 6";
+                expected_freq = HSE_VALUE * 6;
+                if (sysclk_PLL (CLKSRC_HSE, 1, 6) != 0)
                     clk_errors |= 4;
                 break;
             case 7:
-                clksrc = "PLL = HSE * 3";
-                expected_freq = HSE_VALUE * 3;
-                if (sysclk_PLL (CLKSRC_HSE, 1, 3 ARGS_PLL2) != 0)
+                clksrc = "PLL = HSE * 9";
+                expected_freq = HSE_VALUE * 9;
+                if (sysclk_PLL (CLKSRC_HSE, 1, 9) != 0)
                     clk_errors |= 4;
                 break;
         }
+
+        // APB1 bus is 36MHz max, so div by 2 if sysclock is too high
+        clock_APB1 ((SYSCLK_FREQ > 36000000) ? PCLK1_DIV_FLAGS (2) : PCLK1_DIV_FLAGS (1));
 
         // Count CPU clocks till next freq change
         saved_systicks = systicks ();

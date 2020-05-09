@@ -128,9 +128,9 @@ DYNCLKFUN void clock_flash_setup (uint32_t clksrc, uint32_t sysclk)
         acr &= ~FLASH_ACR_HLFCYA;
 
 #ifdef FLASH_ACR_PRFTBE
-    if (sysclk < _24MHZ)
+    if (sysclk <= _24MHZ)
         ;
-    else if (sysclk < _48MHZ)
+    else if (sysclk <= _48MHZ)
         acr |= FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY_1;
     else
         acr |= FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY_2;
@@ -245,8 +245,20 @@ DYNCLKFUN uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul
 #endif
     )
 {
-    // We can't change PLL settings if PLL is on
-    if (RCC->CR & RCC_CR_PLLON)
+#ifdef CLOCK_DYNAMIC
+    // Compute resulting clock frequency
+    uint32_t FREQ =
+#  if defined RCC_CFGR2_PREDIV2
+        ((clksrc == CLKSRC_PLL2) ? ((((HSE_VALUE / pll2div) * pll2mul) / plldiv) * pllmul) :
+#  endif
+        ((clksrc == CLKSRC_HSI) ? (HSI_VALUE / 2) : (HSE_VALUE / plldiv)) * pllmul;
+#else
+#  define FREQ SYSCLK_FREQ
+#endif
+
+    // We can't change PLL settings if PLL is on, so switch to HSI
+    // If frequency is > 24MHz, also switch to HSI to set up prefetch
+    if ((RCC->CR & RCC_CR_PLLON) || (FREQ > _24MHZ))
         if (sysclk_HSI () != 0)
             return 2;
 
@@ -327,23 +339,9 @@ DYNCLKFUN uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul
             return 1;
     }
 
-#ifdef CLOCK_DYNAMIC
-    // Compute resulting clock frequency
-    uint32_t FREQ =
-#  if defined RCC_CFGR2_PREDIV2
-        ((clksrc == CLKSRC_PLL2) ? ((((HSE_VALUE / pll2div) * pll2mul) / plldiv) * pllmul) :
-#  endif
-        ((clksrc == CLKSRC_HSI) ? (HSI_VALUE / 2) : (HSE_VALUE / plldiv)) * pllmul;
-#else
-#  define FREQ SYSCLK_FREQ
-#endif
-
     // If clock is >24MHz, enable flash latency & prefetch
     if (FREQ > _24MHZ)
-    {
-        sysclk_HSI ();
         clock_flash_setup (CLKSRC_PLL, FREQ);
-    }
 
     RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_PLL;
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
