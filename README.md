@@ -71,7 +71,7 @@ hardware platform.
 There could be an apps/ subdirectory. It doesn't exist now because
 uGears project doesn't provide any apps. You may create it yourself,
 and under apps/ you can create subdirectories for your app modules.
-The TIBS will automatically load any .mak files in apps/\*/\*.mak.
+The TIBS will automatically load any `apps/*/*.mak` files.
 
 
 ### Where to start

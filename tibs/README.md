@@ -25,9 +25,9 @@ a test, an application or something like that.
 
 When you run 'make' TIBS scans for all .mak files in directories:
 
-    apps/\*/\*.mak
-    tests/\*/\*.mak
-    libs/\*/\*.mak
+    apps/*/*.mak
+    tests/*/*.mak
+    libs/*/*.mak
 
 and a few other.
 
