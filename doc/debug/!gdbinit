@@ -1,0 +1,47 @@
+# Copy this file to .gdbinit
+
+# disassemble as thumb even if no executable on command line
+set arm fallback-mode thumb
+# connect with st-util
+target extended-remote localhost:4242
+
+# Invoke the "HW" command to define some shortcuts for printing
+# state of some peripherials. Uncomment below what you need.
+# Later you can use commands like "p /x *$1".
+define hw
+# STM32F0 peripherials
+# GPIOA
+#p (GPIO_TypeDef *) 0x48000000
+# GPIOB
+#p (GPIO_TypeDef *) 0x48000400
+# GPIOC
+#p (GPIO_TypeDef *) 0x48000800
+# GPIOC
+#p (GPIO_TypeDef *) 0x48000C00
+# RCC
+#p (RCC_TypeDef *)0x40021000
+
+# STM32F1 peripherials
+# USART1
+#p (USART_TypeDef *)0x40013800
+# RCC
+#p (RCC_TypeDef*)0x40021000
+# GPIOA
+#p (GPIO_TypeDef*)0x40010800
+# GPIOB
+#p (GPIO_TypeDef*)0x40010c00
+# GPIOC
+#p (GPIO_TypeDef*)0x40011000
+# GPIOD
+#p (GPIO_TypeDef*)0x40011400
+# DMA1
+#p (DMA_TypeDef*)0x40020000
+# DMA1 Channel 3
+#p (DMA_Channel_TypeDef*)0x40020030
+# DMA1 Channel 4
+#p (DMA_Channel_TypeDef*)0x40020044
+# DMA1 Channel 5
+#p (DMA_Channel_TypeDef*)0x40020058
+# SPI1
+#p (SPI_TypeDef*)0x40013000
+end
