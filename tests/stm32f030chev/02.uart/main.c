@@ -3,7 +3,6 @@
  */
 
 #include "ugears.h"
-#include "time.h"
 #include "printf.h"
 
 uint8_t led_override = 0;

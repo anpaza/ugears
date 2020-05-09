@@ -4,6 +4,6 @@ FLASH.TARGETS += tuartdma
 IHEX.TARGETS += tuartdma
 
 TARGETS.tuartdma = tuartdma$E
-SRC.tuartdma$E = $(wildcard tests/stm32vldiscovery/04.uartdma/*.c) \
-	tests/stm32vldiscovery/stm32vldiscovery.c 
+SRC.tuartdma$E = $(wildcard tests/stm32f103bluepill/04.uartdma/*.c) \
+	tests/stm32f103bluepill/stm32f103bluepill.c
 LIBS.tuartdma$E = cmsis$L ugears$L useful$L

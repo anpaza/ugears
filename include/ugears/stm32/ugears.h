@@ -21,6 +21,7 @@
 #include "clocks.h"
 
 #include "useful.h"
+#include "time.h"
 
 #include "flash.h"
 #include "adc.h"

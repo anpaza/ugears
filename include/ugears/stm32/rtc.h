@@ -28,6 +28,14 @@
 #define RTC_TICKS_PER_SEC	16U
 #endif
 
+/**
+ * This is the "zero" time, to which (RTC counter / RTC_TICKS_PER_SEC) is added.
+ */
+#ifndef RTC_BASETIME
+/// The base unixtime for RTC clock (1 Jan 2016)
+#define RTC_BASETIME		1451606400
+#endif
+
 // The F1 series uses a different RTC from others
 #if defined STM32F1
 # define RTC_TYPE_1

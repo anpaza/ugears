@@ -33,7 +33,7 @@ void rtc_init ()
     // Если часы не в нужном режиме работы, делаем полный сброс и конфигурируем заново
     if (((RCC->BDCR & (RCC_BDCR_LSEON | RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL)) !=
         (RCC_BDCR_LSEON | RCC_BDCR_RTCEN | RCC_BDCR_RTCSEL_LSE)) ||
-        (rtc_reload () != (RTC_FREQ / RTC_TICKS_PER_SEC) - 1))
+        (rtc_reload () != (LSE_VALUE / RTC_TICKS_PER_SEC) - 1))
         rtc_reset ();
 
     // Запускаем процесс обновления образов регистров RTC
@@ -61,7 +61,7 @@ void rtc_reset ()
         // Reset alarm
         rtc_set_alarm (0xffffffff);
         // Set up RTC reload counter
-        rtc_set_reload ((RTC_FREQ / RTC_TICKS_PER_SEC) - 1);
+        rtc_set_reload ((LSE_VALUE / RTC_TICKS_PER_SEC) - 1);
         // Set clock adjustment to half of the range (-64..+63)
         rtc_calibrate (RTC_CALIB);
     }

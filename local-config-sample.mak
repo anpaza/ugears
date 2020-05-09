@@ -1,6 +1,7 @@
 # Select your hardware
-HARDWARE = stm32f030chev
+#HARDWARE = stm32f030chev
 #HARDWARE = stm32vldiscovery
+#HARDWARE = stm32f103bluepill
 #HARDWARE = stm32f4discovery
 
 # Default build mode

@@ -139,6 +139,10 @@
 #  define PCLK2_DIV 1
 #endif
 
+#ifndef CLOCK_ADC_DIV
+#  define CLOCK_ADC_DIV 2
+#endif
+
 #if JOIN2 (CLKSRC_,SYSCLK_SOURCE) == CLKSRC_PLL
 #  ifndef PLL_SOURCE
 #    define PLL_SOURCE			HSI

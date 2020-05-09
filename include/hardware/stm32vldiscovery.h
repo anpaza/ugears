@@ -12,19 +12,13 @@
 // System clock configuration - define before including clocks-*.h
 #define SYSCLK_SOURCE		HSE
 #define HSE_VALUE               8000000
-#define CLOCK_ADC_DIV		2
 #define CLOCK_DYNAMIC
 
 #include "stm32f1xx.h"
 #include "clocks-stm32f1.h"
 
 // RTC crystal frequency, Hz
-#define RTC_FREQ		32768
-
-#ifndef RTC_BASETIME
-/// The base unixtime for RTC clock (1 Jan 2016)
-#define RTC_BASETIME		1451606400
-#endif
+#define LSE_VALUE		32768
 
 /// Use a more or less high precision RTC clock
 #define RTC_TICKS_PER_SEC       32
@@ -46,6 +40,9 @@
 #define USRBUT_PORT		A
 #define USRBUT_BIT		0
 #define USRBUT_GPIO_CONFIG	INPUT,FLOATING,X
+
+// Use APB2 clock for USART1
+#define USART1_CLOCK		APB2_CLOCK
 
 // Example serial port setup
 #define USART1_SETUP		(USART_BAUD (9600) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)

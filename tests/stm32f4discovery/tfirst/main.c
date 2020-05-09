@@ -26,7 +26,7 @@ int main ()
         RCC_ENA (_USART1);
     RCC_END;
 
-    gpio_configs (first_gpio_config, ARRAY_LEN (first_gpio_config));
+    gpio_setups (first_gpio_config, ARRAY_LEN (first_gpio_config));
 
     // 16 interrupts per second
     systick_config (sysclk_t2c (1.0/16.0));

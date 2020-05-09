@@ -4,10 +4,6 @@
 
 #include "ugears.h"
 
-#undef CLOCKS_PER_SEC
-#define CLOCKS_PER_SEC          16
-uint32_t clock = 0;
-
 void SysTick_Handler ()
 {
     clock++;

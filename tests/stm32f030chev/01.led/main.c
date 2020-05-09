@@ -3,7 +3,6 @@
  */
 
 #include "ugears.h"
-#include "time.h"
 
 void SysTick_Handler ()
 {

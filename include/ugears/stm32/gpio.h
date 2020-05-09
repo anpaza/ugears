@@ -179,13 +179,13 @@ typedef uint32_t gpio_config_t;
 #define GPIO_SPEED_X		0x00000000
 /// Output low-speed (2MHz) mode
 #define GPIO_SPEED_LOW		0x00000000
-#define GPIO_SPEED_2MHZ		0x00000000
+#define GPIO_SPEED_2MHz		0x00000000
 /// Output medium-speed (10MHz) mode
 #define GPIO_SPEED_MEDIUM	0x00000020
-#define GPIO_SPEED_10MHZ	0x00000020
+#define GPIO_SPEED_10MHz	0x00000020
 /// Output high-speed (50MHz) mode
 #define GPIO_SPEED_HIGH		0x00000060
-#define GPIO_SPEED_50MHZ	0x00000060
+#define GPIO_SPEED_50MHz	0x00000060
 /// The mask for output speed bits
 #define GPIO_SPEED_MASK		0x00000060
 /// Amount to shift speed bits to right to get the value for OSPEEDR
@@ -240,7 +240,7 @@ typedef uint32_t gpio_config_t;
  * @arg pud Pull up/down resistor configuration (without GPIO_PUD_ prefix):
  *      X, UP, DOWN
  * @arg spd Port speed configuration (without GPIO_SPEED_ prefix):
- *      X, LOW (2MHZ), MEDIUM (10MHZ), HIGH (50MHz)
+ *      X, LOW (2MHz), MEDIUM (10MHz), HIGH (50MHz)
  * @arg af Alternate function number, 0-15 or X (without GPIO_AF_ prefix)
  * @arg ini Initial output state (0, 1 or X)
  */

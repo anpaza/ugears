@@ -4,6 +4,6 @@ FLASH.TARGETS += trtc
 IHEX.TARGETS += trtc
 
 TARGETS.trtc = trtc$E
-SRC.trtc$E = $(wildcard tests/stm32vldiscovery/05.rtc/*.c) \
-	tests/stm32vldiscovery/stm32vldiscovery.c
+SRC.trtc$E = $(wildcard tests/stm32f103bluepill/05.rtc/*.c) \
+	tests/stm32f103bluepill/stm32f103bluepill.c
 LIBS.trtc$E = cmsis$L ugears$L useful$L

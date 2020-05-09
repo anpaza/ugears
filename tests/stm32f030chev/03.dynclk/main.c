@@ -3,7 +3,6 @@
  */
 
 #include "ugears.h"
-#include "time.h"
 #include "printf.h"
 
 uint32_t clk_errors;
@@ -27,6 +26,7 @@ void SysTick_Handler ()
         uint32_t prev_clk_errors = clk_errors;
         unsigned expected_freq = 0;
 
+        // STM32F0 is 48MHz maximum
         switch ((clock >> 8) & 7)
         {
             case 0:

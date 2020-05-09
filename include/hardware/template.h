@@ -91,6 +91,6 @@
 //#define HSE_VALUE	8000000
 
 // RTC crystal frequency, Hz
-//#define RTC_FREQ	32768
+//#define LSE_VALUE	32768
 
 #endif // __HARDWARE_H__
