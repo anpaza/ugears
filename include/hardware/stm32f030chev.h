@@ -20,7 +20,7 @@
 
 // The debug LED
 #define LED_PORT		A
-#define LED_BIT			4
+#define LED_PIN			4
 #define LED_GPIO_CONFIG		PUSHPULL,X,LOW,X,0
 
 // Use APB1 clock (PCLK) for USART
@@ -30,17 +30,17 @@
 
 // UART TX pin
 #define USART1_TX_PORT		A
-#define USART1_TX_BIT		9
+#define USART1_TX_PIN		9
 #define USART1_TX_GPIO_CONFIG	AF_PUSHPULL,X,LOW,1,1
 
 // Experimental feature: use UART only for receiving, TX is 'muted'
 #define USART1_TX_MUTE_PORT	A
-#define USART1_TX_MUTE_BIT	9
+#define USART1_TX_MUTE_PIN	9
 #define USART1_TX_MUTE_GPIO_CONFIG INPUT,X,LOW,X,X
 
 // UART RX pin
 #define USART1_RX_PORT		A
-#define USART1_RX_BIT		10
+#define USART1_RX_PIN		10
 #define USART1_RX_GPIO_CONFIG	AF,X,LOW,1,1
 
 // That's all we have, folks!

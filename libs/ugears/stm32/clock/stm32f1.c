@@ -245,23 +245,6 @@ DYNCLKFUN uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul
 #endif
     )
 {
-#ifdef CLOCK_DYNAMIC
-    // Compute resulting clock frequency
-    uint32_t FREQ =
-#  if defined RCC_CFGR2_PREDIV2
-        ((clksrc == CLKSRC_PLL2) ? ((((HSE_VALUE / pll2div) * pll2mul) / plldiv) * pllmul) :
-#  endif
-        ((clksrc == CLKSRC_HSI) ? (HSI_VALUE / 2) : (HSE_VALUE / plldiv)) * pllmul;
-#else
-#  define FREQ SYSCLK_FREQ
-#endif
-
-    // We can't change PLL settings if PLL is on, so switch to HSI
-    // If frequency is > 24MHz, also switch to HSI to set up prefetch
-    if ((RCC->CR & RCC_CR_PLLON) || (FREQ > _24MHZ))
-        if (sysclk_HSI () != 0)
-            return 2;
-
     // Check if PLL multipliers and dividers are in legal ranges
     // PLL multiplier from 2 to 16
     if (((1 << pllmul) & 0x1FFFC) == 0
@@ -280,6 +263,23 @@ DYNCLKFUN uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul
 #endif
        )
         return 3;
+
+#ifdef CLOCK_DYNAMIC
+    // Compute resulting clock frequency
+    uint32_t FREQ =
+#  if defined RCC_CFGR2_PREDIV2
+        ((clksrc == CLKSRC_PLL2) ? ((((HSE_VALUE / pll2div) * pll2mul) / plldiv) * pllmul) :
+#  endif
+        ((clksrc == CLKSRC_HSI) ? (HSI_VALUE / 2) : (HSE_VALUE / plldiv)) * pllmul;
+#else
+#  define FREQ SYSCLK_FREQ
+#endif
+
+    // We can't change PLL settings if PLL is on, so switch to HSI
+    // If frequency is > 24MHz, also switch to HSI to set up prefetch
+    if ((RCC->CR & RCC_CR_PLLON) || (FREQ > _24MHZ))
+        if (sysclk_HSI () != 0)
+            return 2;
 
     // Enable the clock on which PLL is based on
     if (((clksrc == CLKSRC_HSI) && (clock_HSI_start () != 0)) ||

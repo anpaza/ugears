@@ -15,7 +15,7 @@ void gpio_setup (gpio_config_t conf)
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
 
     // GPIO bit number (0-15)
-    unsigned b = GPIO_CONF_BIT (conf);
+    unsigned b = GPIO_CONF_PIN (conf);
 
     // Set up ODR
 #if defined GPIO_TYPE_3
@@ -79,9 +79,9 @@ gpio_config_t gpio_get_setup (gpio_config_t conf)
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
 
     // GPIO bit number (0-15)
-    unsigned b = GPIO_CONF_BIT (conf);
+    unsigned b = GPIO_CONF_PIN (conf);
 
-    conf &= GPIO_PORT_MASK | GPIO_BIT_MASK;
+    conf &= GPIO_PORT_MASK | GPIO_PIN_MASK;
 
 #if defined GPIO_TYPE_1
     uint32_t s = (b & 7) * 4;

@@ -28,8 +28,8 @@
  *
  * @li HWFN_PORT defines the port name to which the feature is
  *      connected (A, B, C etc). Used by GPIO_PORT(HWFN) macro.
- * @li HWFN_BIT defines the bit number to which the feature is
- *      connected (0, 1, 2 ...). Used by GPIO_BIT(HWFN) macro.
+ * @li HWFN_PIN defines the bit number to which the feature is
+ *      connected (0, 1, 2 ...). Used by GPIO_PIN(HWFN) macro.
  * @li HWFN_GPIO_CONFIG defines the parameters passed to the
  *      GPIO_CONFIGURE macro which returns a bitmask for GPIO
  *      setup (ex: OUTPUT_2MHz,OPENDRAIN,1).
@@ -48,11 +48,11 @@
  * You can later use these declarations like this, for example:
  * @code
  *      // Set the pin to high level
- *      GPIO (HWFN)->BSRR = GPIO_BITV (HWFN);
+ *      GPIO (HWFN)->BSRR = GPIO_PINM (HWFN);
  *      // Same but simpler
  *      GPIO_SET (HWFN);
  *      // Get port state
- *      if (GPIO (HWFN)->IDR & GPIO_BITV (HWFN)) ...
+ *      if (GPIO (HWFN)->IDR & GPIO_PINM (HWFN)) ...
  *      // Set up the GPIO mode for the pin
  *      GPIO_CONFIG (HWFN, OUTPUT_2MHz, OPENDRAIN, 1);
  *      // Same but using the HWFN_GPIO_CONFIG macro

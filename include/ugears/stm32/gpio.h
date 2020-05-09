@@ -29,10 +29,10 @@
 
 /// Return the port name (A, B, C etc) given hardware feature name
 #define GPIO_PORT(x)		JOIN2 (x, _PORT)
-/// Return the bit number (0, 1, 2 etc) given hardware feature name
-#define GPIO_BIT(x)		JOIN2 (x, _BIT)
-/// Return the bit value of a port bit by name
-#define GPIO_BITV(x)		BV (GPIO_BIT (x))
+/// Return the pin number (0, 1, 2 etc) given hardware feature name
+#define GPIO_PIN(x)		JOIN2 (x, _PIN)
+/// Return the pin mask by hardware feature name
+#define GPIO_PINM(x)		BV (GPIO_PIN (x))
 
 // Auxiliary macros (not meant to be directly used by user)
 #define GPIO_PORT_MASK		0xf000
@@ -49,13 +49,13 @@
 #define GPIO_PORT_J		0x9000
 #define GPIO_PORT_K		0xA000
 
-#define GPIO_BIT_MASK		0x0F00
-#define GPIO_BIT_SHIFT		8
+#define GPIO_PIN_MASK		0x0F00
+#define GPIO_PIN_SHIFT		8
 
 /// Preprocessor: is hw feature x port equal to port name p (A, B, ...)?
 #define PORT_EQ(x, p)		(JOIN2 (GPIO_PORT_, GPIO_PORT (x)) == JOIN2 (GPIO_PORT_, p))
-/// Preprocessor: is port and bit of hw feature x equal to port p (A, B, ...) and bit b?
-#define PORTBIT_EQ(x, p, b)	(_PORT_EQ (x, p) && (GPIO_BIT (x) == b))
+/// Preprocessor: is port and pin of hw feature x equal to port p (A, B, ...) and pin b?
+#define PORTPIN_EQ(x, p, b)	(_PORT_EQ (x, p) && (GPIO_PIN (x) == b))
 /// Preprocessor: is port of hw feature x equal to port of hw feature y?
 #define PORTS_EQ(x, y)		(JOIN2 (GPIO_PORT_, GPIO_PORT(x)) == JOIN2 (GPIO_PORT_, GPIO_PORT(y)))
 
@@ -63,8 +63,8 @@
 #define GPIO(x)			JOIN2 (GPIO, GPIO_PORT (x))
 /// Extract the port number (0-10, corresponding to A-K) from a gpio_config_t
 #define GPIO_CONF_PORT(c)	((c & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT)
-/// Extract the bit number (0-15) from a gpio_config_t
-#define GPIO_CONF_BIT(c)	((c & GPIO_BIT_MASK) >> GPIO_BIT_SHIFT)
+/// Extract the pin number (0-15) from a gpio_config_t
+#define GPIO_CONF_PIN(c)	((c & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT)
 
 // -------------------- // GPIO configuration bits // -------------------- //
 
@@ -135,7 +135,7 @@ typedef uint16_t gpio_config_t;
  */
 #define GPIO_CONFIG(x,mod,cnf,ini) (\
 	JOIN2 (GPIO_PORT_, GPIO_PORT(x)) | \
-	(GPIO_BIT (x) << GPIO_BIT_SHIFT) | \
+	(GPIO_PIN (x) << GPIO_PIN_SHIFT) | \
 	JOIN2 (GPIO_MODE_, mod) | \
 	JOIN2 (GPIO_CNF_, cnf) | \
 	JOIN2 (GPIO_INIT_, ini) \
@@ -246,7 +246,7 @@ typedef uint32_t gpio_config_t;
  */
 #define GPIO_CONFIG(x,mod,pud,spd,af,ini) (\
 	JOIN2 (GPIO_PORT_, GPIO_PORT(x)) | \
-	(GPIO_BIT (x) << GPIO_BIT_SHIFT) | \
+	(GPIO_PIN (x) << GPIO_PIN_SHIFT) | \
 	JOIN2 (GPIO_MODE_, mod) | \
 	JOIN2 (GPIO_PUD_, pud) | \
 	JOIN2 (GPIO_SPEED_, spd) | \
@@ -266,34 +266,34 @@ typedef uint32_t gpio_config_t;
  */
 #define GPIO_CONF(p)		__GPIO_CONFIG (p, JOIN2 (p, _GPIO_CONFIG))
 
-/// Similar to GPIO_CONF(), but encodes only port name & bit number
-#define GPIO_CONF_PB(p)		__GPIO_CONFIG (p)
+/// Similar to GPIO_CONF(), but encodes only port name & pin number
+#define GPIO_CONF_PP(p)		__GPIO_CONFIG (p)
 
 #if defined GPIO_TYPE_3
 
 /// Atomic set of a single bit in port
-#define GPIO_SET(x)		(GPIO(x)->BSRR = GPIO_BITV (x))
+#define GPIO_SET(x)		(GPIO(x)->BSRR = GPIO_PINM (x))
 /// Atomic clear of a single bit in port
-#define GPIO_RESET(x)		(GPIO(x)->BSRR = (GPIO_BITV (x) << 16))
+#define GPIO_RESET(x)		(GPIO(x)->BSRR = (GPIO_PINM (x) << 16))
 
 #else
 
 /// Atomic set of a single bit in port
-#define GPIO_SET(x)		(GPIO(x)->BSRR = GPIO_BITV (x))
+#define GPIO_SET(x)		(GPIO(x)->BSRR = GPIO_PINM (x))
 /// Atomic clear of a single bit in port
-#define GPIO_RESET(x)		(GPIO(x)->BRR = GPIO_BITV (x))
+#define GPIO_RESET(x)		(GPIO(x)->BRR = GPIO_PINM (x))
 
 #endif
 
 /// Get the state of the bit in port
-#define GPIO_GET(x)		(GPIO(x)->IDR & GPIO_BITV (x))
+#define GPIO_GET(x)		(GPIO(x)->IDR & GPIO_PINM (x))
 /// Toggle the state of an output GPIO
-#define GPIO_TOGGLE(x)		(GPIO (x)->ODR ^= GPIO_BITV (x))
+#define GPIO_TOGGLE(x)		(GPIO (x)->ODR ^= GPIO_PINM (x))
 
 /// Wrapper around gpio_setup() that use hardware feature name as argument
 #define GPIO_SETUP(x)		gpio_setup (GPIO_CONF (x))
 /// Wrapper around gpio_get_setup() that use hardware feature name as argument
-#define GPIO_GET_SETUP(x)	gpio_get_setup (GPIO_CONF_PB (x))
+#define GPIO_GET_SETUP(x)	gpio_get_setup (GPIO_CONF_PP (x))
 
 /**
  * Setup a GPIO port.
@@ -305,8 +305,8 @@ extern void gpio_setup (gpio_config_t conf);
 /**
  * Query the current setup of a GPIO port.
  * @arg conf
- *      GPIO port name and bit index. Other bits in value are ignored.
- *      You can use GPIO_CONF_PB() to encode port & bit number.
+ *      GPIO port name and pin index. Other bits in value are ignored.
+ *      You can use GPIO_CONF_PP() to encode port & pin number.
  * @return
  *      The full configuration of given GPIO port.
  */
@@ -328,7 +328,7 @@ extern void gpio_setups (const gpio_config_t *conf, unsigned n);
  * Set EVENTOUT pin and state.
  * @arg conf
  *      If -1, EVENTOUT pin is disabled. Otherwise, it is a combination of
- *      port & pin numbers (generated with GPIO_CONF_PB() macro) where the
+ *      port & pin numbers (generated with GPIO_CONF_PP() macro) where the
  *      Cortex EVENT output is routed.
  */
 static inline void gpio_eventout (int conf)
@@ -338,7 +338,7 @@ static inline void gpio_eventout (int conf)
     evcr &= ~(AFIO_EVCR_EVOE | AFIO_EVCR_PIN | AFIO_EVCR_PORT);
     if (conf >= 0)
         evcr |= AFIO_EVCR_EVOE |
-            (((conf & GPIO_BIT_MASK) >> GPIO_BIT_SHIFT) << AFIO_EVCR_PIN_Pos) |
+            (((conf & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT) << AFIO_EVCR_PIN_Pos) |
             (((conf & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT) << AFIO_EVCR_PORT_Pos);
 
     AFIO->EVCR = evcr;

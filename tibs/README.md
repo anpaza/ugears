@@ -10,8 +10,11 @@ Just run 'make' in root directory and it will display a list of build targets.
 # Q & A
 
 Q: I'm getting:
+
     ld: warning: cannot find entry symbol Reset_Handler; defaulting to 0000000008000000
+
 A: Please link with the CMSIS library which provides the startup files:
+
     LIBS.myapp$E = cmsis$L
 
 
@@ -21,9 +24,10 @@ TIBS has been designed to easily add new build modules. A 'build module' is a li
 a test, an application or something like that.
 
 When you run 'make' TIBS scans for all .mak files in directories:
-    apps/*/*.mak
-    tests/*/*.mak
-    libs/*/*.mak
+
+    apps/\*/\*.mak
+    tests/\*/\*.mak
+    libs/\*/\*.mak
 
 and a few other.
 
