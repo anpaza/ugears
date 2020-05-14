@@ -1,0 +1,56 @@
+# Copy this file to .gdbinit
+
+# disassemble as thumb even if no executable on command line
+set arm fallback-mode thumb
+# connect with st-util
+target extended-remote localhost:4242
+
+# STM32F1 peripherials
+define RCC
+    p /x (*(RCC_TypeDef*)0x40021000)
+    dont-repeat
+end
+define USART1
+    p /x (*(USART_TypeDef *)0x40013800)
+    dont-repeat
+end
+define GPIOA
+    p /x (*(GPIO_TypeDef*)0x40010800)
+    dont-repeat
+end
+define GPIOB
+    p /x (*(GPIO_TypeDef*)0x40010c00)
+    dont-repeat
+end
+define GPIOC
+    p /x (*(GPIO_TypeDef*)0x40011000)
+    dont-repeat
+end
+define GPIOD
+    p /x (*(GPIO_TypeDef*)0x40011400)
+    dont-repeat
+end
+define DMA1
+    p /x (*(DMA_TypeDef*)0x40020000)
+    dont-repeat
+end
+define DMA1_Channel3
+    p /x (*(DMA_Channel_TypeDef*)0x40020030)
+    dont-repeat
+end
+define DMA1_Channel4
+    p /x (*(DMA_Channel_TypeDef*)0x40020044)
+    dont-repeat
+end
+define DMA1_Channel5
+    p /x (*(DMA_Channel_TypeDef*)0x40020058)
+    dont-repeat
+end
+define SPI1
+    p /x (*(SPI_TypeDef*)0x40013000)
+    dont-repeat
+end
+define USB
+    p /x (*(USB_TypeDef*)0x40005C00)
+    dont-repeat
+end

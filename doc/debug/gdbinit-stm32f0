@@ -1,0 +1,29 @@
+# Copy this file to .gdbinit
+
+# disassemble as thumb even if no executable on command line
+set arm fallback-mode thumb
+# connect with st-util
+target extended-remote localhost:4242
+
+# STM32F0 peripherials
+
+define GPIOA
+    p /x (GPIO_TypeDef *) 0x48000000
+    dont-repeat
+end
+define GPIOB
+    p /x (GPIO_TypeDef *) 0x48000400
+    dont-repeat
+end
+define GPIOC
+    p /x (GPIO_TypeDef *) 0x48000800
+    dont-repeat
+end
+define GPIOC
+    p /x (GPIO_TypeDef *) 0x48000C00
+    dont-repeat
+end
+define RCC
+    p /x (RCC_TypeDef *)0x40021000
+    dont-repeat
+end
