@@ -1,7 +1,7 @@
 # What is TIBS
 
 The Instant Build System (TIBS) is a small fast build system I use for my hobby
-projects. You don't need it to use libugears, but its used so that you can
+projects. You don't need it to use libugears, but it's used so that you can
 quickly build and test the library.
 
 Just run 'make' in root directory and it will display a list of build targets.
@@ -45,7 +45,7 @@ a few .c/.cpp files there, and create a .mak file with similar content:
 
     # Now here you define the target file (or files) for your module.
     # $E is a placeholder for "executable" extension (.elf for arm-none-eabi).
-    # Other usefule extension is $L which stands for "library"
+    # Other useful extension is $L which stands for "library"
     TARGETS.myapp = myapp$E
     # Enumerate all source files for your application
     SRC.myapp$E = $(wildcard apps/myapp/*.c)

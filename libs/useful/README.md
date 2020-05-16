@@ -1,4 +1,11 @@
-   Copyright 2010-2020 Andrey Zabolotnyi <zapparello@ya.ru>
+libuseful is a cross-platform library of useful functions.
+
+Its low resource usage and small footprint makes it extremely helpful
+in microcontroller systems.
+
+For documentation, see header files: include/useful/*.h.
+
+   Copyright 2010-2020 by Andrey Zabolotnyi <zapparello@ya.ru>
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
