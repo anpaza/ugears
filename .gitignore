@@ -1,3 +1,6 @@
 local-config.mak
 out
 test-all-all
+.gdbinit
+uGears.pro.user
+_

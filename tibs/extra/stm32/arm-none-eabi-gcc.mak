@@ -50,7 +50,7 @@ ARM-NONE-EABI-GCC.CPPFLAGS ?= -pipe -x c-header $(ARM-NONE-EABI-GCC.CFLAGS.DEF) 
 
 ARM-NONE-EABI-GCC.LD ?= $(ARM-NONE-EABI-GCC.PFX)gcc
 ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
-    -Wl,--gc-sections -mabi=aapcs -specs=nosys.specs -specs=nano.specs \
+    -Wl,--gc-sections -mabi=aapcs -nostartfiles -nolibc \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
 ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
 
@@ -83,6 +83,7 @@ XFNAME.ARM-NONE-EABI-GCC = $(addprefix $$(OUT),\
 
 MKDEPS.ARM-NONE-EABI-GCC = \
 	$(call MKDEPS.DEFAULT,\
+	__libc_init_array.o \
 	$(patsubst %.c,%.o,\
 	$(patsubst %.cpp,%.o,\
 	$(patsubst %.asm,%.o,\
@@ -120,6 +121,8 @@ $(if $(filter %.s,$1),$(foreach z,$2,
 $(addsuffix %.o,$(addprefix $$(OUT),$z)): $(addsuffix %.s,$z)
 	$(if $V,,@echo COMPILE.ARM-NONE-EABI-GCC.S $$< &&)\
 	$$(call COMPILE.ARM-NONE-EABI-GCC.S,$(CFLAGS.$3) $(CFLAGS.$4) $(call .LIBFLAGS,CFLAGS,$3,$4))))
+$(foreach z,$2,
+$(addsuffix %.d,$(addprefix $$(OUT),$z)): $(addsuffix %.o,$(addprefix $$(OUT),$z)))
 $(ARM-NONE-EABI-GCC.EXTRA.MKCRULES)
 endef
 
@@ -192,8 +195,11 @@ endef
 # Правила генерации скрипта для линкера
 ARM-NONE-EABI-GCC.LDSCRIPT = $(OUT)stm32_flash.ld
 
-$(ARM-NONE-EABI-GCC.LDSCRIPT): tibs/extra/stm32_flash.ld.in
+$(ARM-NONE-EABI-GCC.LDSCRIPT): $(DIR.TIBS)/extra/stm32/flash.ld.in
 	$(if $V,,@echo ARM-NONE-EABI-GCC.CPP $@ &&)$(ARM-NONE-EABI-GCC.CPP) \
 		$(ARM-NONE-EABI-GCC.CPPFLAGS) -P -o $@ $<
+
+$(OUT)__libc_init_array.o: $(DIR.TIBS)/extra/stm32/__libc_init_array.c
+	$(if $V,,@echo COMPILE.ARM-NONE-EABI-GCC.CC $< &&)$(call COMPILE.ARM-NONE-EABI-GCC.CC)
 
 endif # ifeq ($(ARCH),arm)

@@ -79,10 +79,10 @@ endef
 define MKCRULES.MSVC
 $(if $(filter %.c,$1),$(foreach z,$2,
 $(addsuffix %.obj,$(addprefix $$(OUT),$z)): $(addsuffix %.c,$z)
-	$(if $V,,@echo COMPILE.MSVC.CC $$< &&)$$(call COMPILE.MSVC.CC,$(CFLAGS.$3) $(CFLAGS.$4) $(call .SYSLIBS,CFLAGS,$3,$4))))
+	$(if $V,,@echo COMPILE.MSVC.CC $$< &&)$$(call COMPILE.MSVC.CC,$(CFLAGS.$3) $(CFLAGS.$4) $(call .LIBFLAGS,CFLAGS,$3,$4))))
 $(if $(filter %.cpp,$1),$(foreach z,$2,
 $(addsuffix %.obj,$(addprefix $$(OUT),$z)): $(addsuffix %.cpp,$z)
-	$(if $V,,@echo COMPILE.MSVC.CXX $$< &&)$$(call COMPILE.MSVC.CXX,$(CXXFLAGS.$3) $(CXXFLAGS.$4) $(call .SYSLIBS,CFLAGS,$3,$4))))
+	$(if $V,,@echo COMPILE.MSVC.CXX $$< &&)$$(call COMPILE.MSVC.CXX,$(CXXFLAGS.$3) $(CXXFLAGS.$4) $(call .LIBFLAGS,CFLAGS,$3,$4))))
 endef
 
 LINK.MSVC.AR = $(MSVC.AR) $(MSVC.ARFLAGS) -out:$@ $^
@@ -98,7 +98,7 @@ $(if $(filter %.lib,$1),\
 $(filter %.lib,$1): $2
 	$(if $V,,@echo LINK.MSVC.AR $$@ &&)$$(LINK.MSVC.AR))
 $(filter %$(_EX),$1): $2
-	$(if $V,,@echo LINK.MSVC.EXEC $$@ &&)$$(call LINK.MSVC.EXEC,$(LDFLAGS.$3) $(LDFLAGS.$4) $(call .SYSLIBS,LDLIBS,$3,$4),$(foreach z,$(LIBS.$3) $(LIBS.$4),$(call MSVC.LINKLIB,$z)))
+	$(if $V,,@echo LINK.MSVC.EXEC $$@ &&)$$(call LINK.MSVC.EXEC,$(LDFLAGS.$3) $(LDFLAGS.$4) $(call .LIBFLAGS,LDLIBS,$3,$4),$(foreach z,$(LIBS.$3) $(LIBS.$4),$(call MSVC.LINKLIB,$z)))
 $(filter %$(_SO),$1): $2
-	$(if $V,,@echo LINK.MSVC.DLL $$@ &&)$$(call LINK.MSVC.DLL,$(LDFLAGS.$3) $(LDFLAGS.$4) $(call .SYSLIBS,LDLIBS,$3,$4),$(foreach z,$(LIBS.$3) $(LIBS.$4),$(call MSVC.LINKLIB,$z)))
+	$(if $V,,@echo LINK.MSVC.DLL $$@ &&)$$(call LINK.MSVC.DLL,$(LDFLAGS.$3) $(LDFLAGS.$4) $(call .LIBFLAGS,LDLIBS,$3,$4),$(foreach z,$(LIBS.$3) $(LIBS.$4),$(call MSVC.LINKLIB,$z)))
 endef

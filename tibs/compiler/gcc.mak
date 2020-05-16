@@ -76,13 +76,13 @@ COMPILE.GCC.S    = $(GCC.CC) -o $@ $(strip $(GCC.ASFLAGS) $1) $<
 define MKCRULES.GCC
 $(if $(filter %.c,$1),$(foreach z,$2,
 $(addsuffix $(if $(SHARED.$4),%.lo,%.o),$(addprefix $$(OUT),$z)): $(addsuffix %.c,$z)
-	$(if $V,,@echo COMPILE.GCC.CC$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.CC,$(CFLAGS.$3) $(CFLAGS.$4) $(if $(SHARED.$4),$(GCC.CFLAGS.SHARED)) $(call .SYSLIBS,CFLAGS,$3,$4))))
+	$(if $V,,@echo COMPILE.GCC.CC$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.CC,$(CFLAGS.$3) $(CFLAGS.$4) $(if $(SHARED.$4),$(GCC.CFLAGS.SHARED)) $(call .LIBFLAGS,CFLAGS,$3,$4))))
 $(if $(filter %.cpp,$1),$(foreach z,$2,
 $(addsuffix $(if $(SHARED.$4),%.lo,%.o),$(addprefix $$(OUT),$z)): $(addsuffix %.cpp,$z)
-	$(if $V,,@echo COMPILE.GCC.CXX$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.CXX,$(CXXFLAGS.$3) $(CXXFLAGS.$4) $(if $(SHARED.$4),$(GCC.CXXFLAGS.SHARED)) $(call .SYSLIBS,CFLAGS,$3,$4))))
+	$(if $V,,@echo COMPILE.GCC.CXX$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.CXX,$(CXXFLAGS.$3) $(CXXFLAGS.$4) $(if $(SHARED.$4),$(GCC.CXXFLAGS.SHARED)) $(call .LIBFLAGS,CFLAGS,$3,$4))))
 $(if $(filter %.S,$1),$(foreach z,$2,
 $(addsuffix $(if $(SHARED.$4),%.lo,%.o),$(addprefix $$(OUT),$z)): $(addsuffix %.S,$z)
-	$(if $V,,@echo COMPILE.GCC.S$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.S,$(ASFLAGS.$3) $(ASFLAGS.$4) $(if $(SHARED.$4),$(GCC.ASFLAGS.SHARED)) $(call .SYSLIBS,CFLAGS,$3,$4))))
+	$(if $V,,@echo COMPILE.GCC.S$(if $(SHARED.$4),.SHARED) $$< &&)$$(call COMPILE.GCC.S,$(ASFLAGS.$3) $(ASFLAGS.$4) $(if $(SHARED.$4),$(GCC.ASFLAGS.SHARED)) $(call .LIBFLAGS,CFLAGS,$3,$4))))
 $(GCC.EXTRA.MKCRULES)
 endef
 
@@ -111,10 +111,10 @@ define MKLRULES.GCC
 $1: $2\
 $(if $(findstring $L,$4),\
 $(if $(SHARED.$4),
-	$(if $V,,@echo LINK.GCC.SHARED $$@ &&)$$(call LINK.GCC.SO,$(subst $(COMMA),$$(COMMA),$(LDFLAGS.$3) $(LDFLAGS.$4)),$(call .SYSLIBS,LDLIBS,$3,$4) $(foreach z,$(LIBS.$3) $(LIBS.$4),$(call GCC.LINKLIB,$z)),$4),
+	$(if $V,,@echo LINK.GCC.SHARED $$@ &&)$$(call LINK.GCC.SO,$(subst $(COMMA),$$(COMMA),$(LDFLAGS.$3) $(LDFLAGS.$4)),$(call .LIBFLAGS,LDLIBS,$3,$4) $(foreach z,$(LIBS.$3) $(LIBS.$4),$(call GCC.LINKLIB,$z)),$4),
 	$(if $V,,@echo LINK.GCC.AR $$@ &&)$$(LINK.GCC.AR)))\
 $(if $(findstring $E,$4),
-	$(if $V,,@echo LINK.GCC.EXEC $$@ &&)$$(call LINK.GCC.EXEC,$(subst $(COMMA),$$(COMMA),$(LDFLAGS.$3) $(LDFLAGS.$4)),$(call .SYSLIBS,LDLIBS,$3,$4) $(foreach z,$(LIBS.$3) $(LIBS.$4),$(call GCC.LINKLIB,$z))))
+	$(if $V,,@echo LINK.GCC.EXEC $$@ &&)$$(call LINK.GCC.EXEC,$(subst $(COMMA),$$(COMMA),$(LDFLAGS.$3) $(LDFLAGS.$4)),$(call .LIBFLAGS,LDLIBS,$3,$4) $(foreach z,$(LIBS.$3) $(LIBS.$4),$(call GCC.LINKLIB,$z))))
 $(GCC.EXTRA.MKLRULES)
 endef
 

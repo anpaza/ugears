@@ -1,8 +1,8 @@
 # The directory where tibs makefiles are located
-DIR.TIBS ?= tibs/
+DIR.TIBS ?= tibs
 
-# Include some useful functions
-include $(DIR.TIBS)extra/useful.mak
+# Initialize TIBS
+include $(DIR.TIBS)/init.mak
 
 # Project name and version
 CONF_PACKAGE = ugears
@@ -19,7 +19,7 @@ ifndef HOST
 ifneq ($(if $(ComSpec),$(ComSpec),$(COMSPEC)),)
 HOST = win32
 else
-HOST = $(call asciidown,$(shell uname -s))
+HOST = $(call ASCIILOW,$(shell uname -s))
 endif
 endif
 
@@ -38,7 +38,7 @@ RTC_INITTIME = $(shell expr `date +%s` + 3 '*' 60 '*' 60)
 ifeq ($(ARCH),arm)
 
 # Hardware definitions for STM32 microcontroller family
-include $(DIR.TIBS)extra/stm32.mak
+include $(DIR.TIBS)/extra/stm32/stm32.mak
 
 # Use adapted output directory hierarchy
 OUT = $(OUTBASE)/$(HARDWARE)/$(MODE)/
@@ -55,7 +55,6 @@ CFLAGS += -Wno-builtin-declaration-mismatch
 
 # Additional compiler defines
 DEFINES += \
-	HARDWARE_H=\"hardware/$(HARDWARE).h\" \
 	ARCH_$(call asciiup,$(ARCH)) \
 	CONF_VER_H=$(CONF_VER_H) \
 	CONF_VER_L=$(CONF_VER_L) \
@@ -70,16 +69,16 @@ DISTEXTRA += include/ libs/ tibs/ config.mak local-config-sample.mak
 TOOLKIT ?= ARM-NONE-EABI-GCC
 
 # Include the arm-none-eabi toolkit from rules.mak
-SUBMAKEFILES += $(DIR.TIBS)extra/arm-none-eabi-gcc.mak
+SUBMAKEFILES += $(DIR.TIBS)/extra/stm32/arm-none-eabi-gcc.mak
 
 # The black magic that generates build rules
 include $(DIR.TIBS)/rules.mak
 
 # Additional build rules. These must always come last
 include \
-    $(DIR.TIBS)extra/flash-rules.mak \
-    $(DIR.TIBS)extra/ihex-rules.mak \
-    $(DIR.TIBS)extra/bin-rules.mak
+    $(DIR.TIBS)/extra/stm32/flash-rules.mak \
+    $(DIR.TIBS)/extra/stm32/ihex-rules.mak \
+    $(DIR.TIBS)/extra/stm32/bin-rules.mak
 
 showhelp::
 	$(call SAY,Target hardware: $(HARDWARE)$(COMMA) mcu: $(MCU.TYPE)$(COMMA) core: $(MCU.CORE))

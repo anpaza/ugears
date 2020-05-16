@@ -12,11 +12,10 @@
 # MCU.PACKAGE = microcontroller package
 #       Example: LQFP48, TFBGA100 etc
 #
-# The following macros are also passed source code as preprocessor defines,
-# lowercased and with dots and dashes replaced by underscores:
+# The following macros are also passed to source code as preprocessor defines,
+# uppercased and with dots and dashes replaced by underscores:
 #
-# MCU_SERIES, MCU_CORE, MCU_FPU
-#
+# MCU_CORE, MCU_FPU
 #
 
 # Hardware name must be always defined
@@ -31,22 +30,22 @@ endif
 
 # If MCU type not defined, try to find it by board name
 ifeq ($(MCU.TYPE),)
-MCU.TYPE = $(word 2,$(subst $(COMMA),$(SPACE),$(shell grep -i '^$(HARDWARE),' tibs/extra/stm32-board.csv)))
+MCU.TYPE = $(word 2,$(subst $(COMMA),$(SPACE),$(shell grep -i '^$(HARDWARE),' $(DIR.TIBS)/extra/stm32/board.csv)))
 ifeq ($(MCU.TYPE),)
-$(error Board $(HARDWARE) not defined in tibs/extra/stm32-board.csv!)
+$(error Board $(HARDWARE) not defined in $(DIR.TIBS)/extra/stm32/board.csv!)
 endif
 endif
 
 # Just in case, always use lower case
-HARDWARE := $(call asciidown,$(HARDWARE))
-MCU.TYPE := $(call asciidown,$(MCU.TYPE))
+HARDWARE := $(call ASCIILOW,$(HARDWARE))
+MCU.TYPE := $(call ASCIILOW,$(MCU.TYPE))
 
 # Replace empty fields (",,") with "None" (",None,") otherwise we'll lose correct field numbering
 MCU_DESC = $(subst $(COMMA),$(SPACE),\
            $(subst $(COMMA)$(COMMA),$(COMMA)None$(COMMA),\
-           $(shell grep -i '^$(MCU.TYPE),' tibs/extra/stm32-mcu.csv)))
+           $(shell grep -i '^$(MCU.TYPE),' $(DIR.TIBS)/extra/stm32/mcu.csv)))
 ifeq ($(MCU_DESC),)
-$(error MCU type $(MCU.TYPE) not defined in tibs/extra/stm32-mcu.csv!)
+$(error MCU type $(MCU.TYPE) not defined in $(DIR.TIBS)/extra/stm32/mcu.csv!)
 endif
 
 # Extract fields from CSV
@@ -74,9 +73,8 @@ STM32STACK.MIN_SIZE ?= 0x200
 
 # Pass MCU definitions to compiler
 DEFINES += $(MCU.DEFINES) \
-	MCU_SERIES_$(call asciiup,$(subst -,_,$(MCU.SERIES))) \
-	MCU_CORE_$(call asciiup,$(subst -,_,$(MCU.CORE))) \
-	MCU_FPU_$(call asciiup,$(subst -,_,$(MCU.FPU))) \
+	$(call ASCIIUP,$(subst -,_,$(MCU.CORE))) \
+	$(if $(MCU.FPU),$(call ASCIIUP,$(subst -,_,$(MCU.FPU)))) \
 	STM32_STACK_ADDRESS=$(STM32.RAM.END) \
 	STM32_MIN_HEAP_SIZE=$(STM32.HEAP.MIN_SIZE) \
 	STM32_MIN_STACK_SIZE=$(STM32STACK.MIN_SIZE) \
