@@ -1,4 +1,4 @@
-#include "stm32f103bluepill.h"
+#include "hw.h"
 #include "dma.h"
 #include "nvic.h"
 

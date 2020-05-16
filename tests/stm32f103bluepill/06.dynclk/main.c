@@ -3,7 +3,7 @@
  * Please connect to USART1, useful output goes there.
  */
 
-#include "stm32f103bluepill.h"
+#include "hw.h"
 
 uint32_t clk_errors = 0;
 uint32_t systick = 0;

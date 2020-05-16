@@ -362,6 +362,12 @@ DYNCLKFUN uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul
     update_HCLK_FREQ (RCC->CFGR & RCC_CFGR_HPRE);
 #endif
 
+#ifdef RCC_CFGR_USBPRE
+    // Adjust USB clock as well as we can
+    uint32_t usbpre = (FREQ < (_48MHZ + _48MHZ/4)) ? RCC_CFGR_USBPRE_1 : RCC_CFGR_USBPRE_1_5;
+    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_USBPRE) | usbpre;
+#endif
+
     return 0;
 }
 
@@ -431,7 +437,7 @@ void clock_init ()
     uint32_t m = 0, n = 0;
 
 #ifdef CLOCK_USB_DIV
-    m |= RCC_CFGR_USBPRE_1;
+    m |= RCC_CFGR_USBPRE;
     n |= JOIN2 (RCC_CFGR_USBPRE_,CLOCK_USB_DIV);
 #endif
 #ifdef CLOCK_ADC_DIV

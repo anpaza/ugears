@@ -9,11 +9,12 @@ CFLAGS.cmsis$L += -Iinclude/cmsis
 
 ifeq ($(MCU.BRAND),stm32)
 CFLAGS.cmsis$L += -Iinclude/cmsis/stm32
-_ := $(strip $(foreach x,$(call asciidown,$(MCU.DEFINES)),$(wildcard libs/cmsis/stm32/startup_$x.s)))
-ifeq ($_,)
-$(error Startup file for MCU $(MCU.TYPE) not found)
-endif
+_ := $(strip $(foreach x,$(call ASCIILOW,$(MCU.DEFINES)),$(wildcard libs/cmsis/stm32/startup_$x.s)))
+ifneq ($_,)
 SRC.cmsis$L += $_
+else
+$(warning Startup file for MCU $(MCU.TYPE) not found)
+endif
 endif
 
 # Add to list of buildtable targets only if there are source files for current target

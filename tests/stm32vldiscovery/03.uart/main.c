@@ -2,7 +2,7 @@
  * Test UART functions
  */
 
-#include "stm32vldiscovery.h"
+#include "hw.h"
 
 static void do_test_xsend ()
 {

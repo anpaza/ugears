@@ -520,6 +520,16 @@
     RCC->RCC_ENR(p) &= ~JOIN4 (RCC_,RCC_ENR(p),p,EN)
 
 /**
+ * Check if a peripherial is currently enabled
+ * @arg p
+ *   Peripherial name with underscore prepended (e.g. _USART1 etc).
+ *   The underscore prefix is needed because e.g. USART1 is a macro
+ *   defined in CMSIS header files.
+ */
+#define RCC_ENABLED(p) \
+    (RCC->RCC_ENR(p) & JOIN4 (RCC_,RCC_ENR(p),p,EN))
+
+/**
  * Start a group of reset/enable/disable directives. This has the advantage
  * of doing it all in one operation, rather than modifying one bit at
  * a time. Also it, obviously, generates shorter code - compiler takes

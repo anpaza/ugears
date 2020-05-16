@@ -2,7 +2,7 @@
  * Blink the LED using SysTick interrupt :)
  */
 
-#include "stm32f103bluepill.h"
+#include "hw.h"
 
 void SysTick_Handler ()
 {

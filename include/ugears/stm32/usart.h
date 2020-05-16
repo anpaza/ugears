@@ -9,6 +9,8 @@
 #ifndef _USART_H
 #define _USART_H
 
+#include HARDWARE_H
+
 /**
  * @file usart.h
  *      This small library provides some functions for sending bytes
@@ -117,7 +119,7 @@ extern "C" {
 extern void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
 
 /**
- * Redirect printf, putc, puts from libuseful via the passed serial port.
+ * Redirect printf, putc, puts through the serial port.
  * This uses the printf routines from libuseful.
  * Very useful for debugging.
  * @arg usart

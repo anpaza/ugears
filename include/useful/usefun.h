@@ -19,6 +19,26 @@
  */
 
 /**
+ * Return the largest of two values
+ */
+#define MAX(x,y) \
+    ({ \
+        __typeof__ (x) _x = x; \
+        __typeof__ (y) _y = y; \
+        _x > _y ? _x : _y; \
+    })
+
+/**
+ * Return the smallest of two values
+ */
+#define MIN(x,y) \
+    ({ \
+        __typeof__ (x) _x = x; \
+        __typeof__ (y) _y = y; \
+        _x < _y ? _x : _y; \
+    })
+
+/**
  * Fill the first @a len bytes of the memory area pointed to by
  * @a dest with the constant byte @a c.
  * @arg dest

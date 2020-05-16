@@ -1,4 +1,4 @@
-#include "stm32vldiscovery.h"
+#include "hw.h"
 #include "dma.h"
 #include "nvic.h"
 

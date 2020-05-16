@@ -2,7 +2,7 @@
  * Test UART functions
  */
 
-#include "stm32f103bluepill.h"
+#include "hw.h"
 
 static void do_test_xsend ()
 {
@@ -49,12 +49,14 @@ void SysTick_Handler ()
 {
     clock++;
 
-    if ((clock & 7) == 0)
+    if ((clock & (CLOCKS_PER_SEC - 1)) == 0)
     {
         if (GPIO_GET (LED))
             GPIO_RESET (LED);
         else
             GPIO_SET (LED);
+
+        printf ("[%d]", clock / CLOCKS_PER_SEC);
     }
 }
 
@@ -64,9 +66,8 @@ int main (void)
     systick_init ();
     usart1_init ();
 
-    puts ("USART library demo running");
+    puts ("\r\nUSART library demo running");
 
-    uint32_t old_clock = clock;
     for (;;)
     {
         if (usart_rx_ready (USART1))
@@ -80,12 +81,5 @@ int main (void)
                     puts ("\r\nx: Test transmitter with output disabled");
                     break;
             }
-
-        if (old_clock != clock)
-        {
-            old_clock = clock;
-            if (!(old_clock & 15))
-                printf ("[%d]", old_clock >> 4);
-        }
     }
 }

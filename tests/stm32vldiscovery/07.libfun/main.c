@@ -1,4 +1,4 @@
-#include "stm32vldiscovery.h"
+#include "hw.h"
 #include "usefun.h"
 
 // size is expected a power of two

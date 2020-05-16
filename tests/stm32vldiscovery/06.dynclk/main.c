@@ -3,7 +3,7 @@
  * Please connect to USART1, useful output goes there.
  */
 
-#include "stm32vldiscovery.h"
+#include "hw.h"
 
 #ifdef RCC_CFGR2_PREDIV2
 #  define ARGS_PLL2 0,0

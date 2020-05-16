@@ -2,7 +2,7 @@
  * Test Real-Time clock routines.
  */
 
-#include "stm32f103bluepill.h"
+#include "hw.h"
 #include "datetime.h"
 
 int main (void)
