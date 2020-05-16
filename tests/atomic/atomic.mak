@@ -8,4 +8,5 @@ DESCRIPTION.atomic = Test atomic macros in a friendly environment
 
 TARGETS.atomic = atomic$E
 SRC.atomic$E = $(wildcard tests/atomic/*.c)
+LIBS.atomic$E = useful$L
 endif

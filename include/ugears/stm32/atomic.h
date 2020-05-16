@@ -13,13 +13,17 @@
  * @file atomic.h
  *      Atomically and Non-Atomically Executed Code Blocks
  *
- * The idea for these functions were blatanly stolen from AVR-libc. They will allow
- * you to block interrupts (PRIMASK) for some sections of code, with
- * guaranteed exit action, not matter how you leave the code section.
+ * Influenced by atomic.h from AVR-libc.
+ *
+ * These macros will allow you to block interrupts (PRIMASK) for some
+ * sections of code, with guaranteed exit action, not matter how you
+ * leave the code section.
+ *
  * Additionaly, since this is implemented internally with a 'for' loop,
  * you can use the 'break' operator as an alias to 'goto atomic block end'.
  */
 
+#include HARDWARE_H
 #include "useful.h"
 
 /**
@@ -28,16 +32,16 @@
  * blocking any exceptions and interrupts except NMI.
  *
  * When leaving the block exceptions and interrupts are either restored 
- * to the state they were before entering the block (if ATOMIC_RESTORESTATE
- * keyword is used as argument to ATOMIC_BLOCK), or unconditionally enabled,
- * if ATOMIC_FORCEON is used as argument to ATOMIC_BLOCK.
+ * to the state they were before entering the block (if RESTORE keyword
+ * is used as argument to ATOMIC_BLOCK), or unconditionally enabled,
+ * if FORCEON is used as argument to ATOMIC_BLOCK.
  *
  * Since this is effectively a 'for' loop you may use 'break' to jump
  * to the end of the block, if needed.
  *
  * Usage example:
  * @verbatim
- * ATOMIC_BLOCK (ATOMIC_FORCEON)
+ * ATOMIC_BLOCK (FORCEON)
  * {
  *      // Access var without possible interference from a interrupt handler
  *      if (flags & 0x100)
@@ -55,10 +59,11 @@
  * }
  * @endverbatim
  *
- * @param type ATOMIC_RESTORESTATE or ATOMIC_FORCEON
+ * @param type RESTORE or FORCEON
  */
 #define ATOMIC_BLOCK(type) \
-    for (type | (__disable_irq (), 0), __pass = 1; __pass ; __pass = 0)
+    for (JOIN2 (ATOMIC_, type), __pass = 1, __unused = (__disable_irq (), 0); \
+         __pass ; (void)primask_save, (void)__unused, __pass = 0)
 
 /**
  * Creates a block of code that is executed non-atomically.
@@ -66,14 +71,15 @@
  * allowing any exceptions and interrupts.
  *
  * When leaving the block exceptions and interrupts are either restored 
- * to the state they were before entering the block (if NONATOMIC_RESTORESTATE
- * keyword is used as argument to NONATOMIC_BLOCK), or unconditionally disabled,
- * if NONATOMIC_FORCEOFF is used as argument to NONATOMIC_BLOCK.
+ * to the state they were before entering the block (if RESTORE keyword
+ * is used as argument to NONATOMIC_BLOCK), or unconditionally disabled,
+ * if FORCEOFF is used as argument to NONATOMIC_BLOCK.
  *
- * @param type NONATOMIC_RESTORESTATE or NONATOMIC_FORCEOFF
+ * @param type RESTORE or FORCEOFF
  */
 #define NONATOMIC_BLOCK(type) \
-    for (type | (__enable_irq (), 0), __pass = 1; __pass ; __pass = 0)
+    for (JOIN2 (NONATOMIC_, type), __pass = 1, __unused = (__enable_irq (), 0); \
+         __pass ; (void)primask_save, (void)__unused, __pass = 0)
 
 static __inline void __set_primask (uint32_t *val)
 {
@@ -83,11 +89,11 @@ static __inline void __set_primask (uint32_t *val)
         __enable_irq ();
 }
 
-#define ATOMIC_RESTORESTATE \
+#define ATOMIC_RESTORE \
     uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = __get_PRIMASK ()
 #define ATOMIC_FORCEON \
     uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = 0
-#define NONATOMIC_RESTORESTATE \
+#define NONATOMIC_RESTORE \
     uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = __get_PRIMASK ()
 #define NONATOMIC_FORCEOFF \
     uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = 1
