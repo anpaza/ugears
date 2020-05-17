@@ -7,7 +7,7 @@
 int main ()
 {
     // Enable the GPIO ports for both LEDs
-    RCC_ENABLE (RCC_GPIO (LED));
+    RCC_ENABLE_GPIO (LED);
 
     // Set up LED pin
     GPIO_SETUP (LED);

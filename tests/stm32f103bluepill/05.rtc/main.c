@@ -7,7 +7,7 @@
 
 int main (void)
 {
-    usart1_init ();
+    serial_init ();
     printf ("Real-Time-Clock demo started\r\n");
 
     systick_init ();

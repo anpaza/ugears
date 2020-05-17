@@ -6,15 +6,15 @@ static const char test_data [] = "[This data came via DMA controller]\r\n";
 static char rxbuff [10];
 static volatile bool dma_tx_flag, dma_rx_flag;
 
-void DMA_IRQ_HANDLER (USART1_TX) ()
+void DMA_IRQ_HANDLER (SERIAL_TX) ()
 {
-    if (DMA (USART1_TX)->ISR & DMA_ISR (USART1_TX, GIF))
+    if (DMA (SERIAL_TX)->ISR & DMA_ISR (SERIAL_TX, GIF))
     {
         // Acknowledge the interrupt
-        DMA (USART1_TX)->IFCR = DMA_IFCR (USART1_TX, CGIF);
+        DMA (SERIAL_TX)->IFCR = DMA_IFCR (SERIAL_TX, CGIF);
 
-        // Disable USART1 -> DMA transmission
-        USART1->CR3 &= ~USART_CR3_DMAT;
+        // Disable serial -> DMA transmission
+        USART (SERIAL)->CR3 &= ~USART_CR3_DMAT;
 
         printf ("DMA TX IRQ\r\n");
 
@@ -29,12 +29,12 @@ static void do_test_send ()
     dma_tx_flag = false;
 
     // Use a more general form of dma1_copy
-    DMA_COPY (USART1_TX,
+    DMA_COPY (SERIAL_TX,
         DMA_CCR_PSIZE_8 | DMA_CCR_MSIZE_8 | DMA_CCR_MINC | DMA_CCR_PL_VERYHIGH | DMA_CCR_TCIE,
-        (void *)test_data, &USART1->DR, sizeof (test_data) - 1);
+        (void *)test_data, &USART (SERIAL)->DR, sizeof (test_data) - 1);
 
-    // Enable USART1 -> DMA transmission
-    USART1->CR3 |= USART_CR3_DMAT;
+    // Enable serial port -> DMA transmission
+    USART (SERIAL)->CR3 |= USART_CR3_DMAT;
 
     // Wait until the data finishes transfer
     while (!dma_tx_flag)
@@ -43,15 +43,15 @@ static void do_test_send ()
     printf ("Got something?\r\n");
 }
 
-void DMA_IRQ_HANDLER (USART1_RX) ()
+void DMA_IRQ_HANDLER (SERIAL_RX) ()
 {
-    if (DMA (USART1_RX)->ISR & DMA_ISR (USART1_RX, GIF))
+    if (DMA (SERIAL_RX)->ISR & DMA_ISR (SERIAL_RX, GIF))
     {
         // Acknowledge the interrupt
-        DMA (USART1_RX)->IFCR = DMA_IFCR (USART1_RX, CGIF);
+        DMA (SERIAL_RX)->IFCR = DMA_IFCR (SERIAL_RX, CGIF);
 
-        // Disable USART1 -> DMA transmission
-        USART1->CR3 &= ~USART_CR3_DMAR;
+        // Disable serial port -> DMA transmission
+        USART (SERIAL)->CR3 &= ~USART_CR3_DMAR;
 
         printf ("DMA RX IRQ\r\n");
 
@@ -67,12 +67,12 @@ static void do_test_recv ()
     dma_rx_flag = false;
 
     // Use a more general form of dma1_copy
-    DMA_COPY (USART1_RX,
+    DMA_COPY (SERIAL_RX,
         DMA_CCR_PSIZE_8 | DMA_CCR_MSIZE_8 | DMA_CCR_MINC | DMA_CCR_PL_VERYHIGH | DMA_CCR_TCIE,
-        (void *)&USART1->DR, (void *)rxbuff, sizeof (rxbuff));
+        (void *)&USART (SERIAL)->DR, (void *)rxbuff, sizeof (rxbuff));
 
     // Enable DMA -> USART transmission
-    USART1->CR3 |= USART_CR3_DMAR;
+    USART (SERIAL)->CR3 |= USART_CR3_DMAR;
 
     // Wait until DMA finishes
     while (!dma_rx_flag)
@@ -84,20 +84,20 @@ static void do_test_recv ()
 int main (void)
 {
     // Enable DMA
-    RCC_ENABLE (RCC_DMA (USART1_TX));
+    RCC_ENABLE_DMA (SERIAL_TX);
 
-    usart1_init ();
+    serial_init ();
     printf ("DMA demo started\r\n");
 
     // Set up and enable interrupts
-    nvic_setup (DMA_IRQ (USART1_TX), DMA_IRQ_PRIO (USART1_TX));
-    nvic_setup (DMA_IRQ (USART1_RX), DMA_IRQ_PRIO (USART1_RX));
+    nvic_setup (DMA_IRQ (SERIAL_TX), DMA_IRQ_PRIO (SERIAL_TX));
+    nvic_setup (DMA_IRQ (SERIAL_RX), DMA_IRQ_PRIO (SERIAL_RX));
     __enable_irq ();
 
     for (;;)
     {
-        if (usart_rx_ready (USART1))
-            switch (usart_getc (USART1))
+        if (usart_rx_ready (USART (SERIAL)))
+            switch (usart_getc (USART (SERIAL)))
             {
                 case 's':
                     do_test_send ();
@@ -108,8 +108,8 @@ int main (void)
                     break;
 
                 default:
-                    printf ("s: Send test data via USART1+DMA\r\n"
-                            "r: Receive data via USART1+DMA\r\n");
+                    printf ("s: Send test data via SERIAL+DMA\r\n"
+                            "r: Receive data via SERIAL+DMA\r\n");
                     break;
             }
 

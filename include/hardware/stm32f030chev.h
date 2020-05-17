@@ -23,25 +23,28 @@
 #define LED_PIN			4
 #define LED_GPIO_CONFIG		PUSHPULL,X,LOW,X,0
 
-// Use APB1 clock (PCLK) for USART
-#define USART1_CLOCK		APB_CLOCK
-// Example serial port setup
-#define USART1_SETUP		(USART_BAUD (9600) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
+// We use USART1 in all samples but you can change it
+// to any other USART by modifying the values below
+#define SERIAL_USART_NUM	1
+// Serial port setup
+#define SERIAL_SETUP		USART_DEFAULT_SETUP
+// Serial IRQ priority
+#define SERIAL_IRQ_PRIO		0
 
-// UART TX pin
-#define USART1_TX_PORT		A
-#define USART1_TX_PIN		9
-#define USART1_TX_GPIO_CONFIG	AF_PUSHPULL,X,LOW,1,1
+// UART1 TX pin
+#define SERIAL_TX_PORT		A
+#define SERIAL_TX_PIN		9
+#define SERIAL_TX_GPIO_CONFIG	AF_PUSHPULL,X,LOW,1,1
 
 // Experimental feature: use UART only for receiving, TX is 'muted'
-#define USART1_TX_MUTE_PORT	A
-#define USART1_TX_MUTE_PIN	9
-#define USART1_TX_MUTE_GPIO_CONFIG INPUT,X,LOW,X,X
+#define SERIAL_TX_MUTE_PORT	A
+#define SERIAL_TX_MUTE_PIN	9
+#define SERIAL_TX_MUTE_GPIO_CONFIG INPUT,X,LOW,X,X
 
-// UART RX pin
-#define USART1_RX_PORT		A
-#define USART1_RX_PIN		10
-#define USART1_RX_GPIO_CONFIG	AF,X,LOW,1,1
+// UART1 RX pin
+#define SERIAL_RX_PORT		A
+#define SERIAL_RX_PIN		10
+#define SERIAL_RX_GPIO_CONFIG	AF,X,LOW,1,1
 
 // That's all we have, folks!
 

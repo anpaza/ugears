@@ -8,6 +8,9 @@
 
 #include "cdcacm-priv.h"
 
+// Not every MCU has USB
+#ifdef USB_BASE
+
 /// Control endpoint number
 #define EP_CTRL     0
 /// Transmit (from device point of view) endpoint number
@@ -60,8 +63,8 @@ void uca_init ()
     // Bring USB+ down for a few milliseconds in order to force
     // the USB Host to re-enumerate the device
     RCC_BEGIN;
-        RCC_ENA (RCC_GPIO (USB_DP));
-        RCC_ENA (RCC_GPIO (USB_DM));
+        RCC_ENA_GPIO (USB_DP);
+        RCC_ENA_GPIO (USB_DM);
         RCC_DIS (_USB);
     RCC_END;
 
@@ -436,3 +439,5 @@ __WEAK void uca_line_format_changed ()
 }
 
 #endif
+
+#endif // USB_BASE

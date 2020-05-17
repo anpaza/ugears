@@ -20,7 +20,7 @@
 /// Return the IRQ priority corresponding to this hardware feature
 #define IRQ_PRIO(x)		JOIN2 (x, _IRQ_PRIO)
 
-#if defined MCU_CORE_CORTEX_M0 || defined MCU_CORE_CORTEX_M1 || defined MCU_CORE_CORTEX_M0PLUS
+#if defined CORTEX_M0 || defined CORTEX_M1 || defined CORTEX_M0PLUS
 #  define NVIC_TYPE_1
 #else
 #  define NVIC_TYPE_2

@@ -5,5 +5,5 @@ IHEX.TARGETS += tdynclk
 
 TARGETS.tdynclk = tdynclk$E
 SRC.tdynclk$E = $(wildcard tests/stm32vldiscovery/06.dynclk/*.c) \
-	tests/stm32vldiscovery/stm32vldiscovery.c
+	tests/stm32vldiscovery/hw.c
 LIBS.tdynclk$E = cmsis$L ugears$L useful$L

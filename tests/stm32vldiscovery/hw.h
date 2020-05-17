@@ -9,7 +9,7 @@
 #include "ugears.h"
 #include "printf.h"
 
-extern void usart1_init ();
+extern void serial_init ();
 
 extern void led_init ();
 

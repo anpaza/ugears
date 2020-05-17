@@ -5,6 +5,7 @@
 
 #include "hw.h"
 
+// Some MCUs from STM32F1 series has a second PLL2 that we don't use here
 #ifdef RCC_CFGR2_PREDIV2
 #  define ARGS_PLL2 0,0
 #else
@@ -123,7 +124,7 @@ void RTC_IRQHandler ()
         saved_clocks = rtc_counter ();
 
         // Reinitialize USART after frequency change
-        usart_init (USART1, APB2_CLOCK, USART1_SETUP);
+        usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
 
         printf ("Clock source %s, CPU %uHz, HCLK %uHz, PCLK %uHz, PCLK2 %uHz\r\n",
                 clksrc, SYSCLK_FREQ, HCLK_FREQ, PCLK1_FREQ, PCLK2_FREQ);
@@ -141,7 +142,7 @@ int main ()
 
     systick_init ();
     led_init ();
-    usart1_init ();
+    serial_init ();
 
     puts ("Dynamic CPU clock example\r\n");
 

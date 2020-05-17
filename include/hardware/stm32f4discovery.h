@@ -63,28 +63,23 @@
 #define BUT1_PIN		0
 #define BUT1_GPIO_CONFIG	INPUT,X,LOW,X,X
 
+// We use USART1 in all samples but you can change it
+// to any other USART by modifying the values below
+#define SERIAL_USART_NUM	1
+// Serial port setup
+#define SERIAL_SETUP		USART_DEFAULT_SETUP
+// Serial IRQ priority
+#define SERIAL_IRQ_PRIO		0
+
 // USART1 TX
-#define USART1_TX_PORT		B
-#define USART1_TX_PIN		6
-#define USART1_TX_GPIO_CONFIG	AF_PUSHPULL,X,MEDIUM,7,1
+#define SERIAL_TX_PORT		B
+#define SERIAL_TX_PIN		6
+#define SERIAL_TX_GPIO_CONFIG	AF_PUSHPULL,X,MEDIUM,7,1
 
 // USART1 RX
-#define USART1_RX_PORT		B
-#define USART1_RX_PIN		7
-#define USART1_RX_GPIO_CONFIG	AF,X,MEDIUM,7,X
-
-/// USART1 setup
-#define USART1_SETUP		(USART_BAUD (9600) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
-
-// USART2 TX
-#define USART2_TX_PORT		A
-#define USART2_TX_PIN		2
-#define USART2_TX_GPIO_CONFIG	PUSHPULL,X,MEDIUM,X,0
-
-// USART2 RX
-#define USART2_RX_PORT		A+
-#define USART2_RX_PIN		3
-#define USART2_RX_GPIO_CONFIG	INPUT,X,MEDIUM,X,X
+#define SERIAL_RX_PORT		B
+#define SERIAL_RX_PIN		7
+#define SERIAL_RX_GPIO_CONFIG	AF,X,MEDIUM,7,X
 
 // That's all we have, folks!
 

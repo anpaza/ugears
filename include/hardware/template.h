@@ -33,8 +33,10 @@
  * @li HWFN_GPIO_CONFIG defines the parameters passed to the
  *      GPIO_CONFIGURE macro which returns a bitmask for GPIO
  *      setup (ex: OUTPUT_2MHz,OPENDRAIN,1).
+ *
  * @li HWFN_IRQ_PRIO defines the IRQ priority corresponding to
  *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
+ *
  * @li HWFN_DMA_NUM defines the DMA controller number used for
  *      the hardware feature Used by DMA_NUM(HWFN) macro.
  * @li HWFN_DMA_CHAN defines the DMA channel number used for
@@ -42,6 +44,10 @@
  * @li HWFN_DMA_IRQ_PRIO defines the IRQ priority corresponding to
  *      the DMA channel associated with this hardware feature.
  *      Used by DMA_IRQ_PRIO(HWFN) macro.
+ *
+ * @li HWFN_USART_NUM defines the index of the USART corresponding
+ *      to this hardware feature.
+ *
  * @li HWFN_USART defines the index of the USART corresponding
  *      to this hardware feature.
  *

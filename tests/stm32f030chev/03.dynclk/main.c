@@ -83,8 +83,8 @@ void SysTick_Handler ()
                 break;
         }
 
-        // Re-initialize USART1 after clock change
-        usart_init (USART1, USART1_CLOCK, USART1_SETUP);
+        // Re-initialize USART after clock change
+        usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
 
         printf ("CPU clocked from %s at %uHz, HCLK %uHz, PCLK %uHz\r\n",
                 clksrc, SYSCLK_FREQ, HCLK_FREQ, PCLK_FREQ);
@@ -96,33 +96,33 @@ void SysTick_Handler ()
 #endif
 }
 
-void usart1_init ()
+void serial_init ()
 {
-    // Enable USART1 and GPIOs
+    // Enable SERIAL and GPIOs
     RCC_BEGIN;
-        RCC_ENA (_USART1);
-        RCC_ENA (RCC_GPIO (USART1_TX));
-        RCC_ENA (RCC_GPIO (USART1_RX));
+        RCC_ENA_USART (SERIAL);
+        RCC_ENA_GPIO (SERIAL_TX);
+        RCC_ENA_GPIO (SERIAL_RX);
     RCC_END;
 
-    // Set up USART1 pins
-    GPIO_SETUP (USART1_TX);
-    GPIO_SETUP (USART1_RX);
+    // Set up SERIAL pins
+    GPIO_SETUP (SERIAL_TX);
+    GPIO_SETUP (SERIAL_RX);
 
-    // Initialize USART1
-    usart_init (USART1, USART1_CLOCK, USART1_SETUP);
+    // Initialize SERIAL
+    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
 
-    // Route printf() via USART1
-    usart_printf (USART1);
+    // Route printf() via SERIAL
+    usart_printf (USART (SERIAL));
 }
 
 int main ()
 {
     // Enable and configure LED pin
-    RCC_ENABLE (RCC_GPIO (LED));
+    RCC_ENABLE_GPIO (LED);
     GPIO_SETUP (LED);
 
-    usart1_init ();
+    serial_init ();
     puts ("Dynamic CPU clock example\r\n");
 
     // Set up system timer for CLOCKS_PER_SEC interrupts per second

@@ -8,8 +8,8 @@ static void do_test_xsend ()
 {
     for (;;)
     {
-        if (usart_rx_ready (USART1))
-            switch (usart_getc (USART1))
+        if (usart_rx_ready (USART (SERIAL)))
+            switch (usart_getc (USART (SERIAL)))
             {
                 case 'q':
                     return;
@@ -26,29 +26,29 @@ static void do_test_xsend ()
         puts ("\r\nNow sending 1000 visible characters with TX off:");
 
         // Wait until data leaves output FIFO and DR.
-        while (!usart_tx_complete (USART1))
+        while (!usart_tx_complete (USART (SERIAL)))
             ;
 
-        // Reconfugure USART1_TX to mute mode
-        GPIO_SETUP (USART1_TX_MUTE);
+        // Reconfugure TX to mute mode
+        GPIO_SETUP (SERIAL_TX_MUTE);
 
         // You should see none of these
         for (unsigned i = 0; i < 1000; i++)
             putc ('@');
 
         // Wait until data leaves output FIFO and DR.
-        while (!usart_tx_complete (USART1))
+        while (!usart_tx_complete (USART (SERIAL)))
             ;
 
-        // Return USART1_TX to default mode
-        GPIO_SETUP (USART1_TX);
+        // Return TX to default mode
+        GPIO_SETUP (SERIAL_TX);
     }
 }
 
 int main (void)
 {
-    // Initialize USART1
-    usart1_init ();
+    // Initialize serial port
+    serial_init ();
     puts ("USART library demo running");
 
     systick_init ();
@@ -58,8 +58,8 @@ int main (void)
     uint32_t old_bst = 0;
     for (;;)
     {
-        if (usart_rx_ready (USART1))
-            switch (usart_getc (USART1))
+        if (usart_rx_ready (USART (SERIAL)))
+            switch (usart_getc (USART (SERIAL)))
             {
                 case 'x':
                     do_test_xsend ();

@@ -73,6 +73,8 @@
  * @li PCLK2_FREQ - the frequency of the APB2 bus. This is
  *      a constant value, unless CLOCK_DYNAMIC is defined,
  *      in which case it becomes a global variable.
+ * @li PLL48CK_FREQ - the frequency on the Q output of PLL,
+ *      connected to USB peripherial. Should be 48000000.
  */
 
 // clock sources

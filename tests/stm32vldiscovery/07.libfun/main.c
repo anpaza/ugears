@@ -23,7 +23,7 @@ void cmp_area (int tidx, char *data, char *cmp, unsigned size)
 
 int main (void)
 {
-    usart1_init ();
+    serial_init ();
     puts ("libugears test started");
 
     srand (0xdeadbaba);

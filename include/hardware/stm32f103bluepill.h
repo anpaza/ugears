@@ -31,33 +31,36 @@
 #define LED_PIN			13
 #define LED_GPIO_CONFIG		OUTPUT_2MHz,PUSHPULL,0
 
-// Use APB2 clock for USART1
-#define USART1_CLOCK		APB2_CLOCK
-// Configure USART1 on PA9(TX)/PA10(RX)
-#define USART1_SETUP		(USART_BAUD (115200) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
+// We use USART1 in all samples but you can change it
+// to any other USART by modifying the values below
+#define SERIAL_USART_NUM	1
+// Serial port setup
+#define SERIAL_SETUP		USART_DEFAULT_SETUP
+// Serial IRQ priority
+#define SERIAL_IRQ_PRIO		0
 
 // UART TX pin
-#define USART1_TX_PORT		A
-#define USART1_TX_PIN		9
-#define USART1_TX_GPIO_CONFIG	OUTPUT_2MHz,AF_PUSHPULL,1
+#define SERIAL_TX_PORT		A
+#define SERIAL_TX_PIN		9
+#define SERIAL_TX_GPIO_CONFIG	OUTPUT_2MHz,AF_PUSHPULL,1
 
 // Experimental feature: use UART only for receiving, TX is 'muted'
-#define USART1_TX_MUTE_PORT	A
-#define USART1_TX_MUTE_PIN	9
-#define USART1_TX_MUTE_GPIO_CONFIG INPUT,FLOATING,X
+#define SERIAL_TX_MUTE_PORT	A
+#define SERIAL_TX_MUTE_PIN	9
+#define SERIAL_TX_MUTE_GPIO_CONFIG INPUT,FLOATING,X
 
 // UART RX pin
-#define USART1_RX_PORT		A
-#define USART1_RX_PIN		10
-#define USART1_RX_GPIO_CONFIG	INPUT,FLOATING,X
+#define SERIAL_RX_PORT		A
+#define SERIAL_RX_PIN		10
+#define SERIAL_RX_GPIO_CONFIG	INPUT,FLOATING,X
 
 // USART1 DMA channels
-#define USART1_TX_DMA_NUM	1
-#define USART1_TX_DMA_CHAN	4
-#define USART1_TX_DMA_IRQ_PRIO	0
-#define USART1_RX_DMA_NUM	1
-#define USART1_RX_DMA_CHAN	5
-#define USART1_RX_DMA_IRQ_PRIO	0
+#define SERIAL_TX_DMA_NUM	1
+#define SERIAL_TX_DMA_CHAN	4
+#define SERIAL_TX_DMA_IRQ_PRIO	0
+#define SERIAL_RX_DMA_NUM	1
+#define SERIAL_RX_DMA_CHAN	5
+#define SERIAL_RX_DMA_IRQ_PRIO	0
 
 // Also we have USB connected to USB_DP and USB_DM
 

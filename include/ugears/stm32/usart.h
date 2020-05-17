@@ -33,6 +33,9 @@ extern "C" {
 #ifndef USART_TYPE_NONE
 
 #include "useful.h"
+#include "rcc.h"
+
+// ------ // USART macros // ----- //
 
 #define __CMP_USART1		99980
 #define __CMP_USART2		99981
@@ -40,10 +43,12 @@ extern "C" {
 #define __CMP_USART4		99983
 #define __CMP_USART5		99984
 
+/// Return the number of USART peripherial associated with given hw feature
+#define USART_NUM(x)		JOIN2 (x, _USART_NUM)
 /// Return the USART instance corresponding to a hardware feature (e.g. USART(DEBUG) -> USART3)
-#define USART(x)		JOIN2 (USART, JOIN2 (x, _USART))
+#define USART(x)		JOIN2 (USART, USART_NUM (x))
 /// Check if the USART of a hw feature is same as expected (p = 1, 2 etc)
-#define USART_CMP(x,p)		(JOIN2 (__CMP_USART, JOIN2 (x, _USART)) == JOIN2 (__CMP_USART, p))
+#define USART_CMP(x,p)		(JOIN2 (__CMP_USART, USART_NUM (x)) == JOIN2 (__CMP_USART, p))
 
 #ifdef USART_TYPE_2
 /// 7 bit characters
@@ -103,6 +108,9 @@ extern "C" {
 #define USART_BAUD(n)		(n >> 2)
 /// The mask to separate baud rate bits from format
 #define USART_BAUD_MASK		0x000FFFFF	// max 1048575 which gives up to 4194303 baud
+
+// Default setup for serial ports: 115200 8-N-1
+#define USART_DEFAULT_SETUP	(USART_BAUD (115200) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
 
 /**
  * Initialize the serial transceiver.

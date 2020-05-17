@@ -23,32 +23,32 @@ void SysTick_Handler ()
         printf ("[%d]", clock >> 5);
 }
 
-void usart1_init ()
+void serial_init ()
 {
-    // Enable USART1 and GPIOs
+    // Enable USART and GPIOs
     RCC_BEGIN;
-        RCC_ENA (_USART1);
-        RCC_ENA (RCC_GPIO (USART1_TX));
-        RCC_ENA (RCC_GPIO (USART1_RX));
+        RCC_ENA_USART (SERIAL);
+        RCC_ENA_GPIO (SERIAL_TX);
+        RCC_ENA_GPIO (SERIAL_RX);
     RCC_END;
 
-    // Set up USART1 pins
-    GPIO_SETUP (USART1_TX);
-    GPIO_SETUP (USART1_RX);
+    // Set up USART pins
+    GPIO_SETUP (SERIAL_TX);
+    GPIO_SETUP (SERIAL_RX);
 
-    // Initialize USART1
-    usart_init (USART1, USART1_CLOCK, USART1_SETUP);
+    // Initialize SERIAL
+    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
 
-    // Route printf() via USART1
-    usart_printf (USART1);
+    // Route printf() via USART
+    usart_printf (USART (SERIAL));
 }
 
 static void do_test_xsend ()
 {
     for (;;)
     {
-        if (usart_rx_ready (USART1))
-            switch (usart_getc (USART1))
+        if (usart_rx_ready (USART (SERIAL)))
+            switch (usart_getc (USART (SERIAL)))
             {
                 case 'q':
                     return;
@@ -65,33 +65,33 @@ static void do_test_xsend ()
         puts ("\r\nNow sending 1000 visible characters with TX off:");
 
         // Wait until data leaves output FIFO and DR.
-        while (!usart_tx_complete (USART1))
+        while (!usart_tx_complete (USART (SERIAL)))
             ;
 
-        // Reconfugure USART1_TX to mute mode
-        GPIO_SETUP (USART1_TX_MUTE);
+        // Reconfugure USART_TX to mute mode
+        GPIO_SETUP (SERIAL_TX_MUTE);
 
         // You should see none of these
         for (unsigned i = 0; i < 1000; i++)
             putc ('@');
 
         // Wait until data leaves output FIFO and DR.
-        while (!usart_tx_complete (USART1))
+        while (!usart_tx_complete (USART (SERIAL)))
             ;
 
-        // Return USART1_TX to default mode
-        GPIO_SETUP (USART1_TX);
+        // Return TX to default mode
+        GPIO_SETUP (SERIAL_TX);
     }
 }
 
 int main ()
 {
-    // Initialize USART1
-    usart1_init ();
+    // Initialize serial port
+    serial_init ();
     puts ("USART library demo running");
 
     // Enable the LED port
-    RCC_ENABLE (RCC_GPIO (LED));
+    RCC_ENABLE_GPIO (LED);
     // Configure LED pin
     GPIO_SETUP (LED);
 
@@ -102,8 +102,8 @@ int main ()
 
     for (;;)
     {
-        if (usart_rx_ready (USART1))
-            switch (usart_getc (USART1))
+        if (usart_rx_ready (USART (SERIAL)))
+            switch (usart_getc (USART (SERIAL)))
             {
                 case 'x':
                     do_test_xsend ();

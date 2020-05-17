@@ -37,6 +37,7 @@ INCLUDEPATH += include/usb
 INCLUDEPATH += tests/$$HARDWARE
 
 SOURCES += \
+    apps/usbuart/main.c \
     libs/ugears/stm32/adc.c \
     libs/ugears/stm32/bkp.c \
     libs/ugears/stm32/can.c \
@@ -100,6 +101,7 @@ SOURCES += \
 DISTFILES += \
     Makefile \
     README.md \
+    apps/usbuart/usbuart.mak \
     doc/BSD-3-Clause \
     doc/LICENSE-2.0 \
     doc/debug/HOWTO.md \

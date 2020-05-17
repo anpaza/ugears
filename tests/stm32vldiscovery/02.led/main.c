@@ -27,8 +27,8 @@ int main ()
 {
     // Enable used peripherials
     RCC_BEGIN;
-        RCC_ENA (RCC_GPIO (BLED));
-        RCC_ENA (RCC_GPIO (GLED));
+        RCC_ENA_GPIO (BLED);
+        RCC_ENA_GPIO (GLED);
     RCC_END;
 
     // Configure GPIO

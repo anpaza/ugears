@@ -5,5 +5,5 @@ IHEX.TARGETS += trtc
 
 TARGETS.trtc = trtc$E
 SRC.trtc$E = $(wildcard tests/stm32vldiscovery/05.rtc/*.c) \
-	tests/stm32vldiscovery/stm32vldiscovery.c
+	tests/stm32vldiscovery/hw.c
 LIBS.trtc$E = cmsis$L ugears$L useful$L

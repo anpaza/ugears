@@ -41,48 +41,35 @@
 #define USRBUT_PIN		0
 #define USRBUT_GPIO_CONFIG	INPUT,FLOATING,X
 
-// Use APB2 clock for USART1
-#define USART1_CLOCK		APB2_CLOCK
-
-// Example serial port setup
-#define USART1_SETUP		(USART_BAUD (9600) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
-// Example other serial port
-#define USART2_SETUP		(USART_BAUD (9600) | USART_CHARBITS_8 | USART_PARITY_NONE | USART_STOPBITS_1)
-
-// USART IRQ priorities
-#define USART1_IRQ_PRIO		255
-#define USART2_IRQ_PRIO		255
+// We use USART1 in all samples but you can change it
+// to any other USART by modifying the values below
+#define SERIAL_USART_NUM	1
+// Serial port setup
+#define SERIAL_SETUP		USART_DEFAULT_SETUP
+// Serial IRQ priority
+#define SERIAL_IRQ_PRIO		0
 
 // USART1 I/O ports
-#define USART1_TX_PORT		A
-#define USART1_TX_PIN		9
-#define USART1_TX_GPIO_CONFIG	OUTPUT_2MHz,AF_PUSHPULL,1
+#define SERIAL_TX_PORT		A
+#define SERIAL_TX_PIN		9
+#define SERIAL_TX_GPIO_CONFIG	OUTPUT_2MHz,AF_PUSHPULL,1
 
 // Experimental feature: use UART only for receiving, TX is 'muted'
-#define USART1_TX_MUTE_PORT	A
-#define USART1_TX_MUTE_PIN	9
-#define USART1_TX_MUTE_GPIO_CONFIG INPUT,FLOATING,X
+#define SERIAL_TX_MUTE_PORT	A
+#define SERIAL_TX_MUTE_PIN	9
+#define SERIAL_TX_MUTE_GPIO_CONFIG INPUT,FLOATING,X
 
-#define USART1_RX_PORT		A
-#define USART1_RX_PIN		10
-#define USART1_RX_GPIO_CONFIG	INPUT,FLOATING,X
+#define SERIAL_RX_PORT		A
+#define SERIAL_RX_PIN		10
+#define SERIAL_RX_GPIO_CONFIG	INPUT,FLOATING,X
 
 // USART1 DMA channels
-#define USART1_TX_DMA_NUM	1
-#define USART1_TX_DMA_CHAN	4
-#define USART1_TX_DMA_IRQ_PRIO	0
-#define USART1_RX_DMA_NUM	1
-#define USART1_RX_DMA_CHAN	5
-#define USART1_RX_DMA_IRQ_PRIO	0
-
-// USART2 I/O ports
-#define USART2_TX_PORT		A
-#define USART2_TX_PIN		2
-#define USART2_TX_GPIO_CONFIG	OUTPUT_2MHz,AF_PUSHPULL,1
-
-#define USART2_RX_PORT		A
-#define USART2_RX_PIN		3
-#define USART2_RX_GPIO_CONFIG	INPUT,FLOATING,X
+#define SERIAL_TX_DMA_NUM	1
+#define SERIAL_TX_DMA_CHAN	4
+#define SERIAL_TX_DMA_IRQ_PRIO	0
+#define SERIAL_RX_DMA_NUM	1
+#define SERIAL_RX_DMA_CHAN	5
+#define SERIAL_RX_DMA_IRQ_PRIO	0
 
 // That's all we have, folks!
 

@@ -27,6 +27,10 @@
 
 // Peripherial -> RCC register name mapping
 
+#define RCC_REG_DMA1			AHB
+#define RCC_REG_SRAM			AHB
+#define RCC_REG_FLITF			AHB
+#define RCC_REG_CRC			AHB
 #define RCC_REG_GPIOA			AHB
 #define RCC_REG_GPIOB			AHB
 #define RCC_REG_GPIOC			AHB
@@ -45,16 +49,16 @@
 #define RCC_REG_USART2			APB1
 #define RCC_REG_USART3			APB1
 #define RCC_REG_USART4			APB1
+#define RCC_REG_USART5			APB1
 #define RCC_REG_I2C1			APB1
 #define RCC_REG_I2C2			APB1
 #define RCC_REG_USB			APB1
-#define RCC_REG_CAN			APB1
-#define RCC_REG_CRS			APB1
 #define RCC_REG_PWR			APB1
 #define RCC_REG_DAC			APB1
 #define RCC_REG_CEC			APB1
 
 #define RCC_REG_SYSCFG			APB2
+#define RCC_REG_USART6			APB2
 #define RCC_REG_ADC1			APB2
 #define RCC_REG_TIM1			APB2
 #define RCC_REG_SPI1			APB2
@@ -67,6 +71,8 @@
 // Bus clock frequencies
 #define AHB_CLOCK			HCLK_FREQ
 #define APB_CLOCK			PCLK_FREQ
+#define APB1_CLOCK			PCLK_FREQ
+#define APB2_CLOCK			PCLK_FREQ
 
 // Group reset/enable/disable helper macros
 #define _RCC_REGS \
@@ -241,10 +247,11 @@
 
 #elif defined STM32F2
 
+#error "STM32F2 support not implemented yet"
 
 #elif defined STM32F3
 
-// STM32F3 support not implemented yet
+#error "STM32F3 support not implemented yet"
 
 #elif defined STM32F4
 
@@ -409,10 +416,15 @@
 #define RCC_REG_SAI1LP                  APB2LP
 #define RCC_REG_LTDCLP                  APB2LP
 
+// Bus clock frequencies
+#define AHB_CLOCK			HCLK_FREQ
+#define APB1_CLOCK			PCLK1_FREQ
+#define APB2_CLOCK			PCLK2_FREQ
+
 // Group reset/enable/disable helper macros
 #define _RCC_REGS \
-    AHB1ENR  = 0, AHB2ENR  = 0, AHB3ENR  = 0, APB1ENR  = 0, APB2ENR  = 0, \
-    AHB1LPENR  = 0, AHB2LPENR  = 0, AHB3LPENR  = 0, APB1LPENR = 0, APB2LPENR = 0, \
+    AHB1ENR = 0, AHB2ENR = 0, AHB3ENR = 0, APB1ENR = 0, APB2ENR = 0, \
+    AHB1LPENR = 0, AHB2LPENR = 0, AHB3LPENR = 0, APB1LPENR = 0, APB2LPENR = 0, \
     AHB1DISR = 0, AHB2DISR = 0, AHB3DISR = 0, APB1DISR = 0, APB2DISR = 0, \
     AHB1LPDISR = 0, AHB2LPDISR = 0, AHB3LPDISR = 0, APB1LPDISR = 0, APB2LPDISR = 0, \
     AHB1RSTR = 0, AHB2RSTR = 0, AHB3RSTR = 0, APB1RSTR = 0, APB2RSTR = 0
@@ -445,46 +457,58 @@
 
 #endif
 
-/// Get reset register name for given peripherial ((RCC_REG + _ADC1) = APB2) + RSTR = APB2RSTR
+/**
+ * Get reset register name for given peripherial:
+ * ((RCC_REG + _ADC1) = APB2) + RSTR = APB2RSTR
+ * @arg p
+ *   Peripherial name with underscore prepended (e.g. _USART1 etc).
+ *   The underscore prefix is needed because e.g. USART1 is a macro
+ *   defined in CMSIS header files.
+ */
 #define RCC_RSTR(p)			JOIN2 (JOIN2 (RCC_REG, p), RSTR)
-/// Get enable register name for given peripherial ((RCC_REG + _ADC1) = APB2) + ENR = APB2ENR
+/**
+ * Get enable register name for given peripherial:
+ * ((RCC_REG + _ADC1) = APB2) + ENR = APB2ENR
+ * @arg p
+ *   Peripherial name with underscore prepended (e.g. _USART1 etc).
+ *   The underscore prefix is needed because e.g. USART1 is a macro
+ *   defined in CMSIS header files.
+ */
 #define RCC_ENR(p)			JOIN2 (JOIN2 (RCC_REG, p), ENR)
 
-/**
- * Convert hardware feature name to GPIO peripherial name (e.g. RCC_GPIO (LED) -> _GPIOA).
- * You can use this like: RCC_ENABLE (RCC_GPIO (LED))
- */
-#define RCC_GPIO(x)                     JOIN3 (_, GPIO, GPIO_PORT (x))
-/**
- * Convert hardware feature name to ADC peripherial name (e.g. TEMP_INT -> _ADC1).
- * You can use this like: RCC_ENABLE (RCC_ADC (TEMP_INT))
- */
-#define RCC_ADC(x)                      JOIN3 (_, ADC, ADC_NUM (x))
-/**
- * Convert hardware feature name to DMA name (e.g. ADC -> _DMA1).
- * You can use this like: RCC_ENABLE (RCC_DMA (ADC))
- */
-#define RCC_DMA(x)                      JOIN3 (_, DMA, DMA_NUM (x))
-/**
- * Convert hardware feature name to I2C peripherial name (e.g. INA220 -> _I2C1).
- * You can use this like: RCC_ENABLE (RCC_I2C (INA220))
- */
-#define RCC_I2C(x)                      JOIN3 (_, I2C, I2C_NUM (x))
-/**
- * Convert hardware feature name to SPI peripherial name (e.g. DISPLAY -> _SPI1).
- * You can use this like: RCC_ENABLE (RCC_SPI (DISPLAY))
- */
-#define RCC_SPI(x)                      JOIN3 (_, SPI, SPI_NUM (x))
-/**
- * Convert hardware feature name to timer peripherial name (e.g. PWM -> _TIM2).
- * You can use this like: RCC_ENABLE (RCC_TIM (PWM))
- */
-#define RCC_TIM(x)                      JOIN3 (_, TIM, TIM_NUM (x))
-/**
- * Convert hardware feature name to CAN peripherial name (e.g. BUS -> _CAN1).
- * You can use this like: RCC_ENABLE (RCC_CAN (BUS))
- */
-#define RCC_CAN(x)                      JOIN3 (_, CAN, CAN_NUM (x))
+/// RCC GPIO peripherial name by hw feature: RCC_GPIO (LED) -> _GPIOA
+#define RCC_GPIO(x)			JOIN2 (_GPIO, GPIO_PORT (x))
+/// RCC USART peripherial name by hw feature: SERIAL -> _USART1
+#define RCC_USART(x)			JOIN2 (_USART, USART_NUM (x))
+/// RCC ADC peripherial name by hw feature: TEMP_INT -> _ADC1
+#define RCC_ADC(x)			JOIN2 (_ADC, ADC_NUM (x))
+/// RCC DMA peripherial name by hw feature: ADC -> _DMA1
+#define RCC_DMA(x)			JOIN2 (_DMA, DMA_NUM (x))
+/// RCC I2C peripherial name by hw feature: INA220 -> _I2C1
+#define RCC_I2C(x)			JOIN2 (_I2C, I2C_NUM (x))
+/// RCC SPI peripherial name by hw feature: DISPLAY -> _SPI1
+#define RCC_SPI(x)			JOIN2 (_SPI, SPI_NUM (x))
+/// RCC timer peripherial name by hw feature: PWM -> _TIM2
+#define RCC_TIM(x)			JOIN2 (_TIM, TIM_NUM (x))
+/// RCC CAN peripherial name by hw feature: BUS -> _CAN1
+#define RCC_CAN(x)			JOIN2 (_CAN, CAN_NUM (x))
+
+/// Clock frequency for GPIO hw feature: CLOCK_GPIO (LED) -> AHB_CLOCK
+#define CLOCK_GPIO(x)			JOIN2 (JOIN2 (RCC_REG, RCC_GPIO (x)),_CLOCK)
+/// Clock frequency for USART hw feature: CLOCK_USART (SERIAL) -> APB2_CLOCK
+#define CLOCK_USART(x)			JOIN2 (JOIN2 (RCC_REG, RCC_USART (x)),_CLOCK)
+/// Clock frequency for ADC hw feature: CLOCK_ADC (TEMP_INT) -> APB2_CLOCK
+#define CLOCK_ADC(x)			JOIN2 (JOIN2 (RCC_REG, RCC_ADC (x)),_CLOCK)
+/// Clock frequency for DMA hw feature: CLOCK_DMA (ADC) -> AHB_CLOCK
+#define CLOCK_DMA(x)			JOIN2 (JOIN2 (RCC_REG, RCC_DMA (x)),_CLOCK)
+/// Clock frequency for I2C hw feature: CLOCK_I2C (INA220) -> APB1_CLOCK
+#define CLOCK_I2C(x)			JOIN2 (JOIN2 (RCC_REG, RCC_I2C (x)),_CLOCK)
+/// Clock frequency for SPI hw feature: CLOCK_SPI (DISPLAY) -> APB2_CLOCK
+#define CLOCK_SPI(x)			JOIN2 (JOIN2 (RCC_REG, RCC_SPI (x)),_CLOCK)
+/// Clock frequency for timer hw feature: CLOCK_TIM (PWM) -> APB1_CLOCK
+#define CLOCK_TIM(x)			JOIN2 (JOIN2 (RCC_REG, RCC_TIM (x)),_CLOCK)
+/// Clock frequency for CAN hw feature: CLOCK_CAN (BUS) -> APB1_CLOCK
+#define CLOCK_CAN(x)			JOIN2 (JOIN2 (RCC_REG, RCC_CAN (x)),_CLOCK)
 
 /**
  * Reset a specific MCU peripherial
@@ -533,7 +557,13 @@
  * Start a group of reset/enable/disable directives. This has the advantage
  * of doing it all in one operation, rather than modifying one bit at
  * a time. Also it, obviously, generates shorter code - compiler takes
- * care of optimizing out unused code. Usage example:
+ * care of optimizing out unused code.
+ *
+ * Inside the RCC_BEGIN ... RCC_END block you may invoke any number of
+ * RCC_ENA, RCC_DIS, RCC_RES and their peripherial-specific versions
+ * (using hardware feature name as argument).
+ *
+ * Usage example:
  * @code
  * RCC_BEGIN;
  *      RCC_ENA (_GPIOA);
@@ -542,6 +572,8 @@
  *      RCC_DIS (_SPI1);
  *      RCC_RES (_USB1);
  *      RCC_RES (_CEC);
+ *      RCC_ENA_GPIO (LED);
+ *      RCC_DIS_USART (CONSOLE);
  * RCC_END;
  * @endcode
  */
@@ -574,6 +606,129 @@
         _RCC_APPLY; \
     }
 
+// -------- // Shortcuts for RCC_XXX (RCC_GPIO|USART|DMA|... (x)) // -------- //
+
+/// Same as RCC_RESET (RCC_GPIO (x))
+#define RCC_RESET_GPIO(x)		RCC_RESET (RCC_GPIO (x))
+/// Same as RCC_RESET (RCC_USART (x))
+#define RCC_RESET_USART(x)		RCC_RESET (RCC_USART (x))
+/// Same as RCC_RESET (RCC_ADC (x))
+#define RCC_RESET_ADC(x)		RCC_RESET (RCC_ADC (x))
+/// Same as RCC_RESET (RCC_DMA (x))
+#define RCC_RESET_DMA(x)		RCC_RESET (RCC_DMA (x))
+/// Same as RCC_RESET (RCC_I2C (x))
+#define RCC_RESET_I2C(x)		RCC_RESET (RCC_I2C (x))
+/// Same as RCC_RESET (RCC_SPI (x))
+#define RCC_RESET_SPI(x)		RCC_RESET (RCC_SPI (x))
+/// Same as RCC_RESET (RCC_TIM (x))
+#define RCC_RESET_TIM(x)		RCC_RESET (RCC_TIM (x))
+/// Same as RCC_RESET (RCC_CAN (x))
+#define RCC_RESET_CAN(x)		RCC_RESET (RCC_CAN (x))
+
+/// Same as RCC_ENABLE (RCC_GPIO (x))
+#define RCC_ENABLE_GPIO(x)		RCC_ENABLE (RCC_GPIO (x))
+/// Same as RCC_ENABLE (RCC_USART (x))
+#define RCC_ENABLE_USART(x)		RCC_ENABLE (RCC_USART (x))
+/// Same as RCC_ENABLE (RCC_ADC (x))
+#define RCC_ENABLE_ADC(x)		RCC_ENABLE (RCC_ADC (x))
+/// Same as RCC_ENABLE (RCC_DMA (x))
+#define RCC_ENABLE_DMA(x)		RCC_ENABLE (RCC_DMA (x))
+/// Same as RCC_ENABLE (RCC_I2C (x))
+#define RCC_ENABLE_I2C(x)		RCC_ENABLE (RCC_I2C (x))
+/// Same as RCC_ENABLE (RCC_SPI (x))
+#define RCC_ENABLE_SPI(x)		RCC_ENABLE (RCC_SPI (x))
+/// Same as RCC_ENABLE (RCC_TIM (x))
+#define RCC_ENABLE_TIM(x)		RCC_ENABLE (RCC_TIM (x))
+/// Same as RCC_ENABLE (RCC_CAN (x))
+#define RCC_ENABLE_CAN(x)		RCC_ENABLE (RCC_CAN (x))
+
+/// Same as RCC_DISABLE (RCC_GPIO (x))
+#define RCC_DISABLE_GPIO(x)		RCC_DISABLE (RCC_GPIO (x))
+/// Same as RCC_DISABLE (RCC_USART (x))
+#define RCC_DISABLE_USART(x)		RCC_DISABLE (RCC_USART (x))
+/// Same as RCC_DISABLE (RCC_ADC (x))
+#define RCC_DISABLE_ADC(x)		RCC_DISABLE (RCC_ADC (x))
+/// Same as RCC_DISABLE (RCC_DMA (x))
+#define RCC_DISABLE_DMA(x)		RCC_DISABLE (RCC_DMA (x))
+/// Same as RCC_DISABLE (RCC_I2C (x))
+#define RCC_DISABLE_I2C(x)		RCC_DISABLE (RCC_I2C (x))
+/// Same as RCC_DISABLE (RCC_SPI (x))
+#define RCC_DISABLE_SPI(x)		RCC_DISABLE (RCC_SPI (x))
+/// Same as RCC_DISABLE (RCC_TIM (x))
+#define RCC_DISABLE_TIM(x)		RCC_DISABLE (RCC_TIM (x))
+/// Same as RCC_DISABLE (RCC_CAN (x))
+#define RCC_DISABLE_CAN(x)		RCC_DISABLE (RCC_CAN (x))
+
+/// Same as RCC_ENABLED (RCC_GPIO (x))
+#define RCC_ENABLED_GPIO(x)		RCC_ENABLED (RCC_GPIO (x))
+/// Same as RCC_ENABLED (RCC_USART (x))
+#define RCC_ENABLED_USART(x)		RCC_ENABLED (RCC_USART (x))
+/// Same as RCC_ENABLED (RCC_ADC (x))
+#define RCC_ENABLED_ADC(x)		RCC_ENABLED (RCC_ADC (x))
+/// Same as RCC_ENABLED (RCC_DMA (x))
+#define RCC_ENABLED_DMA(x)		RCC_ENABLED (RCC_DMA (x))
+/// Same as RCC_ENABLED (RCC_I2C (x))
+#define RCC_ENABLED_I2C(x)		RCC_ENABLED (RCC_I2C (x))
+/// Same as RCC_ENABLED (RCC_SPI (x))
+#define RCC_ENABLED_SPI(x)		RCC_ENABLED (RCC_SPI (x))
+/// Same as RCC_ENABLED (RCC_TIM (x))
+#define RCC_ENABLED_TIM(x)		RCC_ENABLED (RCC_TIM (x))
+/// Same as RCC_ENABLED (RCC_CAN (x))
+#define RCC_ENABLED_CAN(x)		RCC_ENABLED (RCC_CAN (x))
+
+/// Same as RCC_RES (RCC_GPIO (x))
+#define RCC_RES_GPIO(x)			RCC_RES (RCC_GPIO (x))
+/// Same as RCC_RES (RCC_USART (x))
+#define RCC_RES_USART(x)		RCC_RES (RCC_USART (x))
+/// Same as RCC_RES (RCC_ADC (x))
+#define RCC_RES_ADC(x)			RCC_RES (RCC_ADC (x))
+/// Same as RCC_RES (RCC_DMA (x))
+#define RCC_RES_DMA(x)			RCC_RES (RCC_DMA (x))
+/// Same as RCC_RES (RCC_I2C (x))
+#define RCC_RES_I2C(x)			RCC_RES (RCC_I2C (x))
+/// Same as RCC_RES (RCC_SPI (x))
+#define RCC_RES_SPI(x)			RCC_RES (RCC_SPI (x))
+/// Same as RCC_RES (RCC_TIM (x))
+#define RCC_RES_TIM(x)			RCC_RES (RCC_TIM (x))
+/// Same as RCC_RES (RCC_CAN (x))
+#define RCC_RES_CAN(x)			RCC_RES (RCC_CAN (x))
+
+/// Same as RCC_ENA (RCC_GPIO (x))
+#define RCC_ENA_GPIO(x)			RCC_ENA (RCC_GPIO (x))
+/// Same as RCC_ENA (RCC_USART (x))
+#define RCC_ENA_USART(x)		RCC_ENA (RCC_USART (x))
+/// Same as RCC_ENA (RCC_ADC (x))
+#define RCC_ENA_ADC(x)			RCC_ENA (RCC_ADC (x))
+/// Same as RCC_ENA (RCC_DMA (x))
+#define RCC_ENA_DMA(x)			RCC_ENA (RCC_DMA (x))
+/// Same as RCC_ENA (RCC_I2C (x))
+#define RCC_ENA_I2C(x)			RCC_ENA (RCC_I2C (x))
+/// Same as RCC_ENA (RCC_SPI (x))
+#define RCC_ENA_SPI(x)			RCC_ENA (RCC_SPI (x))
+/// Same as RCC_ENA (RCC_TIM (x))
+#define RCC_ENA_TIM(x)			RCC_ENA (RCC_TIM (x))
+/// Same as RCC_ENA (RCC_CAN (x))
+#define RCC_ENA_CAN(x)			RCC_ENA (RCC_CAN (x))
+
+/// Same as RCC_DIS (RCC_GPIO (x))
+#define RCC_DIS_GPIO(x)			RCC_DIS (RCC_GPIO (x))
+/// Same as RCC_DIS (RCC_USART (x))
+#define RCC_DIS_USART(x)		RCC_DIS (RCC_USART (x))
+/// Same as RCC_DIS (RCC_ADC (x))
+#define RCC_DIS_ADC(x)			RCC_DIS (RCC_ADC (x))
+/// Same as RCC_DIS (RCC_DMA (x))
+#define RCC_DIS_DMA(x)			RCC_DIS (RCC_DMA (x))
+/// Same as RCC_DIS (RCC_I2C (x))
+#define RCC_DIS_I2C(x)			RCC_DIS (RCC_I2C (x))
+/// Same as RCC_DIS (RCC_SPI (x))
+#define RCC_DIS_SPI(x)			RCC_DIS (RCC_SPI (x))
+/// Same as RCC_DIS (RCC_TIM (x))
+#define RCC_DIS_TIM(x)			RCC_DIS (RCC_TIM (x))
+/// Same as RCC_DIS (RCC_CAN (x))
+#define RCC_DIS_CAN(x)			RCC_DIS (RCC_CAN (x))
+
+// -------------------------- // RCC functions // --------------------------- //
+
 typedef enum
 {
     /// Unknown cause
@@ -602,7 +757,22 @@ typedef enum
     /// Option Byte Loader reset
     rstOptionByteLoader,
 #endif
-} rst_cause_t;
+
+    // Reset causes not defined for platform are defined to -1
+
+#ifndef RCC_CSR_IWDGRSTF
+    rstIndependentWatchdog = -1,
+#endif
+#ifndef RCC_CSR_PINRSTF
+    rstPin = -1,
+#endif
+#ifndef RCC_CSR_BORRSTF
+    rstBrownout = -1,
+#endif
+#ifndef RCC_CSR_OBLRSTF
+    rstOptionByteLoader = -1,
+#endif
+} rst_reset_cause_t;
 
 /**
  * Clear reset flag.
@@ -617,7 +787,7 @@ static inline void rcc_reset_cause_clear ()
  * @return
  *      One of the rstXXX values.
  */
-static inline rst_cause_t rcc_reset_cause ()
+static inline rst_reset_cause_t rcc_reset_cause ()
 {
     uint32_t csr = RCC->CSR;
     rcc_reset_cause_clear ();

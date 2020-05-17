@@ -5,33 +5,33 @@
 
 #include "hw.h"
 
-void usart1_init ()
+void serial_init ()
 {
-    // Enable USART1 and GPIOs
+    // Enable serial and GPIOs
     RCC_BEGIN;
-        RCC_ENA (_USART1);
-        RCC_ENA (RCC_GPIO (USART1_TX));
-        RCC_ENA (RCC_GPIO (USART1_RX));
+        RCC_ENA_USART (SERIAL);
+        RCC_ENA_GPIO (SERIAL_TX);
+        RCC_ENA_GPIO (SERIAL_RX);
     RCC_END;
 
     // Initialize USART GPIOs
-    GPIO_SETUP (USART1_TX);
-    GPIO_SETUP (USART1_RX);
+    GPIO_SETUP (SERIAL_TX);
+    GPIO_SETUP (SERIAL_RX);
 
-    // USART1 is on APB2
-    usart_init (USART1, APB2_CLOCK, USART1_SETUP);
+    // Initialize serial port
+    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
 
-    // Redirect printf() over USART1
-    usart_printf (USART1);
+    // Redirect printf() over serial port
+    usart_printf (USART (SERIAL));
 }
 
 void led_init ()
 {
     // Enable clocking for board peripherials
     RCC_BEGIN;
-        RCC_ENA (RCC_GPIO (BLED));
-        RCC_ENA (RCC_GPIO (GLED));
-        RCC_ENA (RCC_GPIO (USRBUT));
+        RCC_ENA_GPIO (BLED);
+        RCC_ENA_GPIO (GLED);
+        RCC_ENA_GPIO (USRBUT);
     RCC_END;
 
     // Set up LED pins

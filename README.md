@@ -22,12 +22,21 @@ with `GPIOD`, `RCC->APB2ENR |= RCC_APB2ENR_IOPAEN` replaced by
 Similarily, if you decide to change your code from using timer `TIM1`
 to `TIM2`, you won't have to remember that `TIM1` is enabled by setting
 bit `RCC_APB1ENR_TIM2EN` in `RCC->APB1ENR`, while  `TIM2` is enabled by
-setting bit `RCC_APB2ENR_TIM1EN` in `RCC->APB2ENR`.
+setting bit `RCC_APB2ENR_TIM1EN` in `RCC->APB2ENR`. You just change
+a single #define in your hardware definition file, and everything
+else will happen by magic.
 
 uGears will make it easier to port code from one MCU family to
 other, e.g. STM32F1 to STM32F4. It cannot make the transition
 completely painless, because those MCU families are too different,
 but it will make it simpler.
+
+uGears does not depend on anything, you can start compiling code
+right after downloading it. Everything it needs is contained in
+this repository.
+
+uGears uses the Apache 2.0 license, so  you can use it even in
+proprietary products.
 
 All in all, using uGears will permit you write code with better
 portability, easier, faster and less error-prone.

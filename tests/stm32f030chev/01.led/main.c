@@ -20,7 +20,7 @@ void SysTick_Handler ()
 int main ()
 {
     // Enable LED pin
-    RCC_ENABLE (RCC_GPIO (LED));
+    RCC_ENABLE_GPIO (LED);
 
     // Конфигурируем GPIO
     GPIO_SETUP (LED);
