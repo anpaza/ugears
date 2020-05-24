@@ -36,6 +36,8 @@
  *     or to max amount of milliamperes consumed from the USB bus.
  * @li USB_CDC_LINE_CODING - define this to 1 if your device needs support for
  *     Get/SetLineConfig() to change serial port speed & byte format
+ * @li USB_IRQ_PRIO - define this to NVIC priority of USB IRQ,
+ *     if you don't like the default valaue.
  */
 
 #ifndef _USBB_CDC_ACM_H
@@ -80,6 +82,10 @@
 #  define USB_CDC_LINE_CODING           0
 #endif
 
+#ifndef USB_IRQ_PRIO
+#  define USB_IRQ_PRIO                  128
+#endif
+
 #pragma pack(push,1)
 
 /** Line data format as defined in "Universal Serial Bus
@@ -97,6 +103,19 @@ typedef struct
 } uca_line_format_t;
 
 #pragma pack(pop)
+
+/** Transaction status: the values are same as shifted USB_EP_(RX|TX)_XXX */
+typedef enum
+{
+    /** Endpoint is disabled */
+    UCA_ST_DIS   = 0,
+    /** Endpoint is temporarily unavailable */
+    UCA_ST_STALL = 1,
+    /** Endpoint cannot temporarily accept data, try later (flow control) */
+    UCA_ST_NAK   = 2,
+    /** Operation has been successfully completed */
+    UCA_ST_VALID = 3,
+} uca_status_t;
 
 /**
  * Initialize the USB CDC ACM device.
@@ -162,8 +181,10 @@ extern void uca_transmitted ();
  *
  * @param data Pointer to received data
  * @param data_size Received data size
+ * @return Transaction status. Return VALID on success, NAK to tell host
+ *      device isn't ready to accept data yet and retry later.
  */
-extern void uca_received (const void *data, unsigned data_size);
+extern uca_status_t uca_received (const void *data, unsigned data_size);
 
 #ifdef USB_CDC_LINE_CODING
 
@@ -181,6 +202,11 @@ extern void uca_line_state_changed ();
  * Called when host changes uca_line_format
  */
 extern void uca_line_format_changed ();
+
+/**
+ * Received a BREAK signal
+ */
+extern void uca_line_break ();
 
 #endif
 

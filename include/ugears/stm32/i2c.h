@@ -16,36 +16,43 @@
  *      data via the I2C bus using DMA. For this to work, you have to
  *      define I2C1_ENGINE and/or I2C2_ENGINE in your hardware.h.
  *
+ * The following macros are expected to be defined in your HARDWARE_H
+ * in order to use I2C macros:
+ *
+ * @li HWFN_I2C_NUM defines the number of the I2C peripherial to which
+ *      the feature is connected (1,2,...). Used by I2C(HWFN) macro.
+ *
  * A simple usage example:
- * @verbatim
+ * @code
  * i2c_init (I2C1, 100000, i2cmI2C);
  * ...
- * static const uint8_t cmd_tpl = {
+ * static const uint8_t cmd [] = {
  *     I2CMD_START,                     // generate START condition
  *     I2CMD_TX7 (ADDR_MYDEVICE),       // device address, transmitter mode
  *     I2CMD_SEND (1)                   // send 1 bytes to device
  *     12,                              // send register number
  *     I2CMD_START,                     // repeated START condition
- *     I2CMD_RX7 (ADDR_MYDEVICE),       // deivce address, receiver mode
+ *     I2CMD_RX7 (ADDR_MYDEVICE),       // device address, receiver mode
  *     I2CMD_RECV (2)                   // read 2 bytes from device to buffer
  *     I2CMD_EOC,                       // end-of-command flag
  * };
  *
  * uint16_t reg_val;                    // storage for register value
  *
- * if (i2c_grasp (I2C1, cmd_tpl))       // lock i2c command engine
+ * if (i2c_grasp (I2C1, cmd))           // lock i2c command engine
  * {
  *      i2cmd1.rxbuff = &reg_val;       // set receive buffer
  *      i2cmd1.eoc = eoc_callback;      // set end-of-command callback
  *      i2c_command (I2C1);             // go asynchronously
  * }
- * @endverbatim
+ * @endcode
  *
- * To set register values you can use the txbuff field (similar to rxbuff),
+ * To set register values you can use the i2cmd1.txbuff field (similar to rxbuff),
  * together with the I2CMD_SEND_BUFF(n) command, which is similar to I2CMD_SEND
- * but will transmit from txbuff.
+ * but will transmit next n bytes from txbuff.
  */
 
+#include HARDWARE_H
 #include "useful.h"
 
 // There are at least two different types of I2C peripherial

@@ -12,6 +12,27 @@
 /**
  * @file gpio.h
  *      Functions and macros to deal with GPIO ports.
+ *
+ * The following macros are expected to be defined in your HARDWARE_H
+ * in order to deal with GPIO ports:
+ *
+ * @li HWFN_PORT defines the port name to which the feature is
+ *      connected (A, B, C etc). Used by GPIO_PORT(HWFN) macro.
+ * @li HWFN_PIN defines the bit number to which the feature is
+ *      connected (0, 1, 2 ...). Used by GPIO_PIN(HWFN) macro.
+ * @li HWFN_GPIO_CONFIG defines the parameters passed to the
+ *      GPIO_SETUP macro which returns a bitmask for GPIO
+ *      setup (ex: OUTPUT_2MHz,OPENDRAIN,1). The format of this
+ *      string differs from MCU to MCU, to find out the correct
+ *      format see the comment to GPIO_CONFIG() for your MCU series.
+ *
+ * Example for STM32F1 MCU series:
+ * @code
+ * // Example debug LED on PC13
+ * #define LED_PORT		C
+ * #define LED_PIN		13
+ * #define LED_GPIO_CONFIG	OUTPUT_2MHz,PUSHPULL,0
+ * @endcode
  */
 
 #include "useful.h"

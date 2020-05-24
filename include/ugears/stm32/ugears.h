@@ -15,8 +15,6 @@
  *      from the ugears library.
  */
 
-// Always include hardware description file first
-#include HARDWARE_H
 // System clock definitions
 #include "clocks.h"
 

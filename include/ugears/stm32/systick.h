@@ -9,6 +9,7 @@
 #ifndef _SYSTICK_H
 #define _SYSTICK_H
 
+#include HARDWARE_H
 #include "nvic.h"
 #include "fpmath.h"
 

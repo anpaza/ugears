@@ -7,6 +7,8 @@
         which accepts a pointer to DMA controller as 1st parameter.
 */
 
+#include HARDWARE_H
+
 void
 #ifdef _DMA_NUM
     JOIN3 (dma, _DMA_NUM, _copy) (

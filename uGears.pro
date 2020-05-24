@@ -38,6 +38,7 @@ INCLUDEPATH += tests/$$HARDWARE
 
 SOURCES += \
     apps/usbuart/main.c \
+    apps/usbuart/ringbuff.c \
     libs/ugears/stm32/adc.c \
     libs/ugears/stm32/bkp.c \
     libs/ugears/stm32/can.c \
@@ -280,6 +281,7 @@ DISTFILES += \
     tibs/target/windows.mak
 
 HEADERS += \
+    apps/usbuart/ringbuff.h \
     include/cmsis/cmsis_compiler.h \
     include/cmsis/cmsis_gcc.h \
     include/cmsis/cmsis_version.h \

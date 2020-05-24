@@ -250,8 +250,38 @@ enum
 typedef enum
 {
     USB_CDC_LINE_STATE_DTR = 0x01,
-    USB_CDC_LINE_STATE_CARRIER = 0x02,
+    USB_CDC_LINE_STATE_RTS = 0x02,
 } usb_req_cdc_set_control_line_state_t;
+
+/** CDC ACM notification codes */
+typedef enum
+{
+    /// Notification to host of network connection status
+    USB_CDC_ACM_NOTIF_NETWORK_CONNECTION = 0x00,
+    /// Notification to host to issue a GET_ENCAPSULATED_RESPONSE request
+    USB_CDC_ACM_NOTIF_RESPONSE_AVAILABLE = 0x01,
+    /// Returns the current state of the carrier detect, DSR, break, and ring signal
+    USB_CDC_ACM_NOTIF_SERIAL_STATE = 0x20,
+} usb_cdc_acm_notifications_t;
+
+/** UART state bitmap flags for USB_CDC_ACM_NOTIF_SERIAL_STATE */
+typedef enum
+{
+    /// Data Carrier Detected flag
+    USB_CDC_ACM_SERIAL_STATE_DCD = 0x01,
+    /// Data Set Ready flag
+    USB_CDC_ACM_SERIAL_STATE_DSR = 0x02,
+    /// A BREAK signal has been detected on line
+    USB_CDC_ACM_SERIAL_STATE_BREAK = 0x04,
+    /// The RING modem signal
+    USB_CDC_ACM_SERIAL_STATE_RING = 0x08,
+    /// A framing error has been detected
+    USB_CDC_ACM_SERIAL_STATE_FRAMING = 0x10,
+    /// A parity error has been detected
+    USB_CDC_ACM_SERIAL_STATE_PARITY = 0x20,
+    /// Some incoming data has been discarded due to overrun
+    USB_CDC_ACM_SERIAL_STATE_OVERRUN = 0x40,
+} usb_cdc_acm_notif_serial_state_t;
 
 #pragma pack(pop)
 

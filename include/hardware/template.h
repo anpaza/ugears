@@ -5,73 +5,66 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __HARDWARE_H__
-#define __HARDWARE_H__
+#ifndef _HARDWARE_H
+#define _HARDWARE_H
 
 /**
  * @file hardware.h
  *      This is just a template for your board-specific header file.
  *      It is supposed to include the MCU-specific header files, and also
- *      declare the on-board hardware connections.
- */
-
-/**
+ *      declare the on-board hardware connections. It should be named by
+ *      your HARDWARE (defined in local-config.mak) with the .h extension.
+ *      We will refer it later as HARDWARE_H.
+ *
  * A hardware definition is supposed to declare all the ports and other
  * resources used (timers, DMAs and so on). There are a lot of useful
- * macros in "macros.h" which can be later used to conveniently set up
- * and access every hardware feature.
+ * macros that can be later used to conveniently set up and access every
+ * hardware feature.
  *
  * A "hardware feature" is supposed to be the minimal atomic hardware
- * unit - a LED, a button, a sensor and so on, usually connected to a
- * single MCU pin. Most macros use the following convention
- * ("HWFN" being the "hardware feature name"):
+ * unit - a LED, a button, a sensor and so on. A hardware feature is
+ * accessed through some MCU peripherial - GPIO pin, I2C,SPI,USB,...
+ * bus and so on.
  *
- * @li HWFN_PORT defines the port name to which the feature is
- *      connected (A, B, C etc). Used by GPIO_PORT(HWFN) macro.
- * @li HWFN_PIN defines the bit number to which the feature is
- *      connected (0, 1, 2 ...). Used by GPIO_PIN(HWFN) macro.
- * @li HWFN_GPIO_CONFIG defines the parameters passed to the
- *      GPIO_CONFIGURE macro which returns a bitmask for GPIO
- *      setup (ex: OUTPUT_2MHz,OPENDRAIN,1).
+ * The respective header files (gpio.h, i2c.h, spi.h, ...) contain
+ * specific information on the macros that you may define in order
+ * to access your hardware feature via the respective peripherial.
  *
- * @li HWFN_IRQ_PRIO defines the IRQ priority corresponding to
- *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
- *
- * @li HWFN_DMA_NUM defines the DMA controller number used for
- *      the hardware feature Used by DMA_NUM(HWFN) macro.
- * @li HWFN_DMA_CHAN defines the DMA channel number used for
- *      the hardware feature. Used by DMA_CHAN(HWFN) macro.
- * @li HWFN_DMA_IRQ_PRIO defines the IRQ priority corresponding to
- *      the DMA channel associated with this hardware feature.
- *      Used by DMA_IRQ_PRIO(HWFN) macro.
- *
- * @li HWFN_USART_NUM defines the index of the USART corresponding
- *      to this hardware feature.
- *
- * @li HWFN_USART defines the index of the USART corresponding
- *      to this hardware feature.
- *
- * You can later use these declarations like this, for example:
+ * For example, let's define and light up a bulb connected to port PA12.
+ * For this, add to your HARDWARE_H:
  * @code
- *      // Set the pin to high level
- *      GPIO (HWFN)->BSRR = GPIO_PINM (HWFN);
- *      // Same but simpler
- *      GPIO_SET (HWFN);
- *      // Get port state
- *      if (GPIO (HWFN)->IDR & GPIO_PINM (HWFN)) ...
- *      // Set up the GPIO mode for the pin
- *      GPIO_CONFIG (HWFN, OUTPUT_2MHz, OPENDRAIN, 1);
- *      // Same but using the HWFN_GPIO_CONFIG macro
- *      GPIO_CONF (HWFN);
- *
- *      // DMA stuff ... clear global interrupt flag for the channel
- *      DMA->IFCR = DMA_IFCR (UART1_TX, CGIF);
- *      // Set up the DMA config register for channel
- *      DMAC (UART1_TX)->CCR = DMA_CCR (UART1_TX, MINC)
- *
- *      // Set up the DMA transmit complete IRQ ...
- *      nvic_setup (DMA_IRQ (USART1_TX), IRQ_PRIO (USART1_TX_DMA));
+ * #define LED_PORT		A
+ * #define LED_PIN		12
+ * #define LED_GPIO_CONFIG	OUTPUT_2MHz,PUSHPULL,0
  * @endcode
+ *
+ * Now you can use those definitions in code, like this:
+ * @code
+ * RCC_ENA_GPIO (LED);
+ * GPIO_SETUP (LED);
+ * GPIO_SET (LED);
+ * GPIO_RESET (LED);
+ * GPIO_TOGGLE (LED);
+ * @endcode
+ *
+ * Every macro will append a specific suffix to hardware feature you provide
+ * (e.g. LED) and pick up the respective definition. For example, when you
+ * invoke GPIO_SETUP (LED) the preprocessor will append "_GPIO_CONFIG" to
+ * the "LED" you provided to get the LED_GPIO_CONFIG token, and then it will
+ * expand it to the actual value you provided in HARDWARE_H. Then it will
+ * again append "_PORT" and "_PIN" to "LED" you provided to find out which
+ * GPIO peripherial registers should be modified to set up the GPIO pin in
+ * the respective configuration.
+ *
+ * Another important thing you define here is the MCU clock configuration.
+ * STM32 MCUs can have very sophisticated clock configurations, so you will
+ * have to consult the respective clocks-stm32f*.h file for a short
+ * description of the macros you may define to get what you need.
+ *
+ * The clocks always have various limitations, so you will have to consult
+ * either the reference manual (the RCC section usually contains a very
+ * helpful "Clock tree" diagram), or use a tool like STM32CubeMX to figure
+ * out the clock values and then enter them here.
  */
 
 // Uncomment the line corresponding to your MCU
@@ -99,4 +92,4 @@
 // RTC crystal frequency, Hz
 //#define LSE_VALUE	32768
 
-#endif // __HARDWARE_H__
+#endif /* _HARDWARE_H */

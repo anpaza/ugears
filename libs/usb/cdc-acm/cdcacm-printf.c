@@ -37,14 +37,18 @@ void uca_transmitted ()
 
 static void uca_putc (char c)
 {
-    if (buff_head == ((buff_tail - 1) & BUFF_MASK))
-        return;
-
-    buff [buff_head] = c;
-    buff_head = (buff_head + 1) & BUFF_MASK;
+    if (buff_head != ((buff_tail - 1) & BUFF_MASK))
+    {
+        buff [buff_head] = c;
+        buff_head = (buff_head + 1) & BUFF_MASK;
+    }
 
     // If transmitter is idle, send now
-    if (buff_inflight == 0)
+    if ((buff_inflight == 0)
+    #ifdef USB_CDC_LINE_CODING
+        && (uca_line_state & USB_CDC_LINE_STATE_DTR)
+    #endif
+        )
         // prevent concurrent uca_transmitted invocation from IRQ handler
         ATOMIC_BLOCK (RESTORE)
         {

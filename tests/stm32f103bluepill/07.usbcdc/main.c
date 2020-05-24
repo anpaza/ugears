@@ -11,37 +11,39 @@ void SysTick_Handler ()
     if ((clock & (CLOCKS_PER_SEC - 1)) == 0)
     {
         GPIO_TOGGLE (LED);
-        if (uca_line_state & 1)
-            puts ("\nPING");
+        if (uca_line_state & USB_CDC_LINE_STATE_DTR)
+            puts ("PING");
     }
-    printf ("[%u]", clock & (CLOCKS_PER_SEC - 1));
+    //printf ("[%u]", clock & (CLOCKS_PER_SEC - 1));
 }
 
 static const char *stuff =
-        "0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ|abcdefghijklmnopqrstuvwxyz"
-        "zyxwvutsrqponmlkjihgfedcba|ZYXWVUTSRQPONMLKJIHGFEDCBA@9876543210";
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ@0123456789|abcdefghijklmnopqrstuvwxyz"
+        "zyxwvutsrqponmlkjihgfedcba|9876543210@ZYXWVUTSRQPONMLKJIHGFEDCBA";
 
-void uca_received (const void *data, unsigned data_size)
+uca_status_t uca_received (const void *data, unsigned data_size)
 {
-    if (data_size == 1)
-        switch (*(const uint8_t *)data)
-        {
-            case '1': uca_transmit (stuff, 2); return;
-            case '2': uca_transmit (stuff, 4); return;
-            case '3': uca_transmit (stuff, 8); return;
-            case '4': uca_transmit (stuff, 16); return;
-            case '5': uca_transmit (stuff, 32); return;
-            case '6': uca_transmit (stuff, 64); return;
-            case '7': uca_transmit (stuff, 128); return;
-        }
+    // By default, loopback any received data back to user
+    const void *reply = data;
 
-    // Loopback any received data back to user
-    uca_transmit (data, data_size);
+    if (data_size == 1)
+    {
+        unsigned n = (*(const uint8_t *)data - '1');
+        if (n < 8)
+        {
+            reply = stuff;
+            data_size = 1 << n;
+        }
+    }
+
+    return uca_transmit (reply, data_size) ? UCA_ST_VALID : UCA_ST_NAK;
 }
 
 void uca_line_state_changed ()
 {
-    printf ("\nLINE STATE: %04x\n", uca_line_state);
+    printf ("LINE STATE: %s %s\n",
+            (uca_line_state & USB_CDC_LINE_STATE_DTR) ? "DTR" : "dtr",
+            (uca_line_state & USB_CDC_LINE_STATE_RTS) ? "RTS" : "rts");
 }
 
 // 0: None, 1: Odd, 2: Even, 3: Mark, 4: Space */
@@ -51,20 +53,32 @@ static const char format [] = "1.2";
 
 void uca_line_format_changed ()
 {
-    printf ("\nLINE FORMAT: %u %u-%c-%c\n",
+    printf ("LINE FORMAT: %u %u-%c-%c\n",
             uca_line_format.dwDTERate,
             uca_line_format.bDataBits,
             parity [uca_line_format.bParityType],
             format [uca_line_format.bCharFormat]);
 }
 
+void uca_line_break ()
+{
+    printf ("GOT A BREAK\n");
+}
+
 int main (void)
 {
     systick_init ();
     led_init ();
+#if 1
     uca_init ();
     uca_printf ();
+#else
+    serial_init ();
+    usart_printf (USART (SERIAL));
+    uca_init ();
+#endif
 
+    // Actually most likely you won't see this via uca_printf.
     puts ("\nUSB-CDC demo started");
 
     for (;;)

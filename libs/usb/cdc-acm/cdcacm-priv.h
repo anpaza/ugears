@@ -16,18 +16,17 @@
 /* Number of endpoints */
 #define EP_COUNT		4
 
-/* Endpoint max packet size */
-#define EP0_PKT_SIZE            8
-#define EP1_PKT_SIZE            8
-#define EP2_PKT_SIZE            64
-#define EP3_PKT_SIZE            64
-/* Endpoint receive buffer size
- * (where packets are assembled into larger entities)
- */
-#define EP0_RXB_SIZE            8
-#define EP1_RXB_SIZE            0
-#define EP2_RXB_SIZE            0
-#define EP3_RXB_SIZE            64
+/* Control endpoint */
+#define EP_CTL                  0
+/* Interrupt endpoint */
+#define EP_INT                  1
+/* Data endpoint */
+#define EP_DATA                 2
+
+/* Endpoint max packet size, must be either <64, or a multiple of 32 */
+#define EP_CTL_PKT_SIZE         8
+#define EP_INT_PKT_SIZE         8
+#define EP_DATA_PKT_SIZE        64
 
 #define USB_CDC_SPEC            0x0120
 
@@ -38,17 +37,23 @@ typedef uint32_t usb_epr_t [8];
 #define LOBYTE(x) ((uint8_t)(x & 0x00FF))
 #define HIBYTE(x) ((uint8_t)((x & 0xFF00) >> 8))
 
+/* USB_COUNTn_RX bits */
+#define USB_COUNT_RX_COUNT_RX           USB_COUNT0_RX_COUNT0_RX
+#define USB_COUNT_RX_NUM_BLOCK_Pos      USB_COUNT0_RX_NUM_BLOCK_Pos
+#define USB_COUNT_RX_NUM_BLOCK          USB_COUNT0_RX_NUM_BLOCK
+#define USB_COUNT_RX_BLSIZE             USB_COUNT0_RX_BLSIZE
+
 #pragma pack (push, 1)
 
 /** Endpoint configuration structure */
 typedef struct
 {
     // USB_EP_ADDR | USB_EP_TYPE
-    uint16_t  epn_type;
+    uint16_t epn_type;
     // Max TX EP Buffer Size (in PMA, fragment size)
-    uint8_t   tx_max;
-    // Max RX EP Buffer Size (in RAM, complete packet)
-    uint8_t   rx_max;
+    uint8_t tx_max;
+    // Max RX EP Buffer Size (in PMA, fragment size)
+    uint8_t rx_max;
 } uca_ep_config_t;
 
 /** Endpoint status structure - one per each uca_ep_config_t */
@@ -56,13 +61,29 @@ typedef struct
 {
     // TX Buffer pointer, NULL when transmission complete
     const void *tx_buff;
-    // RX Buffer pointer, can be 0 and tx_buff != 0 to send last empty DATA pkt
-    void *rx_buff;
     // TX Data length
     uint16_t tx_len;
-    // RX Data length
-    uint16_t rx_len;
 } uca_ep_status_t;
+
+/** Holds current request data and reply */
+typedef struct
+{
+    /** Request accumulated data size */
+    uint16_t data_size;
+    /** Endpoint number for this request */
+    uint8_t epn;
+    /** true if this is a SETUP operation */
+    bool setup : 1;
+    /** true if last packet length < max endpoint packet size */
+    bool complete : 1;
+} usb_request_status_t;
+
+/** Abstract data type */
+typedef struct
+{
+    const void *data;
+    unsigned size;
+} usb_data_t;
 
 /* --- Dedicated Packet Buffer Memory (PMA) SRAM --- */
 

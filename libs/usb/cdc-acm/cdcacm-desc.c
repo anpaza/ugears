@@ -23,7 +23,7 @@ const usb_device_desc_t usb_cdc_acm_desc =
     /// Device protocol, depends on class & subclass
     .bDeviceProtocol = 0,
     /// Maximum packet size for endpoint zero (control): 8,16,32 or 64
-    .bMaxPacketSize0 = EP0_PKT_SIZE,
+    .bMaxPacketSize0 = EP_CTL_PKT_SIZE,
     /// Vendor ID
     .idVendor = USB_CDC_VENDOR_ID,
     /// Product ID
@@ -139,11 +139,11 @@ const usb_cdc_acm_config_t usb_cdc_acm_config =
         /// Descriptor Type (USB_DT_ENDPOINT)
         .bDescriptorType = USB_DT_ENDPOINT,
         /// The address of the endpoint on the USB device (see USB_EP_ADDR())
-        .bEndpointAddress = USB_EP_ADDR (1, true),
+        .bEndpointAddress = USB_EP_ADDR (EP_INT, true),
         /// Endpoint attributes
         .bmAttributes = USB_EP_ATTR (INTERRUPT, X, X),
         /// Maximum packet size this endpoint is capable of sending or receiving
-        .wMaxPacketSize = EP1_PKT_SIZE,
+        .wMaxPacketSize = EP_INT_PKT_SIZE,
         /// Time interval for data transfer polling (units depend on EP type)
         .bInterval = 255,
     },
@@ -175,11 +175,11 @@ const usb_cdc_acm_config_t usb_cdc_acm_config =
         /// Descriptor Type (USB_DT_ENDPOINT)
         .bDescriptorType = USB_DT_ENDPOINT,
         /// The address of the endpoint on the USB device (see USB_EP_ADDR())
-        .bEndpointAddress = USB_EP_ADDR (2, true),
+        .bEndpointAddress = USB_EP_ADDR (EP_DATA, true),
         /// Endpoint attributes
         .bmAttributes = USB_EP_ATTR (BULK, X, X),
         /// Maximum packet size this endpoint is capable of sending or receiving
-        .wMaxPacketSize = EP2_PKT_SIZE,
+        .wMaxPacketSize = EP_DATA_PKT_SIZE,
         /// Time interval for data transfer polling (units depend on EP type)
         .bInterval = 0,
     },
@@ -190,11 +190,11 @@ const usb_cdc_acm_config_t usb_cdc_acm_config =
         /// Descriptor Type (USB_DT_ENDPOINT)
         .bDescriptorType = USB_DT_ENDPOINT,
         /// The address of the endpoint on the USB device (see USB_EP_ADDR())
-        .bEndpointAddress = USB_EP_ADDR (3, false),
+        .bEndpointAddress = USB_EP_ADDR (EP_DATA, false),
         /// Endpoint attributes
         .bmAttributes = USB_EP_ATTR (BULK, X, X),
         /// Maximum packet size this endpoint is capable of sending or receiving
-        .wMaxPacketSize = EP3_PKT_SIZE,
+        .wMaxPacketSize = EP_DATA_PKT_SIZE,
         /// Time interval for data transfer polling (units depend on EP type)
         .bInterval = 0,
     },

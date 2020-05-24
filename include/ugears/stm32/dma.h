@@ -13,9 +13,31 @@
  * @file dma.h
  *      This is a set of routines that simplify DMA usage.
  *      Before starting using DMA you must enable DMA controller power
- *      by setting the appropiate bits RCC_AHBENR_DMA?EN in RCC->AHBENR.
+ *      by using the appropiate macros from rcc.h.
+ *
+ * The following macros are expected to be defined in your HARDWARE_H
+ * in order to use DMA functionality:
+ *
+ * @li HWFN_DMA_NUM - defines the index of DMA controller used for
+ *      hardware feature HWFN (1, 2, ...).
+ *      Used by DMA_NUM(HWFN) macro.
+ * @li HWFN_DMA_CHAN - defines the DMA channel number used for hardware
+ *      feature HWFN (1, 2, ...).
+ *      Used by DMA_CHAN(HWFN) macro.
+ * @li HWFN_DMA_IRQ_PRIO - defines the IRQ priority for DMA IRQ used
+ *      for hardware feature HWFN (0..255).
+ *      Used by DMA_IRQ_PRIO(HWFN) macro.
+ *
+ * Example:
+ * @code
+ * // Definition for USART1 TX DMA transfers
+ * #define SERIAL_TX_DMA_NUM		1
+ * #define SERIAL_TX_DMA_CHAN		4
+ * #define SERIAL_TX_DMA_IRQ_PRIO	0
+ * @endcode
  */
 
+#include HARDWARE_H
 #include "useful.h"
 
 // There are at least three different types of GPIO peripherial
@@ -41,7 +63,7 @@
  *
  * Optionally, a second suffix argument may be used, in which case
  * DMA handler is shared and must be called from the "main" DMA IRQ
- * handler (without suffix).
+ * handler (which should be declared without suffix).
  */
 #define DMA_IRQ_HANDLER(x,...) \
 JOIN6 (DMA, DMA_NUM (x), _Channel, DMA_CHAN (x), _IRQHandler, __VA_ARGS__)
@@ -51,12 +73,6 @@ JOIN6 (DMA, DMA_NUM (x), _Channel, DMA_CHAN (x), _IRQHandler, __VA_ARGS__)
  * Example: DMA(USART1_TX) will expand into something like DMA1
  */
 #define DMA(x)			JOIN2 (DMA, DMA_NUM (x))
-
-/**
- * Get a pointer to the DMA controller associated with given USART
- * Example: DMA_USART(MBM) -> DMA1
- */
-#define DMA_USART(x)		JOIN2 (DMA, JOIN (USART, JOIN2 (x, _USART), _DMA_NUM))
 
 /**
  * Get a pointer to DMA controller channel associated with given feature.
@@ -71,6 +87,11 @@ JOIN6 (DMA, DMA_NUM (x), _Channel, DMA_CHAN (x), _IRQHandler, __VA_ARGS__)
 #define DMA_COPY(x, ccr, src, dst, count) \
     JOIN3 (dma, DMA_NUM (x), _copy) (DMA_CHAN (x), ccr, src, dst, count)
 
+/**
+ * Stop the DMA channel associated with hw feature name.
+ */
+#define DMA_STOP(x) \
+    JOIN3 (dma, DMA_NUM (x), _stop) (DMA_CHAN (x));
 
 #if defined DMA_TYPE_1
 

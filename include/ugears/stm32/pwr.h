@@ -14,6 +14,9 @@
  *      A set of functions for easier management of power unit.
  */
 
+#include HARDWARE_H
+#include "exti.h"
+
 /**
  * Enable/disable write access to RTC & backup registers.
  * @arg enable

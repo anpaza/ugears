@@ -15,6 +15,14 @@
  * @file usart.h
  *      This small library provides some functions for sending bytes
  *      via one of the USARTs available in the STM32 microcontrollers.
+ *
+ * The following macros are expected to be defined in your HARDWARE_H
+ * in order to use USART functionality:
+ *
+ * @li HWFN_USART_NUM - defines the index of USART peripherial used for
+ *      hardware feature HWFN (1, 2, ...).
+ * @li HWFN_USART_IRQ_PRIO - defines the IRQ priority for USART IRQ used
+ *      for hardware feature HWFN (0..255).
  */
 
 #ifdef __cplusplus
@@ -43,12 +51,18 @@ extern "C" {
 #define __CMP_USART4		99983
 #define __CMP_USART5		99984
 
-/// Return the number of USART peripherial associated with given hw feature
+/// Return the number of USART hardware feature
 #define USART_NUM(x)		JOIN2 (x, _USART_NUM)
 /// Return the USART instance corresponding to a hardware feature (e.g. USART(DEBUG) -> USART3)
 #define USART(x)		JOIN2 (USART, USART_NUM (x))
-/// Check if the USART of a hw feature is same as expected (p = 1, 2 etc)
+/// Check if the USART of a hw feature has a specific number (p = 1, 2 etc)
 #define USART_CMP(x,p)		(JOIN2 (__CMP_USART, USART_NUM (x)) == JOIN2 (__CMP_USART, p))
+/// Return the IRQ number corresponding to USART
+#define USART_IRQ(x)		JOIN3 (USART, USART_NUM (x), _IRQn)
+/// Get the IRQ priority corresponding to a specific USART hardware feature
+#define USART_IRQ_PRIO(x)	JOIN2 (x, _USART_IRQ_PRIO)
+/// Compose the USART IRQ handler name
+#define USART_IRQ_HANDLER(x)	JOIN3 (USART, USART_NUM (x), _IRQHandler)
 
 #ifdef USART_TYPE_2
 /// 7 bit characters
@@ -61,12 +75,10 @@ extern "C" {
 
 /// 1 stop bits
 #define USART_STOPBITS_1	0x00000000
-
 #ifdef USART_TYPE_1
 /// 0.5 stop bits
 #define USART_STOPBITS_0_5	0x00400000
 #endif
-
 /// 2 stop bits
 #define USART_STOPBITS_2	0x00800000
 /// 1.5 stop bits
@@ -74,7 +86,7 @@ extern "C" {
 /// The mask to select only stop bits selection from format
 #define USART_STOPBITS_MASK	0x00c00000
 /// The amount to shift stopbits right to compute USART_CR2_STOP bitflags
-#define USART_STOPBITS_RSHIFT	10		// USART_CR2_STOP=0x3000
+#define USART_STOPBITS_BIT	(22 - USART_CR2_STOP_Pos)
 
 /// No parity check/generation
 #define USART_PARITY_NONE	0x00000000
@@ -86,7 +98,7 @@ extern "C" {
 /// The mask to select only parity mode selection from format
 #define USART_PARITY_MASK	0x03000000
 /// The amount to shift the bits right to get USART_CR1_PS & USART_CR1_PCE
-#define USART_PARITY_RSHIFT	15		// USART_CR1_PS=0x0200, USART_CR1_PCE=0x0400
+#define USART_PARITY_BIT	(24 - USART_CR1_PS_Pos)
 
 /// Use CTS for outbound flow control
 #define USART_CTS		0x04000000

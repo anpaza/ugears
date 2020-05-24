@@ -9,33 +9,47 @@
 #ifndef _CLOCKS_STM32F4_H
 #define _CLOCKS_STM32F4_H
 
+#include HARDWARE_H
 #include "useful.h"
 
 /**
- * The following macros may be defined prior to including
- * this file (usually in hardware*.h):
+ * @file clocks-stm32f4.h
+ *      This file contains the definitions and functions for setting up
+ *      initial MCU clock setup and, optionally, providing functions
+ *      for clock manipulations at runtime.
  *
+ *      This file is typically included from HARDWARE_H.
+ *
+ * The following macros may be defined prior to including this file.
+ * Most of them have reasonable defaults, so you may get started by
+ * using even an almost-empty HARDWARE_H. Then, step by step, refine
+ * your configuration to approach your ideal.
+ *
+ * @li SYSCLK_SOURCE - one of HSI,HSE,PLL - the source for
+ *      main system clock. Default is HSI.
  * @li HSI_VALUE - the frequency of the internal RC oscillator.
+ *      Default value is 8000000.
  * @li HSE_VALUE - the frequency of the crystal resonator.
- *      The valid range is 4MHz...26MHz.
+ *      The valid range is 4MHz...26MHz. There's no default.
  * @li CLOCK_DYNAMIC - if this macro is defined, the functions
  *      for changing the clocks dynamically at runtime will be
  *      made public. This also means that the macros for clock
  *      frequencies will be variables, not constants. This adds
  *      about 800 bytes of code to your program.
- * @li SYSCLK_SOURCE - one of HSI,HSE,PLL - the source for
- *      main system clock.
  * @li HCLK_DIV - one of 1,2,4,8,16,64,128,256,512 - the divider
  *      for clock of the AHB bus (HCLK = SYSCLK/DIV)
+ *      Default value is 1.
  * @li PCLK1_DIV - one of 1,2,4,8,16 - the divider for clock
  *      of the APB1 bus (PCLK1 = HCLK/DIV). APB1 bus frequency
  *      should not exceed 36MHz.
+ *      Default value is 1.
  * @li PCLK2_DIV - one of 1,2,4,8,16 - the divider for clock
  *      of the APB2 bus (PCLK2 = HCLK/DIV)
+ *      Default value is 1.
  * @li PLL_SOURCE - one of HSI,HSE - the source for
  *      Phase-Locked-Loop clock generator. Both are divided
  *      by PLL_M before being feed to PLL input. The PLL
- *      input must be in range 1..2MHz.
+ *      input must be in range 1..2MHz. Default is HSI.
  * @li PLL_M - 2..63 - the divider for the HSI or HSE clock
  *      before entering the PLL.
  * @li PLL_N - 50...432 - the clock multiplicator in the

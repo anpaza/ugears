@@ -9,25 +9,39 @@
 #ifndef _CLOCKS_STM32F0_H
 #define _CLOCKS_STM32F0_H
 
+#include HARDWARE_H
 #include "useful.h"
 
 /**
- * The following macros may be defined prior to including
- * this file (usually from hardware*.h):
+ * @file clocks-stm32f0.h
+ *      This file contains the definitions and functions for setting up
+ *      initial MCU clock setup and, optionally, providing functions
+ *      for clock manipulations at runtime.
  *
+ *      This file is typically included from HARDWARE_H.
+ *
+ * The following macros may be defined prior to including this file.
+ * Most of them have reasonable defaults, so you may get started by
+ * using even an almost-empty HARDWARE_H. Then, step by step, refine
+ * your configuration to approach your ideal.
+ *
+ * @li SYSCLK_SOURCE - one of HSI,HSE,PLL - the source for
+ *      main system clock. Default is HSI.
  * @li HSI_VALUE - the frequency of the internal RC oscillator.
+ *      Default is 8000000.
  * @li HSE_VALUE - the frequency of the crystal resonator.
+ *      There's no default.
  * @li CLOCK_DYNAMIC - if this macro is defined, the functions
  *      for changing the clocks dynamically at runtime will be
  *      made public. This also means that the macros for clock
  *      frequencies will be variables, not constants. This adds
  *      about 200 bytes of code to your program.
- * @li SYSCLK_SOURCE - one of HSI,HSE,PLL - the source for
- *      main system clock.
  * @li HCLK_DIV - one of 1,2,4,8,16,64,128,256,512 - the divider
- *      for clock of the AHB bus (HCLK = SYSCLK/DIV)
+ *      for clock of the AHB bus (HCLK = SYSCLK/DIV).
+ *      Default value is 1.
  * @li PCLK_DIV - one of 1,2,4,8,16 - the divider for clock
- *      of the APB1,APB2 buses (PCLK = HCLK/DIV)
+ *      of the APB1,APB2 buses (PCLK = HCLK/DIV).
+ *      Default value is 1.
  * @li PLL_DIV_AFTER - define this if the PLL divider is applied
  *      after PLL_SOURCE selection. Check the datasheet of your
  *      device if you're not sure (look for "Clock Tree" figure
@@ -41,11 +55,14 @@
  *      and just HSI or HSE if PLL_DIV_AFTER is defined
  *      (but the selected clock will be divided by PLL_DIV before
  *      entering the PLL).
+ *      Default value is HSI.
  * @li PLL_DIV - 1,2,3,...,16 - on some devices this define the
  *      divider for the HSE clock, and on some for both HSE and HSI
  *      clocks on entry to PLL.
+ *      Default value is 1.
  * @li PLL_MUL - 2,3,4,...,16 - the clock multiplicator in
  *      the Phase-Locked-Loop circuit.
+ *      Default value is 6.
  *
  * Additionaly, you may ask the init code to select the clock
  * for USART, I2C and other peripherials:

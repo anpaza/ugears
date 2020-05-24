@@ -26,18 +26,18 @@
 #include "clocks-stm32f1.h"
 #endif
 
-// The debug LED
+// Debug LED cathode connected to VCC, anode to PC13 via 510 Ohm
 #define LED_PORT		C
 #define LED_PIN			13
-#define LED_GPIO_CONFIG		OUTPUT_2MHz,PUSHPULL,0
+#define LED_GPIO_CONFIG		OUTPUT_2MHz,OPENDRAIN,1
 
 // We use USART1 in all samples but you can change it
 // to any other USART by modifying the values below
 #define SERIAL_USART_NUM	1
 // Serial port setup
 #define SERIAL_SETUP		USART_DEFAULT_SETUP
-// Serial IRQ priority
-#define SERIAL_IRQ_PRIO		0
+// Serial port IRQ priority
+#define SERIAL_USART_IRQ_PRIO	32
 
 // UART TX pin
 #define SERIAL_TX_PORT		A
@@ -57,12 +57,14 @@
 // USART1 DMA channels
 #define SERIAL_TX_DMA_NUM	1
 #define SERIAL_TX_DMA_CHAN	4
-#define SERIAL_TX_DMA_IRQ_PRIO	0
+#define SERIAL_TX_DMA_IRQ_PRIO	16
 #define SERIAL_RX_DMA_NUM	1
 #define SERIAL_RX_DMA_CHAN	5
-#define SERIAL_RX_DMA_IRQ_PRIO	0
+#define SERIAL_RX_DMA_IRQ_PRIO	16
 
 // Also we have USB connected to USB_DP and USB_DM
+
+#define USB_IRQ_PRIO		128
 
 #define USB_DM_PORT		A
 #define USB_DM_PIN		11

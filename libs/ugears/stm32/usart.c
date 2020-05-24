@@ -41,7 +41,7 @@ void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt)
 
     // stop bits
     usart->CR2 = (usart->CR2 & ~USART_CR2_STOP) |
-        ((fmt & USART_STOPBITS_MASK) >> USART_STOPBITS_RSHIFT);
+        ((fmt & USART_STOPBITS_MASK) >> USART_STOPBITS_BIT);
 
     // enable USART, set parity mode
     tmp = (usart->CR1 &
@@ -49,7 +49,7 @@ void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt)
 #ifdef USART_TYPE_2
           | USART_CR1_M1
 #endif
-         )) | ((fmt & USART_PARITY_MASK) >> USART_PARITY_RSHIFT);
+         )) | ((fmt & USART_PARITY_MASK) >> USART_PARITY_BIT);
 
     // Enable receiver & transmitter, if not prohibited
     if (!(fmt & USART_NO_RX))

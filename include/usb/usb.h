@@ -359,7 +359,7 @@ typedef struct
     usb_uint16_t wValue;
     usb_uint16_t wIndex;
     // Size of DATA packet following the setup packet
-    uint8_t wLength;
+    uint16_t wLength;
 } usb_setup_packet_t;
 
 /** Bitfields for usb_setup_packet_t.bmRequestType */
@@ -372,7 +372,7 @@ typedef enum
     USB_REQ_TYPE_TYPE_MASK = 0x60,
     USB_REQ_TYPE_TYPE_SHIFT = 5,
     /// 0: Host-to-device, 1: Device-to-host
-    USB_REQ_TYPE_DIR_MASK = 0x80,
+    USB_REQ_TYPE_DIR = 0x80,
     USB_REQ_TYPE_DIR_SHIFT = 7,
 } usb_request_type_mask_t;
 

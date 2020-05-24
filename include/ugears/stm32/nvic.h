@@ -13,6 +13,12 @@
  * @file nvic.h
  *      A set of routines to manipulate the Nested Vector
  *      Interrupt Controller (NVIC).
+ *
+ * The following macros can be defined in your HARDWARE_H
+ * to make your code more portable:
+ *
+ * @li HWFN_IRQ_PRIO defines the IRQ priority corresponding to
+ *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
  */
 
 #include "useful.h"

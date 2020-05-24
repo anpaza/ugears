@@ -20,6 +20,8 @@
  *      microcontrollers.
  */
 
+#include HARDWARE_H
+
 /**
  * How many RTC ticks per second we want (1 = 1 tick per second).
  * Define in your HARDWARE_H if default is not suitable.

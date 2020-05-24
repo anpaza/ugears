@@ -49,6 +49,26 @@
 /// Bit Value: convert bit number to bit mask
 #define BV(x)			(1 << (x))
 
+/**
+ * Return the largest of two values
+ */
+#define MAX(x,y) \
+    ({ \
+        __typeof__ (x) _x = x; \
+        __typeof__ (y) _y = y; \
+        _x > _y ? _x : _y; \
+    })
+
+/**
+ * Return the smallest of two values
+ */
+#define MIN(x,y) \
+    ({ \
+        __typeof__ (x) _x = x; \
+        __typeof__ (y) _y = y; \
+        _x < _y ? _x : _y; \
+    })
+
 #if !defined __cplusplus
 /// Define the bool type for C
 typedef enum { false = 0, true = !false } bool;
