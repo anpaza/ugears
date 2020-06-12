@@ -128,12 +128,9 @@ extern "C" {
  * Initialize the serial transceiver.
  * It is supposed that the GPIO themselves (clocking, mode, config,
  * alternate mappings) are set up prioir to calling this function.
- * @arg usart
- *      A pointer to the USART register block to be initialized.
- * @arg bus_freq
- *      The clock on the bus used by the USART (AHB1 or AHB2).
- * @arg fmt
- *      A combination of USART_XXX bits defined above to define
+ * @param usart A pointer to the USART register block to be initialized.
+ * @param bus_freq The clock on the bus used by the USART (AHB1 or AHB2).
+ * @param fmt A combination of USART_XXX bits defined above to define
  *      the baud rate and data format.
  */
 extern void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
@@ -142,36 +139,29 @@ extern void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
  * Redirect printf, putc, puts through the serial port.
  * This uses the printf routines from libuseful.
  * Very useful for debugging.
- * @arg usart
- *      The USART to redirect stdio through
+ * @param usart The USART to redirect stdio through
  */
 extern void usart_printf (USART_TypeDef *usart);
 
 /**
  * Send a single byte through the serial port.
- * @arg usart
- *      The USART to send the character through
- * @arg c
- *      The character to send
+ * @param usart The USART to send the character through
+ * @param c The character to send
  */
 extern void usart_putc (USART_TypeDef *usart, uint8_t c);
 
 /**
  * Receive a single byte through the serial port.
  * Waits until the character is ready.
- * @arg usart
- *      The USART to read the character from
- * @return
- *      The character read from the USART
+ * @param usart The USART to read the character from
+ * @return The character read from the USART
  */
 extern uint8_t usart_getc (USART_TypeDef *usart);
 
 /**
  * Check if input is ready to be read from the port.
- * @arg usart
- *      The USART to check data readiness in
- * @return
- *      true if there is data in the receive buffer
+ * @param usart The USART to check data readiness in
+ * @return true if there is data in the receive buffer
  */
 static inline bool usart_rx_ready (USART_TypeDef *usart)
 #if defined USART_TYPE_1
@@ -182,10 +172,8 @@ static inline bool usart_rx_ready (USART_TypeDef *usart)
 
 /**
  * Check if transmission data register is free
- * @arg usart
- *      The USART to check
- * @return
- *      true if transmission data register is free
+ * @param usart A pointer to USART to check
+ * @return true if transmission data register is free
  */
 static inline bool usart_tx_ready (USART_TypeDef *usart)
 #if defined USART_TYPE_1
@@ -197,10 +185,8 @@ static inline bool usart_tx_ready (USART_TypeDef *usart)
 /**
  * Check if transmission is complete (both bytes in outgoing FIFO and
  * data register).
- * @arg usart
- *      The USART to check
- * @return
- *      true if transmission is complete
+ * @param usart A pointer to USART to check
+ * @return true if transmission is complete
  */
 static inline bool usart_tx_complete (USART_TypeDef *usart)
 #if defined USART_TYPE_1
@@ -211,10 +197,8 @@ static inline bool usart_tx_complete (USART_TypeDef *usart)
 
 /**
  * Return a reference to transmission data register
- * @arg usart
- *      The USART structure
- * @return
- *      a reference to transmission data register
+ * @param usart A pointer to USART
+ * @return a reference to transmission data register
  */
 static inline __IO uint16_t *usart_tdr (USART_TypeDef *usart)
 #if defined USART_TYPE_1
@@ -225,10 +209,8 @@ static inline __IO uint16_t *usart_tdr (USART_TypeDef *usart)
 
 /**
  * Return a reference to receiver data register
- * @arg usart
- *      The USART structure
- * @return
- *      a reference to receiver data register
+ * @param usart A pointer to USART
+ * @return a reference to receiver data register
  */
 static inline __IO uint16_t *usart_rdr (USART_TypeDef *usart)
 #if defined USART_TYPE_1
@@ -236,6 +218,61 @@ static inline __IO uint16_t *usart_rdr (USART_TypeDef *usart)
 #elif defined USART_TYPE_2
 { return &usart->RDR; }
 #endif
+
+/**
+ * Send a BREAK metacharacter.
+ * @param usart A pointer to USART
+ */
+static inline void usart_send_break (USART_TypeDef *usart)
+#if defined USART_TYPE_1
+{ usart->CR1 |= USART_CR1_SBK; }
+#elif defined USART_TYPE_2
+{ usart->RQR |= USART_RQR_SBKRQ; }
+#endif
+
+/**
+ * Enable or disable data transmission to UART using DMA.
+ * @param usart The USART to set DMA TX state
+ * @param state true to enable transmission, false to disable
+ */
+static inline void usart_dma_tx (USART_TypeDef *usart, bool state)
+{
+    if (state)
+        usart->CR3 |= USART_CR3_DMAT;
+    else
+        usart->CR3 &= ~USART_CR3_DMAT;
+}
+
+/**
+ * Check if USART TX DMA is enabled
+ *
+ * @param usart The USART to check DMA state
+ * @return true if TX DMA is enabled
+ */
+static inline bool usart_dma_tx_enabled (USART_TypeDef *usart)
+{ return (usart->CR3 & USART_CR3_DMAT) != 0; }
+
+/**
+ * Enable or disable receiving data from UART using DMA.
+ * @param usart The USART to set DMA RX state
+ * @param state true to enable receiving, false to disable
+ */
+static inline void usart_dma_rx (USART_TypeDef *usart, bool state)
+{
+    if (state)
+        usart->CR3 |= USART_CR3_DMAR;
+    else
+        usart->CR3 &= ~USART_CR3_DMAR;
+}
+
+/**
+ * Check if USART RX DMA is enabled
+ *
+ * @param usart The USART to check DMA state
+ * @return true if RX DMA is enabled
+ */
+static inline bool usart_dma_rx_enabled (USART_TypeDef *usart)
+{ return (usart->CR3 & USART_CR3_DMAR) != 0; }
 
 #ifdef __cplusplus
 }
