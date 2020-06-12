@@ -21,6 +21,7 @@
  *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
  */
 
+#include HARDWARE_H
 #include "useful.h"
 
 /// Return the IRQ priority corresponding to this hardware feature
@@ -75,7 +76,7 @@ static inline void nvic_set_priority (int irq, uint8_t priority)
  *      IRQ number (0-67, one of the >=0 xxx_IRQn constants).
  */
 static inline void nvic_enable (unsigned irq)
-{ NVIC->ISER [irq / 32] |= 1 << (irq & 31); }
+{ NVIC->ISER [irq / 32] = 1 << (irq & 31); }
 
 /**
  * Disable the given IRQ.
@@ -83,7 +84,7 @@ static inline void nvic_enable (unsigned irq)
  *      IRQ number (0-67, one of the >=0 xxx_IRQn constants).
  */
 static inline void nvic_disable (unsigned irq)
-{ NVIC->ICER [irq / 32] |= 1 << (irq & 31); }
+{ NVIC->ICER [irq / 32] = 1 << (irq & 31); }
 
 /**
  * Set the pending flag on given IRQ.
@@ -93,7 +94,7 @@ static inline void nvic_disable (unsigned irq)
  *      IRQ number (0-67, one of the >=0 xxx_IRQn constants).
  */
 static inline void nvic_set_pending (unsigned irq)
-{ NVIC->ISPR [irq / 32] |= 1 << (irq & 31); }
+{ NVIC->ISPR [irq / 32] = 1 << (irq & 31); }
 
 /**
  * Clear the pending flag on given IRQ.
@@ -104,7 +105,7 @@ static inline void nvic_set_pending (unsigned irq)
  *      IRQ number (0-67, one of the >=0 xxx_IRQn constants).
  */
 static inline void nvic_clear_pending (unsigned irq)
-{ NVIC->ICPR [irq / 32] |= 1 << (irq & 31); }
+{ NVIC->ICPR [irq / 32] = 1 << (irq & 31); }
 
 #ifdef NVIC_TYPE_2
 
