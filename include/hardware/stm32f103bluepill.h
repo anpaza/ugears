@@ -85,7 +85,7 @@
 
 // USB CDC driver enables support for Set_Line_Coding, Set_Control_Line_State,
 // Get_Line_Coding, and the notification Serial_State.
-#define USB_CDC_LINE_CODING     1
+#define USB_CDC_LINE_CONTROL    1
 // Device version
 #define USB_CDC_VER             USB_BCD_VER (0,1)
 

@@ -115,7 +115,7 @@ const usb_cdc_acm_config_t usb_cdc_acm_config =
         /// Device sub-type (USB_CDC_CLASS_ACM)
         .bDescriptorSubType = USB_CDC_CLASS_ACM,
         /// Capabilities of the CDC ACM device, see USB_CDC_ACM_CAP()
-        .bmCapabilities = USB_CDC_ACM_CAP (0, USB_CDC_LINE_CODING, 0, 0),
+        .bmCapabilities = USB_CDC_ACM_CAP (0, USB_CDC_LINE_CONTROL, 0, 0),
     },
     .ifunion =
     {

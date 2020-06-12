@@ -2,8 +2,14 @@
 
 # disassemble as thumb even if no executable on command line
 set arm fallback-mode thumb
+
 # connect with st-util
-target extended-remote localhost:4242
+def con
+    target sim
+    target extended-remote localhost:4242
+end
+
+con
 
 # STM32F0 peripherials
 
@@ -26,4 +32,7 @@ end
 define RCC
     p /x (RCC_TypeDef *)0x40021000
     dont-repeat
+end
+define NVIC
+    p /x (*(NVIC_Type *)0xE000E100)
 end

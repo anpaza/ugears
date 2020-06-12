@@ -78,7 +78,7 @@
 #endif
 
 /* Define to 1 to receive baud rate & byte format messages */
-#ifndef USB_CDC_LINE_CODING
+#ifndef USB_CDC_LINE_CONTROL
 #  define USB_CDC_LINE_CODING           0
 #endif
 
@@ -123,25 +123,6 @@ typedef enum
 extern void uca_init ();
 
 /**
- * Return the current state of the USB CDC ACM driver as a bitmask.
- * @return see UCA_STATE_XXX flags
- */
-extern unsigned uca_state ();
-
-/** Bitflags for uca_state() return value */
-typedef enum
-{
-    /// Set if USB peripherial is enabled
-    UCA_STATE_ENABLED = 0x00000001,
-    /// Set if USB peripherial is suspended
-    UCA_STATE_SUSPENDED = 0x00000002,
-    /// Set if device is configured (used by host)
-    UCA_STATE_CONFIGURED = 0x00000004,
-    /// Set if transmit queue is empty
-    UCA_STATE_TXEMPTY = 0x00000008,
-} uca_state_t;
-
-/**
  * Transmit data via the bulk endpoint.
  *
  * If transmitter is busy (previous uca_transmit() was not finished
@@ -156,9 +137,17 @@ typedef enum
  *
  * @param data Pointer to transmitted data
  * @param data_size Transmitted data size
- * @return false if transmitter is busy
+ * @return false if transmitter is busy, true if it is not,
+ *      even if data is NULL
  */
-extern bool uca_transmit(const void *data, unsigned data_size);
+extern bool uca_transmit (const void *data, unsigned data_size);
+
+/**
+ * Redirect printf, putc, puts via the USB CDC ACM device.
+ * This uses the printf routines from libuseful.
+ * Very useful for debugging.
+ */
+extern void uca_printf ();
 
 /* ------------------------------------------------- *\
  * User handlers for USB CDC ACM events:             *
@@ -176,45 +165,69 @@ extern void uca_transmitted ();
 
 /**
  * Called from interrupt context when data is received via the
- * bulk endpoints. You can call ucaTransmit () to send data back
- * to the host in this time slot.
+ * bulk endpoints. This is invoked on every packet received
+ * (USB CDC ACM data endpoint max pkt size is 64 bytes).
+ * When last data packet is received, @a last will be set to true.
+ * It is possible that @a data_size is 0, and @a last is true,
+ * if unsplit data size is a multiple of max pkt size.
  *
  * @param data Pointer to received data
  * @param data_size Received data size
+ * @param last True if this is last packet.
  * @return Transaction status. Return VALID on success, NAK to tell host
- *      device isn't ready to accept data yet and retry later.
+ *      device isn't ready to accept data yet. In the later case you have
+ *      to call uca_check_receive later, when you're finally ready to
+ *      accept data.
  */
-extern uca_status_t uca_received (const void *data, unsigned data_size);
+extern uca_status_t uca_received (const void *data, unsigned data_size, bool last);
 
-#ifdef USB_CDC_LINE_CODING
+/** Packets feed to uca_received are guaranteed to be less than this size */
+#define UCA_RECEIVED_MAX                64
+
+/**
+ * If your code can report NAK from uca_received, then you must call this
+ * function when it is finally ready to accept more data. If you don't do this,
+ * the endpoint will lock up either until you call it, or a packet for
+ * another endpoint comes, in which case the DATA endpoint will be un-NAK-ed,
+ * and data will be lost.
+ *
+ * This function may invoke uca_received (if buffer contains valid data).
+ */
+extern void uca_check_receive ();
+
+/** USB CDC ACM events, sent to user code as bitmask */
+typedef enum
+{
+    /// USB has been in/activated (value in uca_active)
+    UCA_EVENT_ACTIVE = (1 << 0),
+    /// USB has been suspended/resumed (state in uca_suspended)
+    UCA_EVENT_SUSPEND = (1 << 1),
+    /// Line state changed (value in uca_line_state)
+    UCA_EVENT_LINE_STATE = (1 << 2),
+    /// Line data format changed (value in uca_line_format)
+    UCA_EVENT_LINE_FORMAT = (1 << 3),
+    /// Users requests to send a BREAK metacharacter
+    UCA_EVENT_BREAK = (1 << 4),
+} uca_event_t;
+
+/**
+ * Called to notify user code of events.
+ * @param flags A bitmask of ORed uca_event_t flags.
+ */
+extern void uca_event (unsigned flags);
+
+// true if USB is active
+extern bool uca_active;
+// true if USB is suspended
+extern bool uca_suspended;
+
+#ifdef USB_CDC_LINE_CONTROL
 
 /** Current line state (see USB_CDC_LINE_STATE_XXX flags) */
 extern uint16_t uca_line_state;
 /** Host-requested data format */
 extern uca_line_format_t uca_line_format;
 
-/**
- * Called when host changes uca_line_state
- */
-extern void uca_line_state_changed ();
-
-/**
- * Called when host changes uca_line_format
- */
-extern void uca_line_format_changed ();
-
-/**
- * Received a BREAK signal
- */
-extern void uca_line_break ();
-
 #endif
-
-/**
- * Redirect printf, putc, puts via the USB CDC ACM device.
- * This uses the printf routines from libuseful.
- * Very useful for debugging.
- */
-extern void uca_printf ();
 
 #endif /* _USBB_CDC_ACM_H */

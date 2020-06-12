@@ -31,6 +31,8 @@ typedef enum
     USB_DT_QUALIFIER = 0x06,
     /// OTG descriptor
     USB_DT_OTG = 0x09,
+    /// Debug descriptor, whatever it means (ask lsusb authors whats it)
+    USB_DT_DEBUG = 0x0A,
     /// Device Capability descriptor
     USB_DT_DEVICE_CAPABILITY = 0x10,
     /// HID descriptor
@@ -352,9 +354,9 @@ typedef union
 
 typedef struct
 {
-    /// Request type, see usb_request_type_mask_t bitmasks
+    /// Request type, see usb_req_type_mask_t bitmasks
     uint8_t bmRequestType;
-    /// Request code, see usb_request_std_t
+    /// Request code, see usb_req_std_t
     uint8_t bRequest;
     usb_uint16_t wValue;
     usb_uint16_t wIndex;
@@ -365,16 +367,16 @@ typedef struct
 /** Bitfields for usb_setup_packet_t.bmRequestType */
 typedef enum
 {
-    /// Recipient of the request
+    /// Recipient of the request, see usb_req_recp_t
     USB_REQ_TYPE_RECP_MASK = 0x1F,
     USB_REQ_TYPE_RECP_SHIFT = 0,
-    /// Request type
+    /// Request type, see usb_req_type_t
     USB_REQ_TYPE_TYPE_MASK = 0x60,
     USB_REQ_TYPE_TYPE_SHIFT = 5,
     /// 0: Host-to-device, 1: Device-to-host
     USB_REQ_TYPE_DIR = 0x80,
     USB_REQ_TYPE_DIR_SHIFT = 7,
-} usb_request_type_mask_t;
+} usb_req_type_mask_t;
 
 /** Request type: bmRequestType & USB_REQ_TYPE_TYPE_MASK */
 typedef enum
@@ -383,7 +385,7 @@ typedef enum
     USB_REQ_TYPE_CLASS = (1 << USB_REQ_TYPE_TYPE_SHIFT),
     USB_REQ_TYPE_VENDOR = (2 << USB_REQ_TYPE_TYPE_SHIFT),
     USB_REQ_TYPE_RESERVED = (3 << USB_REQ_TYPE_TYPE_SHIFT),
-} usb_request_t;
+} usb_req_type_t;
 
 /** Request recipient: bmRequestType & USB_REQ_TYPE_RECP_MASK */
 typedef enum
@@ -396,7 +398,7 @@ typedef enum
     USB_REQ_RECP_ENDPOINT = (2 << USB_REQ_TYPE_RECP_SHIFT),
     /// Other
     USB_REQ_RECP_OTHER = (3 << USB_REQ_TYPE_RECP_SHIFT),
-} usb_recipient_t;
+} usb_req_recp_t;
 
 /** USB Standard Request Codes (usb_setup_packet_t.bRequest) */
 typedef enum

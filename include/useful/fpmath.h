@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __FPMATH_H__
-#define __FPMATH_H__
+#ifndef _FPMATH_H
+#define _FPMATH_H
 
 #include <stdint.h>
 
@@ -17,9 +17,9 @@
  */
 
 /// Convert a floating-point constant number to 32-bit unsigned fixed-point
-#define FxPu(x,n)	((uint32_t)((x) * ((float)(1U << (n))) + 0.5))
+#define FxPu(x,n)	((uint32_t)((x) * ((double)(1U << (n))) + 0.5))
 /// Convert a floating-point constant number to 32-bit signed fixed-point
-#define FxPs(x,n)	((int32_t)((x) * ((float)(1U << (n))) + 0.5))
+#define FxPs(x,n)	((int32_t)((x) * ((double)(1U << (n))) + 0.5))
 
 /// Convert a floating-point constant number < 1 to 0.32 fixed-point
 #define FxPu32(x)	((uint32_t)((x) * 4294967296.0L + 0.5))
@@ -279,4 +279,4 @@ extern uint32_t fp_sqrt_X (uint32_t x, unsigned n);
  */
 extern int32_t fp_asin_16 (int32_t x, unsigned n);
 
-#endif // __FPMATH_H__
+#endif // _FPMATH_H

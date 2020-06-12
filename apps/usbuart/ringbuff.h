@@ -79,7 +79,7 @@ static inline bool ringbuff_empty (ringbuff_t *buff)
  */
 static inline unsigned ringbuff_free (ringbuff_t *buff)
 {
-    return (buff->tail - buff->head - 1) & (RINGBUFF_SIZE - 1);
+    return (buff->tail - 1 - buff->head) & RINGBUFF_MASK;
 }
 
 /**
@@ -145,7 +145,7 @@ static inline unsigned ringbuff_next_free (ringbuff_t *buff, void **free)
     unsigned head = buff->head;
     unsigned tail = buff->tail;
     *free = buff->data + head;
-    return ((tail > head) ? (tail - 1) : RINGBUFF_SIZE) - head;
+    return MIN ((tail - 1 - head) & RINGBUFF_MASK, RINGBUFF_SIZE - head);
 }
 
 /**

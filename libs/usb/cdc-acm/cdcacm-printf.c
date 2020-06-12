@@ -27,12 +27,12 @@ void uca_transmitted ()
     buff_tail = (buff_tail + buff_inflight) & BUFF_MASK;
     buff_inflight = 0;
 
-    if (buff_head == buff_tail)
-        return;
-
-    buff_inflight = ((buff_tail < buff_head) ? buff_head : BUFF_SIZE) - buff_tail;
-    if (!uca_transmit (buff + buff_tail, buff_inflight))
-        buff_inflight = 0;
+    if (buff_head != buff_tail)
+    {
+        buff_inflight = ((buff_tail < buff_head) ? buff_head : BUFF_SIZE) - buff_tail;
+        if (!uca_transmit (buff + buff_tail, buff_inflight))
+            buff_inflight = 0;
+    }
 }
 
 static void uca_putc (char c)
@@ -45,7 +45,7 @@ static void uca_putc (char c)
 
     // If transmitter is idle, send now
     if ((buff_inflight == 0)
-    #ifdef USB_CDC_LINE_CODING
+    #ifdef USB_CDC_LINE_CONTROL
         && (uca_line_state & USB_CDC_LINE_STATE_DTR)
     #endif
         )

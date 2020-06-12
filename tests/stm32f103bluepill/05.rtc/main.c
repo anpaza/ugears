@@ -33,6 +33,6 @@ int main (void)
         }
 
         // Nothing to do till next interrupt
-        __WFI ();
+        WFI ();
     }
 }

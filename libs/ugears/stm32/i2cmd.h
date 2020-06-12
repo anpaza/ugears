@@ -207,7 +207,7 @@ bool JOIN3 (i2ce, I2C_IDX, _grasp) (const void *cmd)
 {
     bool rc = false;
 
-    ATOMIC_BLOCK (ATOMIC_FORCEON)
+    ATOMIC_BLOCK (FORCEON)
     {
         if (i2cmd.state == i2cesIdle)
         {

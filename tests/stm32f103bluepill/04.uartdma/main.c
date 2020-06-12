@@ -14,7 +14,7 @@ void DMA_IRQ_HANDLER (SERIAL_TX) ()
         DMA (SERIAL_TX)->IFCR = DMA_IFCR (SERIAL_TX, CGIF);
 
         // Disable USART -> DMA transmission
-        USART (SERIAL)->CR3 &= ~USART_CR3_DMAT;
+        usart_dma_tx (USART (SERIAL), false);
 
         printf ("DMA TX IRQ\r\n");
 
@@ -34,7 +34,7 @@ static void do_test_send ()
         (void *)test_data, &USART (SERIAL)->DR, sizeof (test_data) - 1);
 
     // Enable USART -> DMA transmission
-    USART (SERIAL)->CR3 |= USART_CR3_DMAT;
+    usart_dma_tx (USART (SERIAL), true);
 
     // Wait until the data finishes transfer
     while (!dma_tx_flag)
@@ -51,7 +51,7 @@ void DMA_IRQ_HANDLER (SERIAL_RX) ()
         DMA (SERIAL_RX)->IFCR = DMA_IFCR (SERIAL_RX, CGIF);
 
         // Disable USART -> DMA transmission
-        USART (SERIAL)->CR3 &= ~USART_CR3_DMAR;
+        usart_dma_rx (USART (SERIAL), false);
 
         printf ("DMA RX IRQ\r\n");
 
@@ -72,7 +72,7 @@ static void do_test_recv ()
         (void *)&USART (SERIAL)->DR, (void *)rxbuff, sizeof (rxbuff));
 
     // Enable DMA -> USART transmission
-    USART (SERIAL)->CR3 |= USART_CR3_DMAR;
+    usart_dma_rx (USART (SERIAL), true);
 
     // Wait until DMA finishes
     while (!dma_rx_flag)
@@ -114,6 +114,6 @@ int main (void)
             }
 
         // We can't _WFI() because usart_rx_ready() polls
-        //__WFI ();
+        //WFI ();
     }
 }

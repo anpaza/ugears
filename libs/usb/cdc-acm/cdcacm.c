@@ -14,14 +14,25 @@
 #else
 #  define trace(c)          (void)0
 #endif
+#define tracehex(n)         trace ((n) + (((n) < 10) ? '0' : ('a' - 10)))
+#define traceif(c,cond)     { if (cond) trace (c); }
 
 // Not every MCU has USB
 #ifdef USB_BASE
 
-#ifdef USB_CDC_LINE_CODING
-uint16_t uca_line_state = 0;
-uca_line_format_t uca_line_format = {115200, 0, 0, 8};
+// Notification flags
 static uint8_t uca_change_flags;
+
+// true if USB is active
+bool uca_active = false;
+// true if USB is suspended
+bool uca_suspended = false;
+
+#ifdef USB_CDC_LINE_CONTROL
+// Current line state (see USB_CDC_LINE_STATE_XXX flags)
+uint16_t uca_line_state = 0;
+// Host-requested data format
+uca_line_format_t uca_line_format = {115200, 0, 0, 8};
 #endif
 
 // Current device config number: (SET|GET)_CONFIGURATION
@@ -44,14 +55,11 @@ static const uca_ep_config_t uca_ep_config [EP_COUNT] =
     {EP_DATA | USB_EP_BULK     | USB_EP_RX_VALID | USB_EP_TX_NAK, EP_DATA_PKT_SIZE, EP_DATA_PKT_SIZE},
 };
 
-/* Static buffer for receiving USB packets.
- * Out device can't receive from more than one endpoint at once,
- * so buffer will be shared between all OUT endpoints.
- */
-static uint8_t uca_rx_buffer [EP_DATA_PKT_SIZE];
-
-// Currently active request
-static usb_request_status_t uca_req;
+/* Static buffer for allocating rx buffers */
+static uint8_t uca_alloc_buff [EP_CTL_PKT_SIZE + EP_INT_PKT_SIZE + EP_DATA_PKT_SIZE];
+/* Saved last setup request */
+static usb_setup_packet_t uca_setup;
+static bool uca_setup_valid = false;
 
 void uca_init ()
 {
@@ -77,8 +85,6 @@ void uca_init ()
     USB->CNTR   = USB_CNTR_RESETM;  /* Generate IRQ after reset */
     USB->ISTR   = 0;
 
-    uca_req.epn = 0xff;
-
     nvic_setup (USB_LP_CAN1_RX0_IRQn, USB_IRQ_PRIO);
 }
 
@@ -95,41 +101,53 @@ static void uca_reset ()
     USB->BTABLE = 0x00;
 
     memset (&uca_ep_status, 0, sizeof (uca_ep_status));
+    uca_active = false;
+    uca_suspended = false;
 
     uint16_t pmaddr = sizeof (USBEPBUF);
-    unsigned i;
-    for (i = 0; i < EP_COUNT; i++)
+    uint8_t *alloc = uca_alloc_buff;
+    unsigned epn;
+    for (epn = 0; epn < EP_COUNT; epn++)
     {
         // Allocate PMA memory for transmission
-        USBEPBUF [i].tx.addr = pmaddr;
-        USBEPBUF [i].tx.count = 0;
-        pmaddr += uca_ep_config [i].tx_max;
+        USBEPBUF [epn].tx.addr = pmaddr;
+        USBEPBUF [epn].tx.count = 0;
+        pmaddr += uca_ep_config [epn].tx_max;
 
         // Allocate PMA memory for reception
-        unsigned max_size = uca_ep_config [i].rx_max;
-        USBEPBUF [i].rx.addr = pmaddr;
-        USBEPBUF [i].rx.count = (max_size >= 64) ?
+        unsigned max_size = uca_ep_config [epn].rx_max;
+        USBEPBUF [epn].rx.addr = pmaddr;
+        USBEPBUF [epn].rx.count = (max_size >= 64) ?
                     ((((max_size - 32) / 32) << USB_COUNT_RX_NUM_BLOCK_Pos) | USB_COUNT_RX_BLSIZE) :
                     ((max_size / 2) << USB_COUNT_RX_NUM_BLOCK_Pos);
         pmaddr += max_size;
 
+        // Allocate memory for RX buffer
+        uca_ep_status [epn].rx_buff = alloc;
+        alloc += max_size;
+
         // Set endpoint configuration
-        USBEPxR (i) = uca_ep_config [i].epn_type;
+        uint32_t EPxR = uca_ep_config [epn].epn_type;
+        USBEPxR (epn) = (EPxR & USB_EPREG_MASK) |
+                ((USBEPxR (epn) ^ EPxR) & (USB_EP_RX_VALID | USB_EP_TX_VALID));
     }
 
     // Disable all other USB peripherial endpoint machines
-    while (i < 8)
-        USBEPxR (i++) = 0;
+    for (; epn < 8; epn++)
+        USBEPxR (epn) = USBEPxR (epn) ^ (USB_EP_RX_STALL | USB_EP_TX_STALL);
+
+    // Notify user code
+    uca_event (UCA_EVENT_ACTIVE | UCA_EVENT_SUSPEND);
 }
 
-static inline void uca_move_from_pma (unsigned epn)
+static inline void uca_move_from_pma (unsigned epn, uca_ep_status_t *status)
 {
     const uint16_t *src = (const uint16_t *)
             (USB_PMAADDR + USBEPBUF [epn].rx.addr * USB_PMA_ACCESS);
-    uint16_t *dst = (uint16_t *)(uca_rx_buffer + uca_req.data_size);
+    uint16_t *dst = (uint16_t *)status->rx_buff;
     int count = USBEPBUF [epn].rx.count & 0x3FF;
-    uca_req.data_size += count;
-    uca_req.complete = (count < uca_ep_config [epn].rx_max);
+    status->rx_len = count;
+    // last packet if count < uca_ep_config [epn].rx_max
     for (; count > 0; count -= 2)
     {
         *dst++ = *src;
@@ -149,9 +167,15 @@ static inline void uca_kick_tx (unsigned epn)
 
     // If last transfer was tx_max size, send one more ZLP
     if (count == 0)
+    {
+        trace ('!');
         src = 0;
+    }
     else
     {
+        trace ('t');
+        tracehex (count >> 4);
+        tracehex (count & 15);
         tx_max -= count;
         src = uca_ep_status [epn].tx_buff;
         dst = (uint16_t *)(USB_PMAADDR + USBEPBUF[epn].tx.addr * USB_PMA_ACCESS);
@@ -166,212 +190,221 @@ static inline void uca_kick_tx (unsigned epn)
             src = 0;
     }
     uca_ep_status [epn].tx_buff = src;
+    uca_ep_status [epn].tx_active = true;
 
-    // Tell peripherial we're ready to transmit data
+    traceif (']', !src);
+
+    trace ('*');
+    trace ('v');
+
+    // Tell peripherial it may start to transmit data
     USBEPxR (epn) = (USBEPxR (epn) ^ USB_EP_TX_VALID) &
             (USB_EPREG_MASK | USB_EPTX_STAT);
 }
 
 static void uca_send_data (unsigned epn, const void *data, uint16_t size)
 {
-    trace (size ? 'D' : 'd');
+    trace ('[');
     uca_ep_status [epn].tx_len = size;
     uca_ep_status [epn].tx_buff = data;
     uca_kick_tx (epn);
 }
 
-static inline uca_status_t uca_get_descriptor (usb_data_t *reply)
+static inline const void *uca_get_descriptor (unsigned *size)
 {
-    usb_setup_packet_t *setup = (usb_setup_packet_t *)uca_rx_buffer;
-
-    switch (setup->wValue.u8h)
+    switch (uca_setup.wValue.u8h)
     {
         case USB_DT_DEVICE:
-            reply->data = &usb_cdc_acm_desc;
-            reply->size = sizeof (usb_cdc_acm_desc);
-            break;
+            *size = sizeof (usb_cdc_acm_desc);
+            return &usb_cdc_acm_desc;
 
         case USB_DT_CONFIG:
-            reply->data = &usb_cdc_acm_config;
-            reply->size = sizeof (usb_cdc_acm_config);
-            break;
+            *size = sizeof (usb_cdc_acm_config);
+            return &usb_cdc_acm_config;
 
         case USB_DT_STRING:
         {
             const usb_string_desc_t *desc = &usb_desc_strings;
-            for (unsigned idx = setup->wValue.u8l; idx != 0; idx--)
+            for (unsigned idx = uca_setup.wValue.u8l; idx != 0; idx--)
             {
                 desc = (usb_string_desc_t *)((uint8_t *)desc + desc->bLength);
                 if (desc->bLength == 0)
-                    return UCA_ST_STALL;
+                    return NULL;
             }
 
-            reply->data = desc;
-            reply->size = desc->bLength;
-            break;
+            *size = desc->bLength;
+            return desc;
         }
-
-        default:
-            return UCA_ST_STALL;
     }
 
-    return UCA_ST_VALID;
+    return NULL;
 }
 
 // Encode bRequest and bmRequestType into one 16-bit value
 #define REQ_ENC(req,type) (((req) << 8) | (type))
 
-static inline uca_status_t uca_handle_setup (usb_data_t *reply)
+static inline const void *uca_handle_setup (uca_ep_status_t *status, unsigned *size)
 {
-    usb_setup_packet_t *setup = (usb_setup_packet_t *)uca_rx_buffer;
-    trace (setup->bRequest + '0');
-    trace ((setup->bmRequestType & USB_REQ_TYPE_DIR) ? '<' : '>');
+    trace ((uca_setup.bmRequestType & USB_REQ_TYPE_DIR) ? '<' : '>');
+    trace (uca_setup.bRequest + 'A');
 
-    switch (REQ_ENC (setup->bRequest, setup->bmRequestType))
+    if (uca_setup.bmRequestType & USB_REQ_TYPE_DIR)
+        // IN requests should not be followed by a DATA packet
+        uca_setup_valid = false;
+
+    switch (REQ_ENC (uca_setup.bRequest, uca_setup.bmRequestType))
     {
         case REQ_ENC (USB_REQ_STD_SET_ADDRESS,
                       USB_REQ_RECP_DEVICE | USB_REQ_TYPE_STANDARD):
             // Set USB device address && enable on next TX IRQ
-            uca_set_daddr = setup ->wValue.u8l;
+            uca_set_daddr = uca_setup.wValue.u8l;
             break;
 
         case REQ_ENC (USB_REQ_STD_SET_CONFIGURATION,
                       USB_REQ_RECP_DEVICE | USB_REQ_TYPE_STANDARD):
-            uca_device_config = setup->wValue.u8l;
+            uca_device_config = uca_setup.wValue.u8l;
             break;
 
         case REQ_ENC (USB_REQ_STD_GET_CONFIGURATION,
                       USB_REQ_RECP_DEVICE | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DIR):
-            reply->data = &uca_device_config;
-            reply->size = 1;
-            break;
+            *size = sizeof (uca_device_config);
+            return &uca_device_config;
 
         case REQ_ENC (USB_REQ_STD_GET_DESCRIPTOR,
                       USB_REQ_RECP_DEVICE | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DIR):
-            return uca_get_descriptor (reply);
+            return uca_get_descriptor (size);
 
         case REQ_ENC (USB_REQ_STD_GET_STATUS,
                       USB_REQ_RECP_DEVICE | USB_REQ_TYPE_STANDARD | USB_REQ_TYPE_DIR):
-            reply->data = &uca_device_status;
-            reply->size = 2;
-            break;
+            *size = sizeof (uca_device_status);
+            return &uca_device_status;
 
-#if USB_CDC_LINE_CODING
+#if USB_CDC_LINE_CONTROL
         case REQ_ENC (USB_REQ_CDC_SET_LINE_CODING,
                       USB_REQ_RECP_INTERFACE | USB_REQ_TYPE_CLASS):
-            if (uca_req.data_size < sizeof (usb_setup_packet_t) + sizeof (uca_line_format_t))
-                return UCA_ST_STALL;
+            if (status->rx_len == 0)
+                // Don't invalidate uca_setup now,
+                // will handle it again upon reception of a DATA packet
+                return NULL;
 
-            memcpy (&uca_line_format, (uint8_t *)setup + sizeof (*setup),
-                    sizeof (uca_line_format));
-            uca_change_flags |= 2;
+            if (status->rx_len >= sizeof (uca_line_format_t))
+            {
+                memcpy (&uca_line_format, status->rx_buff, sizeof (uca_line_format));
+                uca_change_flags |= UCA_EVENT_LINE_FORMAT;
+            }
             break;
 
         case REQ_ENC (USB_REQ_CDC_GET_LINE_CODING,
                       USB_REQ_RECP_INTERFACE | USB_REQ_TYPE_CLASS | USB_REQ_TYPE_DIR):
-            reply->data = &uca_line_format;
-            reply->size = sizeof (uca_line_format);
-            break;
+            *size = sizeof (uca_line_format);
+            return &uca_line_format;
 
         case REQ_ENC (USB_REQ_CDC_SET_CONTROL_LINE_STATE,
                       USB_REQ_RECP_INTERFACE | USB_REQ_TYPE_CLASS):
-            uca_line_state = setup->wValue.u16;
-            uca_change_flags |= 1;
+            uca_line_state = uca_setup.wValue.u16;
+            uca_change_flags |= UCA_EVENT_LINE_STATE;
             break;
 
         case REQ_ENC (USB_REQ_CDC_SEND_BREAK,
                       USB_REQ_RECP_INTERFACE | USB_REQ_TYPE_CLASS):
-            uca_change_flags |= 4;
+            uca_change_flags |= UCA_EVENT_BREAK;
             break;
 #endif
-
-        default:
-            return UCA_ST_STALL;
     }
 
-    return UCA_ST_VALID;
+    // mark uca_setup invalid
+    uca_setup_valid = false;
+    return NULL;
 }
 
-static inline void uca_handle_rx (uint32_t EPxR, unsigned epn)
+static inline void uca_handle_rx (uint32_t EPxR, unsigned epn, uca_ep_status_t *status)
 {
-    // Reset current request data if endpoint changes, or a SETUP packet
-    if ((uca_req.epn != epn) || (EPxR & USB_EP0R_SETUP))
-    {
-        memset (&uca_req, 0, sizeof (uca_req));
-        uca_req.epn = epn;
-    }
-    else
-        // Note: this will be printed BEFORE the request
-        // as many times as there are data fragments for SETUP
-        trace ('.');
+    trace ('0' + epn);
 
     // Move data from packet buffers to SRAM
-    uca_move_from_pma (epn);
+    uca_move_from_pma (epn, status);
 
     // Will respond with a VALID to this transaction by default.
     uca_status_t rxstat = UCA_ST_VALID;
 
-    if (EPxR & USB_EP0R_SETUP)
+    // Data for all endpoint types except control will be dispatched
+    // immediately so that we can handle large transfers
+    // (larger than uca_req.data)
+    if ((EPxR & USB_EP_TYPE_MASK_Msk) == USB_EP_CONTROL)
     {
-        // This is a SETUP packet
-        uca_req.setup = true;
+        /* !!!
+         * 8.4.6.4 Function Response to a SETUP Transaction
+         * ...
+         * Upon receiving a SETUP token, a function must accept the data.
+         * A function may not respond to a SETUP token with either STALL or NAK
+         */
 
-        if (uca_req.data_size < sizeof (usb_setup_packet_t))
+        // First SETUP is received, followed by DATA
+        if (EPxR & USB_EP_SETUP)
         {
-            // broken setup packet
-            uca_req.epn = 0xff;
-            uca_req.complete = false;
-            rxstat = UCA_ST_STALL;
+            uca_setup = *(usb_setup_packet_t *)status->rx_buff;
+            uca_setup_valid = true;
+            status->rx_len = 0;
         }
+
+        if (uca_setup_valid)
+        {
+            unsigned size = 0;
+            const void *data = uca_handle_setup (status, &size);
+
+            // Reply length cannot exceed wLength (but can exceed max_pkt)
+            if (size > uca_setup.wLength)
+                size = uca_setup.wLength;
+
+            // Send the answer
+            uca_send_data (EP_CTL, data, size);
+        }
+    }
+    else
+    {
+        if (EPxR & USB_EP_SETUP)
+            // SETUP request to non-control endpoint
+            rxstat = UCA_ST_STALL;
         else
         {
-            // And we're possibly waiting for DATA packet(-s) to follow
-            usb_setup_packet_t *setup = (usb_setup_packet_t *)uca_rx_buffer;
-            uca_req.complete = ((setup->bmRequestType & USB_REQ_TYPE_DIR) != 0)
-                    || (setup->wLength == 0);
-        }
-    }
+            trace ('r');
+            tracehex (status->rx_len >> 4);
+            tracehex (status->rx_len & 15);
 
-    if (uca_req.complete)
-    {
-        trace ('c');
-        switch (uca_req.epn)
-        {
-            case EP_CTL:
-                if (uca_req.setup)
-                {
-                    usb_data_t reply;
-                    rxstat = uca_handle_setup (&reply);
+            // Mark data as handled in the case uca_received()
+            // somehow indirectly calls uca_check_receive().
+            unsigned rx_len = status->rx_len;
+            status->rx_len = 0;
 
-                    if (rxstat == UCA_ST_VALID)
-                    {
-                        // Reply length cannot exceed wLength (but can exceed max_pkt)
-                        usb_setup_packet_t *setup = (usb_setup_packet_t *)uca_rx_buffer;
-                        if (reply.size > setup->wLength)
-                            reply.size = setup->wLength;
+            switch (epn)
+            {
+                case EP_DATA:
+                    rxstat = uca_received (status->rx_buff, rx_len,
+                                           rx_len < uca_ep_config [epn].rx_max);
+                    //rxstat = uca_received (status->rx_buff, status->rx_len,
+                    //                       status->rx_len < uca_ep_config [epn].rx_max);
+                    break;
 
-                        // Send the answer
-                        uca_send_data (EP_CTL, reply.data, reply.size);
-                    }
-                }
-                else
+                case EP_INT:
+                    // Respond with ACK (UCA_ST_VALID)
+                    break;
+
+                default:
+                    // Should never happen
                     rxstat = UCA_ST_STALL;
-                break;
+                    break;
+            }
 
-            case EP_DATA:
-                // Got data? Send to user function.
-                rxstat = uca_received (uca_rx_buffer, uca_req.data_size);
-                break;
-
-            default:
-                // Unknown endpoint
-                rxstat = UCA_ST_STALL;
-                break;
+            // If data was not accepted, restore it in our rx buffer
+            if (rxstat == UCA_ST_NAK)
+                status->rx_len = rx_len;
+            //if (rxstat != UCA_ST_NAK)
+            //    status->rx_len = 0;
         }
-
-        // Mark the request as handled
-        uca_req.epn = 0xff;
     }
+
+    trace ('$');
+    trace ((rxstat == UCA_ST_VALID) ? 'v' : (rxstat == UCA_ST_STALL) ? 's' : 'n');
 
     // Set EP receiver & transmitter state
     uint16_t mask = (rxstat << USB_EPRX_STAT_Pos);
@@ -389,64 +422,56 @@ static inline void uca_handle_rx (uint32_t EPxR, unsigned epn)
             (USB_EPREG_MASK | USB_EPRX_STAT);
 }
 
-static inline void uca_handle_tx (unsigned epn)
+static inline void uca_handle_tx (unsigned epn, uca_ep_status_t *status)
 {
-    // Fragment transmission complete, send next fragment if any
-    if (uca_ep_status [epn].tx_buff)
-        uca_kick_tx (epn);
+    trace ('0' + epn);
 
-    // If there's no more data to transmit, tell client
-    if ((epn == EP_DATA) && !uca_ep_status [epn].tx_buff)
-        uca_transmitted ();
+    // last initiated TX transaction is complete
+    status->tx_active = false;
+
+    // Fragment transmission complete, send next fragment if any
+    if (status->tx_buff)
+        uca_kick_tx (epn);
+    else
+    {
+        // If there's a pending device address change, apply it now
+        if (uca_set_daddr != 0)
+        {
+            trace ('a');
+            USB->DADDR = uca_set_daddr | USB_DADDR_EF;
+            uca_set_daddr = 0;
+            uca_active = true;
+            uca_change_flags |= UCA_EVENT_ACTIVE;
+            // Do not issue any answer since the USB device address has changed
+            return;
+        }
+
+        // If there's no more data to transmit, tell client to send more
+        if (epn == EP_DATA)
+            uca_transmitted ();
+    }
 }
 
 static inline void uca_handle_ctr (unsigned epn)
 {
+    uca_ep_status_t *status = &uca_ep_status [epn];
     uint32_t EPxR = USBEPxR (epn);
     if (EPxR & USB_EP_CTR_RX)
     {
-        // Acknowledge RX interrupt
-        USBEPxR (epn) = EPxR & (USB_EPREG_MASK & ~USB_EP_CTR_RX);
+        uca_handle_rx (EPxR, epn, status);
 
-        uca_handle_rx (EPxR, epn);
+        // Acknowledge RX interrupt
+        EPxR = USBEPxR (epn);
+        USBEPxR (epn) = EPxR & (USB_EPREG_MASK & ~USB_EP_CTR_RX);
     }
 
     if (EPxR & USB_EP_CTR_TX)
     {
+        // Send more, if needed
+        uca_handle_tx (epn, status);
+
         // Acknowledge TX interrupt
         USBEPxR (epn) = EPxR & (USB_EPREG_MASK & ~USB_EP_CTR_TX);
-
-        // If there's a pending device address change, apply it now
-        if (uca_set_daddr != 0)
-        {
-            trace ('A');
-            USB->DADDR = uca_set_daddr | USB_DADDR_EF;
-            uca_set_daddr = 0;
-        }
-        else
-            trace ('T');
-
-        // Send more, if needed
-        uca_handle_tx (epn);
-    }
-
-    // Now, when we handled the immediate tasks, we can notify user code
-    if (uca_change_flags & 1)
-    {
-        uca_change_flags &= ~1;
-        uca_line_state_changed ();
-    }
-
-    if (uca_change_flags & 2)
-    {
-        uca_change_flags &= ~2;
-        uca_line_format_changed ();
-    }
-
-    if (uca_change_flags & 4)
-    {
-        uca_change_flags &= ~4;
-        uca_line_break ();
     }
 }
 
@@ -462,19 +487,23 @@ void USB_LP_CAN1_RX0_IRQHandler ()
         // cleared are written with 0.
         USB->ISTR = (uint16_t)~USB_ISTR_RESET;
 
-        trace ('R');
+        trace ('r');
         uca_reset ();
     }
 
     else if (istr & USB_ISTR_SUSP)
     {
         USB->CNTR |= USB_CNTR_FSUSP;
+        uca_suspended = true;
+        uca_change_flags |= UCA_EVENT_SUSPEND;
         USB->ISTR = (uint16_t)~USB_ISTR_SUSP;
     }
 
     else if (istr & USB_ISTR_WKUP)
     {
         USB->CNTR &= ~USB_CNTR_FSUSP;
+        uca_suspended = false;
+        uca_change_flags |= UCA_EVENT_SUSPEND;
         USB->ISTR = (uint16_t)~USB_ISTR_WKUP;
     }
 
@@ -490,23 +519,45 @@ void USB_LP_CAN1_RX0_IRQHandler ()
                      USB_ISTR_SOF | USB_ISTR_ESOF))
         USB->ISTR = (uint16_t)~(USB_ISTR_PMAOVR | USB_ISTR_ERR |
                                 USB_ISTR_SOF | USB_ISTR_ESOF);
-}
 
-unsigned uca_state ()
-{
-    return (RCC_ENABLED (_USB) && (USB->DADDR & USB_DADDR_EF) ? UCA_STATE_ENABLED : 0) |
-           ((USB->CNTR & USB_CNTR_FSUSP) ? UCA_STATE_SUSPENDED : 0) |
-           ((USB->DADDR & USB_DADDR_ADD) ? UCA_STATE_CONFIGURED : 0) |
-           (uca_ep_status [EP_DATA].tx_buff ? 0 : UCA_STATE_TXEMPTY);
+    // Now, after we handled high-priority tasks, we can notify user code
+    if (uca_change_flags)
+    {
+        uca_event (uca_change_flags);
+        uca_change_flags = 0;
+    }
 }
 
 bool uca_transmit (const void *data, unsigned data_size)
 {
-    if (uca_ep_status [EP_DATA].tx_buff)
+    uca_ep_status_t *status = &uca_ep_status [EP_DATA];
+    if (status->tx_buff || status->tx_active)
         return false;
 
-    uca_send_data (EP_DATA, data, data_size);
+    if (data)
+        uca_send_data (EP_DATA, data, data_size);
     return true;
+}
+
+void uca_check_receive ()
+{
+    uca_ep_status_t *status = &uca_ep_status [EP_DATA];
+    if (status->rx_len == 0)
+        return;
+
+    uca_status_t rxstat = uca_received (status->rx_buff, status->rx_len,
+                                        status->rx_len < uca_ep_config [EP_DATA].rx_max);
+
+    // If data was accepted or rejected, mark it invalid
+    if (rxstat != UCA_ST_NAK)
+        status->rx_len = 0;
+
+    trace ('$');
+    trace ((rxstat == UCA_ST_VALID) ? 'v' : (rxstat == UCA_ST_STALL) ? 's' : 'n');
+
+    uint16_t mask = (rxstat << USB_EPRX_STAT_Pos);
+    USBEPxR (EP_DATA) = (USBEPxR (EP_DATA) ^ mask) &
+            (USB_EPREG_MASK | USB_EPRX_STAT);
 }
 
 /*
@@ -514,31 +565,21 @@ bool uca_transmit (const void *data, unsigned data_size)
  * instead, just define your own callback in your source file.
  */
 
-__WEAK uca_status_t uca_received (const void *data, unsigned length)
+__WEAK uca_status_t uca_received (const void *data, unsigned length, bool last)
 {
     (void)data;
     (void)length;
-    return UCA_ST_NAK;
+    (void)last;
+    return UCA_ST_VALID;
 }
 
 __WEAK void uca_transmitted ()
 {
 }
 
-#ifdef USB_CDC_LINE_CODING
-
-__WEAK void uca_line_state_changed ()
+__WEAK void uca_event (unsigned flags)
 {
+    (void)flags;
 }
-
-__WEAK void uca_line_format_changed ()
-{
-}
-
-__WEAK void uca_line_break ()
-{
-}
-
-#endif
 
 #endif // USB_BASE

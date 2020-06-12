@@ -23,9 +23,5 @@ int main ()
     systick_init ();
     led_init ();
 
-    for (;;)
-    {
-        // Wait for next interrupt
-        __WFI ();
-    }
+    for (;;) WFI ();
 }

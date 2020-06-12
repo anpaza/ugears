@@ -146,8 +146,5 @@ int main ()
     puts ("Dynamic clocking not enabled, please add #define CLOCK_DYNAMIC to HARDWARE_H!\r\n");
 #endif
 
-    for (;;)
-    {
-        __WFI ();
-    }
+    for (;;) WFI ();
 }

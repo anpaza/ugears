@@ -13,20 +13,23 @@ unsigned ringbuff_put (ringbuff_t *buff,
                        const uint8_t *data, unsigned size)
 {
     unsigned initial_size = size;
+    unsigned head = buff->head;
+    unsigned tail = buff->tail;
     while (size)
     {
-        unsigned c = (buff->tail <= buff->head) ?
-            (RINGBUFF_SIZE - buff->head) :
-            ((buff->tail - 1 - buff->head) & RINGBUFF_MASK);
-        if (c > size)
-            c = size;
+        unsigned free = (tail - 1 - head) & RINGBUFF_MASK;
+        unsigned ahead = RINGBUFF_SIZE - head;
+        unsigned c = MIN (MIN (free, ahead), size);
         if (c == 0)
             break;
 
-        memcpy (buff->data + buff->head, data, c);
-        buff->head = (buff->head + c) & RINGBUFF_MASK;
+        memcpy (buff->data + head, data, c);
+        head = (head + c) & RINGBUFF_MASK;
+        data += c;
         size -= c;
     }
+    buff->head = head;
+    buff->tail = tail;
 
     return initial_size - size;
 }

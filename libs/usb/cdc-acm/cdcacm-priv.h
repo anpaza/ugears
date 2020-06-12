@@ -26,7 +26,7 @@
 /* Endpoint max packet size, must be either <64, or a multiple of 32 */
 #define EP_CTL_PKT_SIZE         8
 #define EP_INT_PKT_SIZE         8
-#define EP_DATA_PKT_SIZE        64
+#define EP_DATA_PKT_SIZE        UCA_RECEIVED_MAX
 
 #define USB_CDC_SPEC            0x0120
 
@@ -59,31 +59,17 @@ typedef struct
 /** Endpoint status structure - one per each uca_ep_config_t */
 typedef struct
 {
-    // TX Buffer pointer, NULL when transmission complete
+    // TX data pointer, NULL when transmission complete
     const void *tx_buff;
-    // TX Data length
+    // RX buffer pointer, statically allocated at initialization
+    void *rx_buff;
+    // TX data length (up to 64k)
     uint16_t tx_len;
+    // RX data length
+    uint8_t rx_len;
+    // true if last initiated TX transaction has been completed by hw
+    bool tx_active : 1;
 } uca_ep_status_t;
-
-/** Holds current request data and reply */
-typedef struct
-{
-    /** Request accumulated data size */
-    uint16_t data_size;
-    /** Endpoint number for this request */
-    uint8_t epn;
-    /** true if this is a SETUP operation */
-    bool setup : 1;
-    /** true if last packet length < max endpoint packet size */
-    bool complete : 1;
-} usb_request_status_t;
-
-/** Abstract data type */
-typedef struct
-{
-    const void *data;
-    unsigned size;
-} usb_data_t;
 
 /* --- Dedicated Packet Buffer Memory (PMA) SRAM --- */
 

@@ -55,7 +55,7 @@ CFLAGS += -Wno-builtin-declaration-mismatch
 
 # Additional compiler defines
 DEFINES += \
-	ARCH_$(call asciiup,$(ARCH)) \
+	ARCH_$(call ASCIIUP,$(ARCH)) \
 	CONF_VER_H=$(CONF_VER_H) \
 	CONF_VER_L=$(CONF_VER_L) \
 	CONF_VER_R=$(CONF_VER_R) \
