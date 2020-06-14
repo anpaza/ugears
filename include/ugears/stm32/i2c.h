@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _I2C_H
-#define _I2C_H
+#ifndef _STM32_I2C_H
+#define _STM32_I2C_H
 
 /**
  * @file i2c.h
@@ -53,7 +53,7 @@
  */
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 // There are at least two different types of I2C peripherial
 #if defined STM32F1 || defined STM32F2 || defined STM32F4
@@ -473,4 +473,4 @@ static inline void i2c_abort (I2C_TypeDef *i2c)
 #endif
 }
 
-#endif // _I2C_H
+#endif // _STM32_I2C_H

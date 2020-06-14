@@ -2,8 +2,8 @@
  * Mixed LED + UART example
  */
 
-#include "ugears.h"
-#include "printf.h"
+#include <ugears/ugears.h>
+#include <useful/printf.h>
 
 uint8_t led_override = 0;
 

@@ -19,7 +19,7 @@
 */
 
 #include <stdint.h>
-#include "printf.h"
+#include <useful/printf.h>
 #undef putc
 
 printf_backend_t *stdout_backend;

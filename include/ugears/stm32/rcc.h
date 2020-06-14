@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _RCC_H
-#define _RCC_H
+#ifndef _STM32_RCC_H
+#define _STM32_RCC_H
 
 /**
  * @file rcc.h
@@ -812,4 +812,4 @@ static inline rst_reset_cause_t rcc_reset_cause ()
         rstUnknown;
 }
 
-#endif // _RCC_H
+#endif // _STM32_RCC_H

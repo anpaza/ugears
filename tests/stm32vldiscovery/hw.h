@@ -6,8 +6,8 @@
 #ifndef _HW_H
 #define _HW_H
 
-#include "ugears.h"
-#include "printf.h"
+#include <ugears/ugears.h>
+#include <useful/printf.h>
 
 extern void serial_init ();
 

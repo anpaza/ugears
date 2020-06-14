@@ -6,10 +6,10 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _RTC_H
-#define _RTC_H
+#ifndef _STM32_RTC_H
+#define _STM32_RTC_H
 
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * @file rtc.h
@@ -354,4 +354,4 @@ extern void rtc_init ();
 /// Reset the RTC completely
 extern void rtc_reset ();
 
-#endif // _RTC_H
+#endif // _STM32_RTC_H

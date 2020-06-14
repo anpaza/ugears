@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "usefun.h"
+#include <useful/usefun.h>
 
 uint32_t uleb128 (const uint8_t **data)
 {

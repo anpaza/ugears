@@ -2,7 +2,7 @@
  * Flash LEDs with system clock timer
  */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 void SysTick_Handler ()
 {

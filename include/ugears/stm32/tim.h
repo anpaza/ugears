@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _TIM_H
-#define _TIM_H
+#ifndef _STM32_TIM_H
+#define _STM32_TIM_H
 
 /**
  * @file tim.h
@@ -20,7 +20,7 @@
  *      for these checks on the caller code.
  */
 
-#include "useful.h"
+#include <useful/useful.h>
 
 /// Return the number of TIM peripherial associated with given hw feature
 #define TIM_NUM(x)		JOIN2 (x, _TIM_NUM)
@@ -68,4 +68,4 @@ static inline void tim_oneshot (TIM_TypeDef *tim)
     tim->DIER = TIM_DIER_UIE;           // включаем прерывание при обновлении счётчика
 }
 
-#endif // _TIM_H
+#endif // _STM32_TIM_H

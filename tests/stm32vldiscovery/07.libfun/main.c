@@ -1,5 +1,5 @@
 #include "hw.h"
-#include "usefun.h"
+#include <useful/usefun.h>
 
 // size is expected a power of two
 char test [256], test2 [256];

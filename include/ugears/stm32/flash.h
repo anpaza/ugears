@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _FLASH_H
-#define _FLASH_H
+#ifndef _STM32_FLASH_H
+#define _STM32_FLASH_H
 
 /**
  * @file flash.h
@@ -35,7 +35,7 @@
  *   a earlier version of same constants set.
  */
 
-#include "useful.h"
+#include <useful/useful.h>
 
 #if defined STM32F0 || defined STM32F1 || defined STM32F3
 #  define FLASH_TYPE_1
@@ -230,4 +230,4 @@ extern const void *flash_get (uint16_t id, uint16_t *size);
  */
 extern const void *flash_enum (uint32_t idx, uint16_t *id, uint16_t *size);
 
-#endif // _FLASH_H
+#endif // _STM32_FLASH_H

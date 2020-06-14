@@ -2,8 +2,8 @@
  * Test dynamic CPU clock routines
  */
 
-#include "ugears.h"
-#include "printf.h"
+#include <ugears/ugears.h>
+#include <useful/printf.h>
 
 uint32_t clk_errors;
 

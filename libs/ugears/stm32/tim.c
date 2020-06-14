@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 // convert timer base to a 8-bit value to shorten code
 #define TIM_ID(tim)		((((uint32_t)tim) >> 10) & 0xff)

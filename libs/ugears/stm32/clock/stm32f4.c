@@ -7,7 +7,7 @@
 */
 
 #include HARDWARE_H
-#include "clocks-stm32f4.h"
+#include <ugears/ugears.h>
 
 #ifdef CLOCK_DYNAMIC
 #define DYNCLKFUN

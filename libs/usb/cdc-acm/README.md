@@ -7,7 +7,7 @@ it run just on top of CMSIS.
 
 This library was inspired by STM32F103-USB-CDC-CMSIS by Samoilov Alexey:
 
-    https://github.com/saewave/STM32F103-USB-CDC-CMSIS).
+    https://github.com/saewave/STM32F103-USB-CDC-CMSIS
 
 But was rewritten from scratch to make it possible to release it under
 the Apache license.

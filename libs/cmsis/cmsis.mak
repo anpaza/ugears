@@ -8,7 +8,6 @@ SRC.cmsis$L =
 CFLAGS.cmsis$L += -Iinclude/cmsis
 
 ifeq ($(MCU.BRAND),stm32)
-CFLAGS.cmsis$L += -Iinclude/cmsis/stm32
 _ := $(strip $(foreach x,$(call ASCIILOW,$(MCU.DEFINES)),$(wildcard libs/cmsis/stm32/startup_$x.s)))
 ifneq ($_,)
 SRC.cmsis$L += $_

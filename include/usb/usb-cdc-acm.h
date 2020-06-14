@@ -43,9 +43,8 @@
 #ifndef _USBB_CDC_ACM_H
 #define _USBB_CDC_ACM_H
 
-#include "ugears.h"
-#include "usefun.h"
-#include "usb-cdc.h"
+#include <ugears/ugears.h>
+#include <usb/usb-cdc.h>
 
 /* Default VID:PID codes */
 #ifndef USB_CDC_VENDOR_ID
@@ -79,7 +78,7 @@
 
 /* Define to 1 to receive baud rate & byte format messages */
 #ifndef USB_CDC_LINE_CONTROL
-#  define USB_CDC_LINE_CODING           0
+#  define USB_CDC_LINE_CONTROL          0
 #endif
 
 #ifndef USB_IRQ_PRIO

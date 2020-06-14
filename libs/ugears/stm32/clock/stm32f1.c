@@ -7,7 +7,7 @@
 */
 
 #include HARDWARE_H
-#include "clocks-stm32f1.h"
+#include <ugears/ugears.h>
 
 #define _8MHZ			        8000000
 #define _24MHZ			        24000000

@@ -6,12 +6,12 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _SYSTICK_H
-#define _SYSTICK_H
+#ifndef _STM32_SYSTICK_H
+#define _STM32_SYSTICK_H
 
 #include HARDWARE_H
 #include "nvic.h"
-#include "fpmath.h"
+#include <useful/fpmath.h>
 
 #ifndef SYSTICK_DIV8
 /// If non-zero, timer counts SYSCLK/8 rather than SYSCLK.
@@ -180,4 +180,4 @@ void _delay_few_const_clocks (uint32_t clocks)
 #define delay(secs) \
     delay_clocks (sysclk_t2c (secs))
 
-#endif // _SYSTICK_H
+#endif // _STM32_SYSTICK_H

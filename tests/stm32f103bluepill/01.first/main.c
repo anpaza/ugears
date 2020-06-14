@@ -2,7 +2,7 @@
  * This program does almost the same as the default firmware :)
  */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 int main ()
 {

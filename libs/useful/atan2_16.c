@@ -9,8 +9,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "useful/useful.h"
-#include "useful/fpmath.h"
+#include <useful/useful.h>
+#include <useful/fpmath.h>
 
 // Тангенс от 15 градусов
 #define TAN15(n)	FxPs (0.26795, n)

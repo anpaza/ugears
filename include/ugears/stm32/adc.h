@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _ADC_H
-#define _ADC_H
+#ifndef _STM32_ADC_H
+#define _STM32_ADC_H
 
 /**
  * @file adc.h
@@ -16,8 +16,8 @@
  *      a different API.
  */
 
-#include "useful.h"
-#include "fpmath.h"
+#include <useful/useful.h>
+#include <useful/fpmath.h>
 #include "rcc.h"
 
 // There are at least four different types of ADC peripherial
@@ -911,4 +911,4 @@ static inline void adc_vbat (ADC_TypeDef *adc, bool enable)
 
 #endif // ADC_TYPE
 
-#endif // _ADC_H
+#endif // _STM32_ADC_H

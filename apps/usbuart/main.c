@@ -21,8 +21,7 @@
  * Both direction use separate memory buffers.
  */
 
-#include "usb-cdc-acm.h"
-#include "atomic.h"
+#include <usb/usb-cdc-acm.h>
 #include "ringbuff.h"
 
 // SysTick IRQ priority

@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
-#include "useful.h"
+#include <ugears/ugears.h>
+#include <useful/useful.h>
 
 #if defined DMA_TYPE_1
 

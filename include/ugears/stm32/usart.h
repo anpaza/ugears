@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _USART_H
-#define _USART_H
+#ifndef _STM32_USART_H
+#define _STM32_USART_H
 
 #include HARDWARE_H
 
@@ -40,7 +40,7 @@ extern "C" {
 
 #ifndef USART_TYPE_NONE
 
-#include "useful.h"
+#include <useful/useful.h>
 #include "rcc.h"
 
 // ------ // USART macros // ----- //
@@ -280,4 +280,4 @@ static inline bool usart_dma_rx_enabled (USART_TypeDef *usart)
 
 #endif // USART_TYPE_NONE
 
-#endif // _USART_H
+#endif // _STM32_USART_H

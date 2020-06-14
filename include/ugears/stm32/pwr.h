@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _PWR_H
-#define _PWR_H
+#ifndef _STM32_PWR_H
+#define _STM32_PWR_H
 
 /**
  * @file pwr.h
@@ -205,4 +205,4 @@ static inline void pwr_sleep (pwr_sleep_mode_t pwr_mode, uint32_t flags)
         __WFI ();
 }
 
-#endif // _PWR_H
+#endif // _STM32_PWR_H

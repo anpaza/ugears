@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _EXTI_H
-#define _EXTI_H
+#ifndef _STM32_EXTI_H
+#define _STM32_EXTI_H
 
 /**
  * @file exti.h
@@ -134,4 +134,4 @@ static inline void exti_clear_mask (uint32_t mask)
 static inline void exti_clear_all ()
 { EXTI->PR = 0xffffffff; }
 
-#endif // _EXTI_H
+#endif // _STM32_EXTI_H

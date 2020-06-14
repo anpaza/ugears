@@ -2,7 +2,7 @@
  */
 
 #include "hw.h"
-#include "usb-cdc-acm.h"
+#include <usb/usb-cdc-acm.h>
 
 void SysTick_Handler ()
 {

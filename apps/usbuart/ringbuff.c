@@ -7,7 +7,7 @@
 */
 
 #include "ringbuff.h"
-#include "usefun.h"
+#include <useful/usefun.h>
 
 unsigned ringbuff_put (ringbuff_t *buff,
                        const uint8_t *data, unsigned size)

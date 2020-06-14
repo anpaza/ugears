@@ -8,8 +8,7 @@
 */
 
 #include "cdcacm-priv.h"
-#include "printf.h"
-#include "atomic.h"
+#include <useful/printf.h>
 
 #undef putc
 

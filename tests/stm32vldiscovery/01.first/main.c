@@ -4,7 +4,7 @@
  * Push the "User" button (blue) to change LED flashing period.
  */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 int main ()
 {

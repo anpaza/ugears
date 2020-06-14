@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _NVIC_H
-#define _NVIC_H
+#ifndef _STM32_NVIC_H
+#define _STM32_NVIC_H
 
 /**
  * @file nvic.h
@@ -22,7 +22,7 @@
  */
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 /// Return the IRQ priority corresponding to this hardware feature
 #define IRQ_PRIO(x)		JOIN2 (x, _IRQ_PRIO)
@@ -132,4 +132,4 @@ static inline void nvic_irq_trigger (unsigned irq)
  */
 extern void nvic_system_reset ();
 
-#endif // _NVIC_H
+#endif // _STM32_NVIC_H

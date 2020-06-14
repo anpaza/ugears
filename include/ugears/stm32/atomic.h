@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _ATOMIC_H
-#define _ATOMIC_H
+#ifndef _STM32_ATOMIC_H
+#define _STM32_ATOMIC_H
 
 /**
  * @file atomic.h
@@ -24,7 +24,7 @@
  */
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * Creates a block of code that is executed atomically.
@@ -98,4 +98,4 @@ static __inline void __set_primask (uint32_t *val)
 #define NONATOMIC_FORCEOFF \
     uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = 1
 
-#endif // _ATOMIC_H
+#endif // _STM32_ATOMIC_H

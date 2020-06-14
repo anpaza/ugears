@@ -2,7 +2,7 @@
  * Blink the LED :)
  */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 void SysTick_Handler ()
 {

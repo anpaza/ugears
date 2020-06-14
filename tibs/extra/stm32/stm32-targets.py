@@ -10,7 +10,7 @@
 # Example:
 #       ./stm32-targets.py --xmcu=STM32F7 --xmcu=STM32MP --xmcu=STM32L \
 #               --xmcu=STM32U --xmcu=STM32W --xmcu=STM32G \
-#               $(find /usr/local/app/STM32CubeMX -name 'stm32targets*.xml')
+#               $(find /opt/STM32CubeMX -name 'stm32targets*.xml')
 #
 
 import sys, os, re

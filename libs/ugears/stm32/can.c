@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 #ifdef HAS_CAN
 

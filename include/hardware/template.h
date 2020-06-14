@@ -55,7 +55,9 @@
  * again append "_PORT" and "_PIN" to "LED" you provided to find out which
  * GPIO peripherial registers should be modified to set up the GPIO pin in
  * the respective configuration.
- *
+ */
+
+/*
  * Another important thing you define here is the MCU clock configuration.
  * STM32 MCUs can have very sophisticated clock configurations, so you will
  * have to consult the respective clocks-stm32f*.h file for a short
@@ -65,21 +67,6 @@
  * either the reference manual (the RCC section usually contains a very
  * helpful "Clock tree" diagram), or use a tool like STM32CubeMX to figure
  * out the clock values and then enter them here.
- */
-
-// Uncomment the line corresponding to your MCU
-//#include "stm32f0xx.h"
-//#include "stm32f1xx.h"
-//#include "stm32f2xx.h"
-//#include "stm32f3xx.h"
-//#include "stm32f4xx.h"
-//#include "stm32h7xx.h"
-
-/**
- * Also this file defines the clock configuration for your board.
- * This is heavily dependant on MCU series, thus the details can
- * be found in the respective ugears/stm32/clock_* file, which is
- * included from ugears.h file (via intermediary clocks.h).
  *
  * The basic idea is that you define some macros before including the
  * respective file, and the header file will find out the rest for you.

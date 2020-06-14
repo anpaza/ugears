@@ -6,10 +6,10 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _IWDG_H
-#define _IWDG_H
+#ifndef _STM32_IWDG_H
+#define _STM32_IWDG_H
 
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * @file iwdg.h
@@ -69,4 +69,4 @@ extern bool iwdg_init (uint32_t reload_ms
 static inline void iwdg_reload ()
 { IWDG->KR = IWDG_KEY_RELOAD; }
 
-#endif // _IWDG_H
+#endif // _STM32_IWDG_H

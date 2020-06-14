@@ -14,9 +14,6 @@
 #define HSE_VALUE               8000000
 #define CLOCK_DYNAMIC
 
-#include "stm32f1xx.h"
-#include "clocks-stm32f1.h"
-
 // RTC crystal frequency, Hz
 #define LSE_VALUE		32768
 
@@ -41,13 +38,18 @@
 #define USRBUT_PIN		0
 #define USRBUT_GPIO_CONFIG	INPUT,FLOATING,X
 
+// Default LED is green
+#define LED_PORT                GLED_PORT
+#define LED_PIN                 GLED_PIN
+#define LED_GPIO_CONFIG         GLED_GPIO_CONFIG
+
 // We use USART1 in all samples but you can change it
 // to any other USART by modifying the values below
 #define SERIAL_USART_NUM	1
 // Serial port setup
 #define SERIAL_SETUP		USART_DEFAULT_SETUP
-// Serial IRQ priority
-#define SERIAL_IRQ_PRIO		0
+// Serial port IRQ priority
+#define SERIAL_USART_IRQ_PRIO	32
 
 // USART1 I/O ports
 #define SERIAL_TX_PORT		A

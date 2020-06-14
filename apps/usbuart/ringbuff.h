@@ -9,7 +9,7 @@
 #ifndef _RINGBUFF_H
 #define _RINGBUFF_H
 
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * @file ringbuff.h

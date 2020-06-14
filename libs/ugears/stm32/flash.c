@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
+#include <ugears/ugears.h>
 
 #define EraseTimeout          0.01
 #define ProgramTimeout        0.0001

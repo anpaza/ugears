@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
-#include "printf.h"
+#include <ugears/ugears.h>
+#include <useful/printf.h>
 #undef putc
 
 static printf_backend_t usart_backend;

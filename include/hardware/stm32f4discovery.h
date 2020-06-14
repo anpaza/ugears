@@ -25,9 +25,6 @@
 // Uncomment to test dynamic clock changing functions
 //#define CLOCK_DYNAMIC
 
-#include "stm32f4xx.h"
-#include "clocks-stm32f4.h"
-
 // User LD3: orange LED is a user LED connected to the I/O PD13 of the STM32F407VGT6.
 #define LED3_PORT		D
 #define LED3_PIN		13

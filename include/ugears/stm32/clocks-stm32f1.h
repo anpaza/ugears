@@ -6,11 +6,11 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _CLOCKS_STM32F1_H
-#define _CLOCKS_STM32F1_H
+#ifndef _STM32_CLOCKS_STM32F1_H
+#define _STM32_CLOCKS_STM32F1_H
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * @file clocks-stm32f1.h
@@ -311,4 +311,4 @@ extern void clock_HSI_stop ();
 static inline bool clock_HSI_enabled ()
 { return !!(RCC->CR & RCC_CR_HSION); }
 
-#endif // _CLOCKS_STM32F1_H
+#endif // _STM32_CLOCKS_STM32F1_H

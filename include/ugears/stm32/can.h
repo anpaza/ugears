@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _CAN_H
-#define _CAN_H
+#ifndef _STM32_CAN_H
+#define _STM32_CAN_H
 
 /**
  * @file can.h
@@ -266,4 +266,4 @@ static inline void can_filter_mask_16 (uint32_t n, uint32_t id1, uint32_t mask1,
 
 #endif // CAN1 || CAN2 || CAN3
 
-#endif // _CAN_H
+#endif // _STM32_CAN_H

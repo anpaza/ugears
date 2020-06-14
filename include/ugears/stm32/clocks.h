@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _CLOCKS_H
-#define _CLOCKS_H
+#ifndef _STM32_CLOCKS_H
+#define _STM32_CLOCKS_H
 
 #if defined STM32F0
 #include "clocks-stm32f0.h"
@@ -21,4 +21,4 @@
 #include "clocks-stm32f4.h"
 #endif
 
-#endif // _CLOCKS_H
+#endif // _STM32_CLOCKS_H

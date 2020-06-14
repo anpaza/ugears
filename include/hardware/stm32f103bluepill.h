@@ -21,11 +21,6 @@
 // Comment out to save a few bytes
 #define CLOCK_DYNAMIC
 
-#ifndef __ASSEMBLY__
-#include "stm32f1xx.h"
-#include "clocks-stm32f1.h"
-#endif
-
 // Debug LED cathode connected to VCC, anode to PC13 via 510 Ohm
 #define LED_PORT		C
 #define LED_PIN			13

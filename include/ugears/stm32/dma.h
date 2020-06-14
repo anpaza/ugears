@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _DMA_H
-#define _DMA_H
+#ifndef _STM32_DMA_H
+#define _STM32_DMA_H
 
 /**
  * @file dma.h
@@ -38,7 +38,7 @@
  */
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 // There are at least three different types of GPIO peripherial
 #if defined STM32F0 || defined STM32F1 || defined STM32F3
@@ -211,4 +211,4 @@ extern void dma2_stop (unsigned chan);
 
 #endif // DMA_TYPE_1
 
-#endif // _DMA_H
+#endif // _STM32_DMA_H

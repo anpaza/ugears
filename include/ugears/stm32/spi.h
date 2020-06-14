@@ -6,15 +6,15 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _SPI_H
-#define _SPI_H
+#ifndef _STM32_SPI_H
+#define _STM32_SPI_H
 
 /**
  * @file spi.h
  *      A simple library to work with the SPI peripherial.
  */
 
-#include "useful.h"
+#include <useful/useful.h>
 
 /// 000: fPCLK/2
 #define SPI_CR1_CLK_2		(0)
@@ -43,4 +43,4 @@
 #define SPI(x)			JOIN2 (SPI, SPI_NUM (x))
 
 
-#endif // _SPI_H
+#endif // _STM32_SPI_H

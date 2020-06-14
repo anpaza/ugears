@@ -15,9 +15,6 @@
 // Comment out to save a few bytes
 #define CLOCK_DYNAMIC
 
-#include "stm32f0xx.h"
-#include "clocks-stm32f0.h"
-
 // The debug LED
 #define LED_PORT		A
 #define LED_PIN			4

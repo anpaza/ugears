@@ -6,10 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "ugears.h"
-#include "fpmath.h"
-#include "usefun.h"
-#include "atomic.h"
+#include <ugears/ugears.h>
+#include <useful/fpmath.h>
+#include <useful/usefun.h>
 
 #if defined I2C_TYPE_1
 

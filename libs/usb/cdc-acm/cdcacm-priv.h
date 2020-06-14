@@ -9,9 +9,10 @@
 #ifndef _CDCACM_PRIV_H
 #define _CDCACM_PRIV_H
 
-#include "usb.h"
-#include "usb-cdc.h"
-#include "usb-cdc-acm.h"
+#include <usb/usb.h>
+#include <usb/usb-cdc.h>
+#include <usb/usb-cdc-acm.h>
+#include <useful/usefun.h>
 
 /* Number of endpoints */
 #define EP_COUNT		4

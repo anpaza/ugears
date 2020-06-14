@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _GPIO_H
-#define _GPIO_H
+#ifndef _STM32_GPIO_H
+#define _STM32_GPIO_H
 
 /**
  * @file gpio.h
@@ -35,7 +35,7 @@
  * @endcode
  */
 
-#include "useful.h"
+#include <useful/useful.h>
 
 // There are at least three different types of GPIO peripherial
 #if defined STM32F1
@@ -367,4 +367,4 @@ static inline void gpio_eventout (int conf)
 
 #endif // STM32F1
 
-#endif // _GPIO_H
+#endif // _STM32_GPIO_H

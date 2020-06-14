@@ -6,11 +6,11 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef _CLOCKS_STM32F4_H
-#define _CLOCKS_STM32F4_H
+#ifndef _STM32_CLOCKS_STM32F4_H
+#define _STM32_CLOCKS_STM32F4_H
 
 #include HARDWARE_H
-#include "useful.h"
+#include <useful/useful.h>
 
 /**
  * @file clocks-stm32f4.h
@@ -340,4 +340,4 @@ extern uint8_t clock_HSI_start ();
 static inline void clock_HSI_stop ()
 { RCC->CR &= ~RCC_CR_HSION; }
 
-#endif // _CLOCKS_STM32F4_H
+#endif // _STM32_CLOCKS_STM32F4_H

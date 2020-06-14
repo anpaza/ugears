@@ -1,6 +1,4 @@
 #include "hw.h"
-#include "dma.h"
-#include "nvic.h"
 
 static const char test_data [] = "[This data came via DMA controller]\r\n";
 static char rxbuff [10];

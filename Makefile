@@ -60,7 +60,7 @@ DEFINES += \
 	CONF_VER_L=$(CONF_VER_L) \
 	CONF_VER_R=$(CONF_VER_R) \
 	RTC_INITTIME="$(RTC_INITTIME)-RTC_BASETIME" \
-	BDATE="\"$(BDATE)\""
+	BDATE="\"$(subst $(SPACE),;,$(BDATE))\""
 
 # Additiona files (except sources) to include in distribution
 DISTEXTRA += include/ libs/ tibs/ config.mak local-config-sample.mak

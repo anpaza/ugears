@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "time.h"
+#include <useful/time.h>
 
 /**
  * This variable is usually incremented in SysTick handler
