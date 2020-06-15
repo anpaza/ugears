@@ -24,7 +24,7 @@ extern void systick_init ();
  * a NOP in a closed loop, and in release mode will invoke WFI as designed.
  */
 #ifdef __DEBUG__
-#  define WFI() __asm ("nop");
+#  define WFI() __NOP ();
 #else
 #  define WFI() __WFI ();
 #endif
