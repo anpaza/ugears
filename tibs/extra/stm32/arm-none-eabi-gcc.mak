@@ -50,7 +50,7 @@ ARM-NONE-EABI-GCC.CPPFLAGS ?= -pipe -x c-header $(ARM-NONE-EABI-GCC.CFLAGS.DEF) 
 
 ARM-NONE-EABI-GCC.LD ?= $(ARM-NONE-EABI-GCC.PFX)gcc
 ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
-    -Wl,--gc-sections -mabi=aapcs -nostartfiles -nolibc \
+    -Wl,--gc-sections -mabi=aapcs -nostartfiles \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
 ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
 

@@ -21,7 +21,7 @@ static void do_test_xsend ()
 
         puts ("\r\nSending 1000 visible characters:");
         for (unsigned i = 0; i < 1000; i++)
-            putc ('.');
+            putchar ('.');
 
         puts ("\r\nNow sending 1000 visible characters with TX off:");
 
@@ -34,7 +34,7 @@ static void do_test_xsend ()
 
         // You should see none of these
         for (unsigned i = 0; i < 1000; i++)
-            putc ('@');
+            putchar ('@');
 
         // Wait until data leaves output FIFO and DR.
         while (!usart_tx_complete (USART (SERIAL)))

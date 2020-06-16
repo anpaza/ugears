@@ -1,120 +1,105 @@
 /*
-File: printf.h
+    Simple printf implementation for microcontrollers
+    Copyright (C) 2020 Andrey Zabolotnyi
 
-Copyright (C) 2004  Kustaa Nyholm
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
 */
 
-/**
-@file printf.h
+#ifndef _PRINTF_H
+#define _PRINTF_H
 
-This library is realy just two files: 'printf.h' and 'printf.c'.
-
-They provide a simple and small (+200 loc) printf functionality to 
-be used in embedded systems.
-
-I've found them so usefull in debugging that I do not bother with a 
-debugger at all.
-
-They are distributed in source form, so to use them, just compile them 
-into your project. 
-
-Two printf variants are provided: printf and sprintf. 
-
-The formats supported by this implementation are: 'd' 'u' 'c' 's' 'x' 'X'.
-
-Zero padding and field width are also supported.
-
-If the library is compiled with 'PRINTF_SUPPORT_LONG' defined then the 
-long specifier is also
-supported. Note that this will pull in some long math routines (pun intended!)
-and thus make your executable noticably longer.
-
-The memory foot print of course depends on the target cpu, compiler and 
-compiler options, but a rough guestimate (based on a H8S target) is about 
-1.4 kB for code and some twenty 'int's and 'char's, say 60 bytes of stack space. 
-Not too bad. Your milage may vary. By hacking the source code you can 
-get rid of some hunred bytes, I'm sure, but personally I feel the balance of 
-functionality and flexibility versus  code size is close to optimal for
-many embedded systems.
-
-To use the printf you need to supply your own character output function, 
-something like :
-
-@code
-void putc ( char c, void* p )
-	{
-	while (!SERIAL_PORT_EMPTY) ;
-	SERIAL_PORT_TX_REGISTER = c;
-	}
-@endcode
-
-Before you can call printf you need to initialize it to use your 
-character output function with something like:
-
-@code
-init_printf(NULL,putc);
-@endcode
-
-Notice the 'NULL' in 'init_printf' and the parameter 'void* p' in 'putc', 
-the NULL (or any pointer) you pass into the 'init_printf' will eventually be 
-passed to your 'putc' routine. This allows you to pass some storage space (or 
-anything realy) to the character output function, if necessary. 
-This is not often needed but it was implemented like that because it made 
-implementing the sprintf function so neat (look at the source code).
-
-The code is re-entrant, except for the 'init_printf' function, so it 
-is safe to call it from interupts too, although this may result in mixed output. 
-If you rely on re-entrancy, take care that your 'putc' function is re-entrant!
-
-The printf and sprintf functions are actually macros that translate to 
-'tfp_printf' and 'tfp_sprintf'. This makes it possible
-to use them along with 'stdio.h' printf's in a single source file. 
-You just need to undef the names before you include the 'stdio.h'.
-Note that these are not function like macros, so if you have variables
-or struct members with these names, things will explode in your face.
-Without variadic macros this is the best we can do to wrap these
-fucnction. If it is a problem just give up the macros and use the
-functions directly or rename them.
-
-For further details see source code.
-
-regs Kusti, 23.10.2004
-*/
-
-
-#ifndef __TFP_PRINTF__
-#define __TFP_PRINTF__
-
+#include <useful/useful.h>
 #include <stdarg.h>
 
-// Uncomment for long format support (%l)
-//#define PRINTF_LONG_SUPPORT
+/**
+ * @file printf.h
+ *      A very basic s/printf implementation, supporting the most useful
+ *      and a few non-standard conversion specifications.
+ *
+ * * %d print next arg as a signed integer
+ * * %u print next arg as a unsigned integer
+ * * %s print next arg as a zero-terminated string
+ * * %c print next arg as a char
+ * * %f print next arg as a signed fixed-point value
+ * * %F print next arg as a unsigned fixed-point value
+ * * l this modifier, if used before d or u, will interpret next arg as
+ *      a long type (signed or unsigned)
+ * * h this modifier, if used before d or u, will interpret next arg as
+ *      a short type (signed or unsigned)
+ * * hh this modifier, if used before d or u, will interpret next arg as
+ *      a byte type (signed or unsigned)
+ * * [width] if a number is specified before d, u, s, f, F modifiers,
+ *      sets the width of the output field
+ * * [.fracdigits] if a .number is specified before the f and F modifiers,
+ *      sets the number of digits to print after the decimal point
+ * * [.fracbits] if a ..number is specified before the f and F modifiers,
+ *      sets the number of bits in the fractional part of the number
+ *
+ * The following macros, which can be set to 0 or 1 in your HARDWARE_H,
+ * or can be left undefined to use standard settings (all enabled by default),
+ * can be used to enable or disable specific functionality:
+ *
+ * USING_LIBC - define this to avoid definition of non-underscored macros
+ *      for printf and other standard C functions. Define this to avoid
+ *      conflicts with libc stdio.h, if you use it. You still can access
+ *      this variant of printf by using respective underscored identifiers.
+ * PRINTF_LONG_SUPPORT - enable support for the 'l' modifiers.
+ *      'l' interprets next arg as (unsigned) long.
+ * PRINTF_SHORT_SUPPORT - enable support for the 'h' and 'hh' modifiers.
+ *      'h' interprets next arg as (unsigned) short, 'hh' as (unsigned) byte.
+ * PRINTF_FP_SUPPORT - enable support for the 'f' and 'F' conversions.
+ *
+ * Fixed-point format is useful on MCUs without FPUs, when you split the 32
+ * bits of an integer value into a integer and fractional part, each using
+ * a fixed number of bits. For example, the FP12 format uses 12 lower bits
+ * to represent fractional part, and upprer (32-12 = 20) bits to represent
+ * the integer part. Now, say, 0x00012345 splits as integer part = 0x00012
+ * and fractional part = 0x345/(2^12) ~= 0.20435, e.g. 0x12345 ~= 18.20435.
+ *
+ * The f and F formats are for printing this kind of numbers. For example,
+ * the %.3.12f format will print a FP12 number with 3 digits after the decimal
+ * dot, e.g. printf ("%.3.12f", 0x12345) will print "18.204" (integer part
+ * 0x12 = 18, fractional part = 0x345 / 2^12 = 0.204).
+ */
+
+#ifndef PRINTF_LONG_SUPPORT
+// Set to 1 for long format support (%l and %ll)
+#define PRINTF_LONG_SUPPORT 1
+#endif
+// Uncomment for short format support (%h and %hh)
+#define PRINTF_SHORT_SUPPORT
 // Uncomment for fixed-point support (%[width].[fracdigits].[fracbits](f|F))
 #define PRINTF_FP_SUPPORT
 
 /**
  * This defines the backend functions that do actual low-level output.
+ * If you need additional parameters passed to your backend, you can
+ * store them as part of a larger backend structure, e.g.:
+ *
+ * @verbatim
+ * struct my_backend
+ * {
+ *      printf_backend_t backend;
+ *      void *data;
+ *      int moredata;
+ * };
+ *
+ * ...
+ *
+ * void (*putc) (printf_backend_t *self, char c)
+ * {
+ *      struct my_backend *myself = CONTAINER_OF (self, struct my_backend, backend);
+ *      ...
+ * }
+ * @endverbatim
  */
 typedef struct _printf_backend_t
 {
     /**
      * The function that outputs a single character.
-     * @arg self A pointer to this printf_backend_t structure
-     * @arg c The character to echo
+     * @param self A pointer to this printf_backend_t structure
+     * @param c The character to echo
      */
     void (*putc) (struct _printf_backend_t *self, char c);
 
@@ -124,65 +109,92 @@ typedef struct _printf_backend_t
      * so you must check before using it.
      */
     void (*flush) (struct _printf_backend_t *self);
-
-    /**
-     * Additional user data attached to this printing backend.
-     */
-    void *data;
 } printf_backend_t;
 
-extern printf_backend_t *stdout_backend;
+extern printf_backend_t *printf_stdout;
+
+/*
+ * Unfortunately, we can't use __attribute__ ((format (printf, 1, 2)))
+ * to check format strings at runtime because our format conversion
+ * specifiers are not quite standard.
+ */
 
 /**
  * Define the low-level backend for printf() & company.
+ *
+ * @param stdout The backend for printing to stdout
  */
 static inline void init_printf (printf_backend_t *stdout)
-{ stdout_backend = stdout; }
+{ printf_stdout = stdout; }
 
 /**
- * The usual printf(), works via the stdout backend.
- * @arg fmt
- *      The C-style format string with some modifications.
+ * A general vprintf (), using a backend as the first argument
+ * and a pointer to a list of format string arguments.
+ *
+ * @param fmt The C-style format string
  */
-extern void tfp_printf (const char *fmt, ...);
+extern void _vgprintf (printf_backend_t *backend,
+                       const char *fmt, va_list va);
+
+/**
+ * A general printf (), using a backend as the first argument
+ *
+ * @param fmt The C-style format string
+ */
+extern void _gprintf (printf_backend_t *backend, const char *fmt, ...);
+
+/**
+ * This is a snprintf () using same format strings as printf ().
+ * The resulting string in buf is always zero-terminated, even if buf
+ * doesn't contain enough space.
+ *
+ * @param buf The output buffer
+ * @param size Output buffer size
+ * @param fmt The C-style format string
+ * @return The size of resulting string in buf, without zero terminator
+ */
+extern size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
+
+/**
+ * A variant of snprintf using va_list instead of varargs.
+ *
+ * @param buf The output buffer
+ * @param size Output buffer size
+ * @param fmt The C-style format string
+ * @param va A pointer to variable arguments list
+ * @return The size of resulting string in buf, without zero terminator
+ */
+extern size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va);
+
+/**
+ * The usual printf (), outputs via printf_stdout.
+ *
+ * @param fmt The C-style format string
+ */
+extern void _printf (const char *fmt, ...);
 
 /**
  * Output a single character via the stdout backend.
  */
-extern void tfp_putc (char c);
+extern void _putchar (char c);
 
 /**
  * Output a string followed by \n.
- * @arg s
- *      The string.
+ * @arg str The string.
  */
-extern void tfp_puts (const char *s);
-
-/**
- * This is your usual sprintf(), using same format strings as printf().
- * Note this function does not check for buffer bounds, so if you don't
- * take care, you can write past the end of your buffer.
- * @arg s
- *      The output buffer
- * @arg fmt
- *      The C-style format string.
- */
-extern void tfp_sprintf (char *s, const char *fmt, ...);
-
-/**
- * This is a lower-level printf using a custom backend.
- */
-extern void tfp_format (printf_backend_t *backend, const char *fmt, va_list va);
+extern void _puts (const char *str);
 
 /**
  * Flush the stdout buffer, if any
  */
-extern void tfp_fflush ();
+extern void _fflush (void);
 
-#define printf		tfp_printf
-#define sprintf		tfp_sprintf
-#define putc		tfp_putc
-#define puts		tfp_puts
-#define fflush		tfp_fflush
-
+#ifndef USING_LIBC
+#  define printf    _printf
+#  define snprintf  _snprintf
+#  define putchar   _putchar
+#  define puts      _puts
+#  define fflush    _fflush
 #endif
+
+#endif // _PRINTF_H

@@ -9,7 +9,7 @@
 #ifndef __USEFUN_H__
 #define __USEFUN_H__
 
-#include <stdint.h>
+#include <useful/useful.h>
 
 /**
  * @file usefun.h
@@ -28,7 +28,7 @@
  * @arg len
  *      Number of bytes to fill
  */
-extern void memset (void *dest, char c, unsigned len);
+extern void _memset (void *dest, char c, unsigned len);
 
 /**
  * Fill the first @a len bytes of the memory area pointed to by
@@ -49,7 +49,15 @@ extern void memclr (void *dest, unsigned len);
  * @arg len
  *      Number of bytes to copy
  */
-extern void memcpy (void *dest, const void *src, unsigned len);
+extern void _memcpy (void *dest, const void *src, unsigned len);
+
+/**
+ * Return the length of a zero-terminated string
+ *
+ * @param str A pointer to a string
+ * @return String length, bytes
+ */
+extern size_t _strlen (const char *str);
 
 /**
  * Xorshift Random Number Generator by George Marsaglia:
@@ -230,12 +238,18 @@ extern uint32_t uget32le (const void *data);
  */
 extern uint32_t uget32be (const void *data);
 
-#if ARCH_ENDIAN == ARCH_LITTLE_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define uget16		uget16le
 #define uget32		uget32le
 #else
 #define uget16		uget16be
 #define uget32		uget32be
+#endif
+
+#ifndef USING_LIBC
+#  define memset        _memset
+#  define memcpy        _memcpy
+#  define strlen        _strlen
 #endif
 
 #endif // __USEFUN_H__

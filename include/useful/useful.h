@@ -19,13 +19,19 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
-#define ARCH_LITTLE_ENDIAN	3412
-#define ARCH_BIG_ENDIAN		1234
+// Optimize by speed (1) or size (0) where appropiate
+#define __OPTIMIZE__			1
+
+#if !defined __BYTE_ORDER__
+#  define __ORDER_LITTLE_ENDIAN__	3412
+#  define __ORDER_BIG_ENDIAN__		1234
 
 #if defined ARCH_X86 || defined ARCH_X86_64 || defined ARCH_ARM
-# define ARCH_ENDIAN		ARCH_LITTLE_ENDIAN
+# define __BYTE_ORDER__			__ORDER_LITTLE_ENDIAN__
 #endif
+#endif // __BYTE_ORDER__
 
 /// Get the number of elements in a static array
 #define ARRAY_LEN(x)		(sizeof (x) / sizeof (x [0]))
@@ -35,6 +41,10 @@
 
 /// Get the offset of member m in compound type t
 #define OFFSETOF(t, m)		__builtin_offsetof (t, m)
+
+/// Get a pointer to the container structure from an offset of a field
+#define CONTAINER_OF(ptr, type, member) \
+	((type *)((char *)ptr - offsetof (type, member)))
 
 #define _STRINGIFY(x)		#x
 /// Convert x -> "x"
@@ -68,11 +78,6 @@
         __typeof__ (y) _y = y; \
         _x < _y ? _x : _y; \
     })
-
-#if !defined __cplusplus
-/// Define the bool type for C
-typedef enum { false = 0, true = !false } bool;
-#endif
 
 #define _JOIN2(a,b)		a##b
 /// Join two tokens together and interpret the result as a new token
@@ -125,7 +130,7 @@ typedef union
 #endif
     __aliasing_through;
 
-#if ARCH_ENDIAN == ARCH_LITTLE_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 /// Получить little-endian uint32_t из массива data со смещением ofs байт.
 #  define GET_UINT32_LE(data,ofs)	((__aliasing_through *)((char *)(data) + (ofs)))->u32
 /// Получить big-endian uint32_t из массива data со смещением ofs байт.

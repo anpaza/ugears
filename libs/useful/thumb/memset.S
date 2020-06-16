@@ -18,10 +18,11 @@ memclr:
 	mov	r2, r1
 	mov	r1, #0
 
-// void memset (void *dest, char c, unsigned len)
-	.global	memset
-	.type	memset, %function
-memset:
+// void _memset (void *dest, char c, unsigned len)
+	.global	_memset
+	.type	_memset, %function
+
+_memset:
 // Align target address to word boundary first
 1:	cbz	r2, 4f		// quit if len=0
 	tst	r0, #3

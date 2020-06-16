@@ -80,42 +80,50 @@ char sh_getc ()
     return sh_trap (SYS_READC, (void *)0);
 }
 
-static printf_backend_t semihosting_backend;
-static char semihosting_backend_buffer [64];
+static struct semihosting_backend_t
+{
+    printf_backend_t be;
+    int top;
+    char buffer [64];
+} semihosting_stdout;
 
 void sh_backend_flush (printf_backend_t *backend)
 {
-    int top = (int)backend->data;
-    if (top != -1)
+    struct semihosting_backend_t *self =
+        CONTAINER_OF (backend, struct semihosting_backend_t, be);
+
+    if (self->top != -1)
     {
-        semihosting_backend_buffer [top] = 0;
-        sh_puts (semihosting_backend_buffer);
-        backend->data = (void *)0;
+        self->buffer [self->top] = 0;
+        sh_puts (self->buffer);
+        self->top = 0;
     }
 }
 
 static void sh_backend_putc (printf_backend_t *backend, char c)
 {
-    int top = (int)backend->data;
-    if (top == -1)
+    struct semihosting_backend_t *self =
+        CONTAINER_OF (backend, struct semihosting_backend_t, be);
+
+    if (self->top == -1)
     {
         sh_putc (c);
         return;
     }
 
-    semihosting_backend_buffer [top++] = c;
-    backend->data = (void *)top;
+    self->buffer [self->top++] = c;
 
-    if ((top >= (int)sizeof (semihosting_backend_buffer) - 1) || (c == '\n') || (c == '\r'))
+    if ((self->top >= (int)sizeof (self->buffer) - 1) ||
+        (c == '\n'))
         sh_backend_flush (backend);
 }
 
 void sh_printf (bool buffered)
 {
-    semihosting_backend.putc = sh_backend_putc;
-    semihosting_backend.flush = sh_backend_flush;
-    // number of used chars in semihosting_backend_buffer
-    semihosting_backend.data = (void *)(buffered ? 0 : -1);
+    semihosting_stdout.be.putc = sh_backend_putc;
+    semihosting_stdout.be.flush = sh_backend_flush;
+    // number of used chars in buffer
+    semihosting_stdout.top = buffered ? 0 : -1;
 
-    init_printf (&semihosting_backend);
+    init_printf (&semihosting_stdout.be);
 }

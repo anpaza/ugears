@@ -10,12 +10,13 @@
 	.cpu cortex-m3
 	.thumb
 
-// extern void memcpy (void *dest, const void *src, unsigned len);
+// extern void _memcpy (void *dest, const void *src, unsigned len);
 	.section .text,"ax",%progbits
-	.global	memcpy
-	.type	memcpy, %function
+	.global	_memcpy
+	.type	_memcpy, %function
 
-memcpy:	cbz	r2, 6f		// quit if len=0
+_memcpy:
+	cbz	r2, 6f		// quit if len=0
 
 // Check if src and dest can be aligned to 4-byte boundary
 	eors	r3, r0, r1

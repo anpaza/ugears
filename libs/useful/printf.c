@@ -1,320 +1,392 @@
 /*
-    File: printf.c
+    Simple printf implementation for microcontrollers
+    Copyright (C) 2020 Andrey Zabolotnyi
 
-    Copyright (C) 2004  Kustaa Nyholm
-
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2.1 of the License, or (at your option) any later version.
-
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
 */
 
 #include <stdint.h>
+#include <useful/useful.h>
+#include <useful/usefun.h>
 #include <useful/printf.h>
-#undef putc
 
-printf_backend_t *stdout_backend;
+printf_backend_t *printf_stdout;
 
 #ifdef PRINTF_LONG_SUPPORT
-
-static char *uli2a (unsigned long int num, unsigned int base, int uc, char * bf)
-{
-    int n = 0;
-    unsigned int d = 1;
-    while (num / d >= base)
-        d *= base;
-    while (d != 0)
-    {
-        int dgt = num / d;
-        num %= d;
-        d /= base;
-        if (n || dgt > 0|| d == 0)
-        {
-            *bf++ = dgt + (dgt < 10 ? '0' : (uc ? 'A' : 'a') - 10);
-            ++n;
-        }
-    }
-    *bf = 0;
-    return bf;
-}
-
-static char *li2a (long num, char * bf)
-{
-    if (num < 0)
-    {
-        num = -num;
-        *bf++ = '-';
-    }
-    return uli2a (num, 10, 0, bf);
-}
-
+typedef signed long int_t;
+typedef unsigned long uint_t;
+#define __SIZEOF_INT_T__  __SIZEOF_LONG__
+#else
+typedef signed int int_t;
+typedef unsigned int uint_t;
+#define __SIZEOF_INT_T__  __SIZEOF_INT__
 #endif
 
-static char *ui2a (unsigned int num, unsigned int base, int uc, char * bf)
+static char *u2a (uint_t num, unsigned base, bool upper, char *out)
 {
-    int n = 0;
-    unsigned int d = 1;
-    while (num / d >= base)
-        d *= base;
-    while (d != 0) {
-        int dgt = num / d;
-        num %= d;
-        d /= base;
-        if (n || dgt > 0 || d == 0)
+    if (num == 0)
+        *out++ = '0';
+    else
+    {
+        // Find the order of magnitude of the number
+        uint_t value = base;
+        unsigned order = 1;
+        while (value < num)
         {
-            *bf++ = dgt + (dgt < 10 ? '0' : (uc ? 'A' : 'a') - 10);
-            ++n;
+            uint_t old_value = value;
+            value *= base;
+            order++;
+            if (value < old_value)
+                // overflow
+                break;
         }
+
+        // Output digits in reverse direction
+        for (unsigned n = order; n > 0; n--)
+        {
+            unsigned digit = num % base;
+            num /= base;
+            out [n - 1] = digit + (digit < 10 ? '0' : (upper ? 'A' : 'a') - 10);
+        }
+        out += order;
     }
-    *bf = 0;
-    return bf;
+
+    return out;
 }
 
-static char *i2a (int num, char * bf)
+static char *s2a (int_t num, char *out)
 {
     if (num < 0)
     {
         num = -num;
-        *bf++ = '-';
+        *out++ = '-';
     }
-    return ui2a (num, 10, 0, bf);
+
+    return u2a (num, 10, 0, out);
 }
 
 #ifdef PRINTF_FP_SUPPORT
-static char *ufp2a (unsigned int num, int fdig, int fbits, char *bf)
+
+static uint8_t log2 [] = {4, 7, 10, 14, 17, 20, 24, 27, 30};
+
+static char *ufp2a (uint_t num, unsigned fdig, unsigned fbits, char *out)
 {
-    bf = ui2a (num >> fbits, 10, 0, bf);
-    *bf++ = '.';
+    out = u2a (num >> fbits, 10, 0, out);
+    if (fdig == 0)
+    {
+        // log10 (1 << fbits)
+        for (fdig = 0; fdig < ARRAY_LEN (log2); fdig++)
+            if (fbits < log2 [fdig])
+                break;
+        fdig++;
+    }
+
+    *out++ = '.';
     while (fdig > 0)
     {
         num = (num & ((1 << fbits) - 1)) * 10;
-        *bf++ = (num >> fbits) + '0';
+        *out++ = (num >> fbits) + '0';
         fdig--;
     }
 
-    *bf = 0;
-    return bf;
+    return out;
 }
 
-static char *fp2a (int num, int fdig, int fbits, char *bf)
+static char *sfp2a (int_t num, unsigned fdig, unsigned fbits, char *out)
 {
     if (num < 0)
     {
         num = -num;
-        *bf++ = '-';
+        *out++ = '-';
     }
-    return ufp2a (num, fdig, fbits, bf);
+
+    return ufp2a (num, fdig, fbits, out);
 }
+
 #endif
 
-static int a2d (char ch)
+static char a2i (char ch, const char **src, uint8_t *val)
 {
-    if (ch >= '0' && ch <= '9')
-        return ch - '0';
-    else if (ch >= 'a' && ch <= 'f')
-        return ch - 'a' + 10;
-    else if (ch >= 'A' && ch <= 'F')
-        return ch - 'A' + 10;
-    else
-        return -1;
-}
-
-static char a2i (char ch, const char** src, int base, uint8_t *nump)
-{
-    const char *p = *src;
+    const char *lsrc = *src;
     uint8_t num = 0;
-    int digit;
-    while ((digit = a2d (ch)) >= 0)
+    while ((ch >= '0') && (ch <= '9'))
     {
-        if (digit > base) break;
-        num = num * base + digit;
-        ch = *p++;
+        num = num * 10 + (ch - '0');
+        ch = *lsrc++;
     }
-    *src = p;
-    *nump = num;
+    *src = lsrc;
+    *val = num;
     return ch;
 }
 
-static void putchw (printf_backend_t *backend, int n, char z, char *bf)
+static void format_out (printf_backend_t *backend,
+                        uint8_t width, bool leading_zeros,
+                        char *value, size_t value_len)
 {
-    char fc = z ? '0' : ' ';
-    char ch;
-    char *p = bf;
-    while (*p++ && n > 0)
-        n--;
-    while (n-- > 0)
-        backend->putc (backend, fc);
-    while ((ch = *bf++))
-        backend->putc (backend, ch);
+    if (width == 0)
+        width = value_len;
+    else if (value_len > width)
+        value_len = width;
+
+    char fill = ' ';
+    if (leading_zeros && *value == '-')
+    {
+        backend->putc (backend, *value++);
+        width--; value_len--;
+        fill = '0';
+    }
+
+    for (; width > value_len; width--)
+        backend->putc (backend, fill);
+
+    for (; width != 0; width--)
+        backend->putc (backend, *value++);
 }
 
-void tfp_format (printf_backend_t *backend, const char *fmt, va_list va)
+void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
 {
-    char bf[16];
+    // buffer for numeric conversions, sign + max digits for base 10
+    char buff [1 + ((__SIZEOF_INT_T__ == 2) ? 5 :
+                    (__SIZEOF_INT_T__ == 4) ? 10 : 20)];
 
-    char ch;
-
-    while ((ch = *(fmt++)))
+    for (;;)
     {
+        char ch = *fmt++;
+        if (ch == '\0')
+            break;
+
         if (ch != '%')
-            backend->putc (backend, ch);
-        else
         {
-            char lz = 0;
-#ifdef PRINTF_LONG_SUPPORT
-            char lng = 0;
+            backend->putc (backend, ch);
+            continue;
+        }
+
+        uint8_t width = 0;
+        bool leading_zeros = false;
+        enum
+        {
+#ifdef PRINTF_SHORT_SUPPORT
+            fbyte,
+            fshort,
 #endif
+            fint,
+#ifdef PRINTF_LONG_SUPPORT
+            flong,
+#endif
+        } argsize = fint;
 #ifdef PRINTF_FP_SUPPORT
-            uint8_t fdig = 0;
-            uint8_t fbits = 12;
+        uint8_t fdig = 0;
+        uint8_t fbits = 12;
 #endif
-            uint8_t w = 0;
-            ch = *(fmt++);
-            if (ch == '0')
-            {
-                ch = *(fmt++);
-                lz = 1;
-            }
-            if (ch >= '0' && ch <= '9')
-            {
-                ch = a2i (ch, &fmt, 10, &w);
-            }
+
+        ch = *fmt++;
+        if (ch == '0')
+        {
+            leading_zeros = true;
+            ch = *fmt++;
+        }
+        if (ch >= '0' && ch <= '9')
+        {
+            ch = a2i (ch, &fmt, &width);
+        }
 #ifdef PRINTF_FP_SUPPORT
-            if (ch == '.')
+        if (ch == '.')
+        {
+            ch = a2i ('0', &fmt, &fdig);
+        }
+        if (ch == '.')
+        {
+            ch = a2i ('0', &fmt, &fbits);
+        }
+#endif
+#ifdef PRINTF_LONG_SUPPORT
+        if (ch == 'l')
+        {
+            argsize = flong;
+            ch = *fmt++;
+        }
+#endif
+#ifdef PRINTF_SHORT_SUPPORT
+        if (ch == 'h')
+        {
+            argsize = fshort;
+            ch = *fmt++;
+            if (ch == 'h')
             {
-                ch = a2i ('0', &fmt, 10, &fdig);
+                argsize = fbyte;
+                ch = *fmt++;
             }
-            if (ch == '.')
-            {
-                ch = a2i ('0', &fmt, 10, &fbits);
-            }
+        }
 #endif
-#ifdef PRINTF_LONG_SUPPORT
-            if (ch == 'l')
-            {
-                ch = *(fmt++);
-                lng = 1;
-            }
-#endif
-            switch (ch)
-            {
-                case 0:
-                    goto abort;
+        switch (ch)
+        {
+            case 0:
+                goto abort;
 
-                case 'u' :
-#ifdef PRINTF_LONG_SUPPORT
-                    if (lng)
-                        uli2a (va_arg (va, unsigned long int), 10, 0, bf);
-                    else
-#endif
-                        ui2a (va_arg (va, unsigned int), 10, 0, bf);
-                    putchw (backend, w, lz, bf);
-                    break;
-
-                case 'd' :
-#ifdef PRINTF_LONG_SUPPORT
-                    if (lng)
-                        li2a (va_arg (va, unsigned long int), bf);
-                    else
-#endif
-                        i2a (va_arg (va, int), bf);
-                    putchw (backend, w, lz, bf);
-                    break;
-
-                case 'x': case 'X' :
-#ifdef PRINTF_LONG_SUPPORT
-                    if (lng)
-                        uli2a (va_arg (va, unsigned long int), 16, (ch=='X'), bf);
-                    else
-#endif
-                        ui2a (va_arg (va, unsigned int), 16, (ch=='X'), bf);
-                    putchw (backend, w, lz, bf);
-                    break;
-
+            case 'd' :
+            case 'u' :
+            case 'x': case 'X' :
 #ifdef PRINTF_FP_SUPPORT
-                case 'f' :
-                    fp2a (va_arg (va, int), fdig, fbits, bf);
-                    putchw (backend, w, lz, bf);
-                    break;
-
-                case 'F' :
-                    ufp2a (va_arg (va, unsigned int), fdig, fbits, bf);
-                    putchw (backend, w, lz, bf);
-                    break;
+            case 'f' :
+            case 'F' :
 #endif
+            {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+                union
+                {
+                    uint_t u;
+                    int_t s;
+                    signed char schar;
+                    unsigned char uchar;
+                    signed short sshort;
+                    unsigned short ushort;
+                    signed int sint;
+                    unsigned int uint;
+                } val;
+#else
+#  error "Big endian CPUs are not supported!"
+#endif
+                char *end;
 
-                case 'c' :
-                    backend->putc (backend, (char)(va_arg (va, int)));
-                    break;
+                val.u =
+#if defined (PRINTF_LONG_SUPPORT) && (__SIZEOF_LONG__ > __SIZEOF_INT__)
+                        (argsize == flong) ? va_arg (va, unsigned long) :
+#endif
+                        va_arg (va, unsigned);
 
-                case 's' :
-                    putchw (backend, w, 0, va_arg (va, char*));
-                    break;
+                // char and short are promoted to int in varargs
+                if (ch == 'd' || ch == 'f')
+                {
+                    if (0) ;
+#if defined (PRINTF_LONG_SUPPORT) &&  (__SIZEOF_LONG__ > __SIZEOF_INT__)
+                    else if (argsize == fint)
+                        // sign extend int -> long
+                        val.s = val.sint;
+#endif
+#ifdef PRINTF_SHORT_SUPPORT
+                    else if (argsize == fshort)
+                        val.s = val.sshort;
+                    else if (argsize == fbyte)
+                        val.s = val.schar;
+#endif
+                }
+                else
+                {
+                    if (0) ;
+#ifdef PRINTF_SHORT_SUPPORT
+                    else if (argsize == fshort)
+                        val.u = val.ushort;
+                    else if (argsize == fbyte)
+                        val.u = val.uchar;
+#endif
+                }
 
-                case '%' :
-                    backend->putc (backend, ch);
+                switch (ch)
+                {
+                    case 'd': end = s2a (val.s, buff); break;
+                    case 'u': end = u2a (val.u, 10, false, buff); break;
+#ifdef PRINTF_FP_SUPPORT
+                    case 'F': end = ufp2a (val.s, fdig, fbits, buff); break;
+                    case 'f': end = sfp2a (val.s, fdig, fbits, buff); break;
+#endif
+                    default: end = u2a (val.u, 16, (ch == 'X'), buff); break;
+                }
 
-                default:
-                    break;
+                format_out (backend, width, leading_zeros, buff, end - buff);
+                break;
             }
+
+            case 's' :
+            {
+                char *str = va_arg (va, char *);
+                format_out (backend, width, false, str, strlen (str));
+                break;
+            }
+
+            case 'c' :
+                backend->putc (backend, (char)(va_arg (va, int)));
+                break;
+
+            case '%' :
+                backend->putc (backend, ch);
+                break;
+
+            default:
+                // unknown conversion specification
+                break;
         }
     }
 abort:;
 }
 
-void tfp_printf (const char *fmt, ...)
+void _gprintf (printf_backend_t *backend, const char *fmt, ...)
 {
     va_list va;
-    va_start (va,fmt);
-    tfp_format (stdout_backend, fmt, va);
+    va_start (va, fmt);
+    _vgprintf (backend, fmt, va);
     va_end (va);
 }
+
+void _printf (const char *fmt, ...)
+{
+    va_list va;
+    va_start (va, fmt);
+    _vgprintf (printf_stdout, fmt, va);
+    va_end (va);
+}
+
+typedef struct
+{
+    printf_backend_t be;
+    char *cur;
+    char *end;
+} sprintf_backend_t;
 
 static void sprintf_putc (printf_backend_t *backend, char c)
 {
-    register char *out = (char *)backend->data;
-    *out++ = c;
-    backend->data = out;
+    sprintf_backend_t *myself = CONTAINER_OF (backend, sprintf_backend_t, be);
+    if (myself->cur < myself->end)
+        *myself->cur++ = c;
 }
 
-void tfp_sprintf (char* s, const char *fmt, ...)
+size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va)
 {
-    static printf_backend_t sprintf_backend;
-    sprintf_backend.putc = sprintf_putc;
-    sprintf_backend.data = s;
+    sprintf_backend_t sprintf_backend;
+    sprintf_backend.be.putc = sprintf_putc;
+    sprintf_backend.cur = buf;
+    sprintf_backend.end = buf + size - 1;
 
+    _vgprintf (&sprintf_backend.be, fmt, va);
+
+    *sprintf_backend.cur = 0;
+    return sprintf_backend.cur - buf;
+}
+
+size_t _snprintf (char *buf, size_t size, const char *fmt, ...)
+{
     va_list va;
     va_start (va, fmt);
-    tfp_format (&sprintf_backend, fmt, va);
+    size_t ret = _vsnprintf (buf, size, fmt, va);
     va_end (va);
 
-    sprintf_putc (&sprintf_backend, 0);
+    return ret;
 }
 
-void tfp_putc (char c)
+void _putchar (char c)
 {
-    stdout_backend->putc (stdout_backend, c);
+    printf_stdout->putc (printf_stdout, c);
 }
 
-void tfp_puts (const char *s)
+void _puts (const char *s)
 {
     while (*s)
-        tfp_putc (*s++);
-    tfp_putc ('\r');
-    tfp_putc ('\n');
+        _putchar (*s++);
+    _putchar ('\n');
 }
 
-void tfp_fflush ()
+void _fflush ()
 {
-    if (stdout_backend->flush)
-        stdout_backend->flush (stdout_backend);
+    if (printf_stdout->flush)
+        printf_stdout->flush (printf_stdout);
 }

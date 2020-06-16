@@ -10,22 +10,26 @@
 #include <useful/printf.h>
 #undef putc
 
-static printf_backend_t usart_backend;
+static struct usart_backend_t
+{
+    printf_backend_t be;
+    USART_TypeDef *usart;
+} usart_stdout;
 
 static void usart_backend_putc (printf_backend_t *backend, char c)
 {
-    USART_TypeDef *usart = (USART_TypeDef *)backend->data;
+    struct usart_backend_t *self = CONTAINER_OF (backend, struct usart_backend_t, be);
 
     // \n -> \r\n
     if (c == '\n')
-        usart_putc (usart, '\r');
-    usart_putc (usart, c);
+        usart_putc (self->usart, '\r');
+    usart_putc (self->usart, c);
 }
 
 void usart_printf (USART_TypeDef *usart)
 {
-    usart_backend.putc = usart_backend_putc;
-    usart_backend.data = usart;
+    usart_stdout.be.putc = usart_backend_putc;
+    usart_stdout.usart = usart;
 
-    init_printf (&usart_backend);
+    init_printf (&usart_stdout.be);
 }
