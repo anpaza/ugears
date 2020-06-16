@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __HARDWARE_H__
-#define __HARDWARE_H__
+#ifndef _HARDWARE_H
+#define _HARDWARE_H
 
 // System clock configuration - define before including clocks-*.h
 #define HSE_VALUE		8000000
@@ -45,4 +45,4 @@
 
 // That's all we have, folks!
 
-#endif // __HARDWARE_H__
+#endif // _HARDWARE_H

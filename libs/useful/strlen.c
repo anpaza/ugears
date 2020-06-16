@@ -43,18 +43,19 @@ size_t _strlen (const char *str)
 #  error "WTF?!"
 #endif
 
+        // ~x & (x - 1) will have 7th bit set only for x == 0
         test = ~test & (test - ONES);
         // now test contains 1 in 7th bit of every byte that is zero
         if (test & TOPS)
         {
             size_t ret = str - orig;
 #if __SIZEOF_LONG__ == 8
-            if ((test & (TOPS >> 32)) == (TOPS >> 32))
+            if (!(test & 0x80808080))
                 ret += 4, test >>= 32;
 #endif
-            if ((test & 0x8080) == 0x8080)
+            if (!(test & 0x8080))
                 ret += 2, test >>= 16;
-            if ((test & 0x80) == 0x80)
+            if (!(test & 0x80))
                 ret += 1, test >>= 8;
 
             return ret;
