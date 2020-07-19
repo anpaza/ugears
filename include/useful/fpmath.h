@@ -9,7 +9,7 @@
 #ifndef _FPMATH_H
 #define _FPMATH_H
 
-#include <stdint.h>
+#include <useful/useful.h>
 
 /**
  * @file fpmath.h
