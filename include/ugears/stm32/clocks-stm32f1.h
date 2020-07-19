@@ -308,7 +308,7 @@ extern void clock_HSI_stop ();
  * @return
  *     true if HSI clock is enabled
  */
-static inline bool clock_HSI_enabled ()
+INLINE_ALWAYS bool clock_HSI_enabled ()
 { return !!(RCC->CR & RCC_CR_HSION); }
 
 #endif // _STM32_CLOCKS_STM32F1_H

@@ -69,11 +69,13 @@ SOURCES += \
     libs/useful/datetime.c \
     libs/useful/ip_crc.c \
     libs/useful/leb128.c \
+    libs/useful/memcmp.c \
     libs/useful/ost.c \
     libs/useful/printf.c \
     libs/useful/rand.c \
     libs/useful/sin.c \
     libs/useful/sqrt_X.c \
+    libs/useful/strlen.c \
     libs/useful/udiv64_32.c \
     libs/useful/unaligned.c \
     tests/atomic/atomic.c \

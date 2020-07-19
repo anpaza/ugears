@@ -50,12 +50,12 @@ uint32_t xs_rand (xs_rng_t xsr)
 
 static xs_rng_t rng;
 
-void srand (unsigned seed)
+void _srand (unsigned seed)
 {
     xs_init (rng, seed);
 }
 
-unsigned rand ()
+unsigned _rand ()
 {
     return xs_rand (rng);
 }

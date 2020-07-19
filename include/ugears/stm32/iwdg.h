@@ -66,7 +66,7 @@ extern bool iwdg_init (uint32_t reload_ms
  * This function restarts the watchdog counter. Don't let the counter hit zero,
  * since that will cause MCU to reboot.
  */
-static inline void iwdg_reload ()
+INLINE_ALWAYS void iwdg_reload ()
 { IWDG->KR = IWDG_KEY_RELOAD; }
 
 #endif // _STM32_IWDG_H

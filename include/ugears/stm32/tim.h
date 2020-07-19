@@ -32,7 +32,7 @@
  * @arg tim
  *      The timer to start
  */
-static inline void tim_start (TIM_TypeDef *tim)
+INLINE_ALWAYS void tim_start (TIM_TypeDef *tim)
 { tim->CR1 |= TIM_CR1_CEN; }
 
 /**
@@ -43,7 +43,7 @@ static inline void tim_start (TIM_TypeDef *tim)
  *      The prescaler to divide timer source clock with. The actual prescaler
  *      will be (prescaler+1).
  */
-static inline void tim_prescaler (TIM_TypeDef *tim, uint16_t prescaler)
+INLINE_ALWAYS void tim_prescaler (TIM_TypeDef *tim, uint16_t prescaler)
 { tim->PSC = prescaler; }
 
 /**
@@ -53,7 +53,7 @@ static inline void tim_prescaler (TIM_TypeDef *tim, uint16_t prescaler)
  * @arg period
  *      Timer period. The actual period will be (period+1).
  */
-static inline void tim_period (TIM_TypeDef *tim, uint16_t period)
+INLINE_ALWAYS void tim_period (TIM_TypeDef *tim, uint16_t period)
 { tim->ARR = period; }
 
 /**
@@ -61,7 +61,7 @@ static inline void tim_period (TIM_TypeDef *tim, uint16_t period)
  * @arg tim
  *      Таймер, который нужно настроить
  */
-static inline void tim_oneshot (TIM_TypeDef *tim)
+INLINE_ALWAYS void tim_oneshot (TIM_TypeDef *tim)
 {
     tim->CR1 = TIM_CR1_OPM;             // режим однократного срабатывания
     tim->SR = 0;                        // сбрасываем флаги прерываний

@@ -67,7 +67,7 @@ typedef struct
 /**
  * Call after APB1 reset or APB1 clock stop (including reset)
  */
-static inline void rtc_invalidate ()
+INLINE_ALWAYS void rtc_invalidate ()
 {
     RTC32->CRL &= ~RTC_CRL_RSF;
 }
@@ -77,7 +77,7 @@ static inline void rtc_invalidate ()
  * Call after APB1 reset or APB1 clock stop (including reset)
  * to ensure RTC regs valid.
  */
-static inline void rtc_wait_sync ()
+INLINE_ALWAYS void rtc_wait_sync ()
 {
     while ((RTC32->CRL & RTC_CRL_RSF) == 0)
         ;
@@ -88,7 +88,7 @@ static inline void rtc_wait_sync ()
  * Use rtc_wait_write()/rtc_done_write() to mark the start and the end
  * of a RTC registers write block.
  */
-static inline int rtc_wait_write ()
+INLINE_ALWAYS int rtc_wait_write ()
 {
     while (!(RTC32->CRL & RTC_CRL_RTOFF))
         ;
@@ -98,7 +98,7 @@ static inline int rtc_wait_write ()
 }
 
 /// Disable writing to RTC registers
-static inline int rtc_done_write ()
+INLINE_ALWAYS int rtc_done_write ()
 {
     RTC32->CRL &= ~RTC_CRL_CNF;
 
@@ -134,46 +134,46 @@ static inline int rtc_done_write ()
     for (int __tmp = rtc_wait_write (); __tmp; __tmp = rtc_done_write ())
 
 /// Get the current RTC seconds counter
-static inline uint32_t rtc_counter ()
+INLINE_ALWAYS uint32_t rtc_counter ()
 {
     return  (RTC32->CNTL & 0xffff) | (RTC32->CNTH << 16);
 }
 
 /// Set the RTC seconds counter
-static inline void rtc_set_counter (uint32_t x)
+INLINE_ALWAYS void rtc_set_counter (uint32_t x)
 {
     RTC32->CNTL = x;
     RTC32->CNTH = x >> 16;
 }
 
 /// Get the current RTC alarm counter
-static inline uint32_t rtc_alarm ()
+INLINE_ALWAYS uint32_t rtc_alarm ()
 {
     return (RTC32->ALRL & 0xffff) | (RTC32->ALRH << 16);
 }
 
 /// Set the RTC alarm counter
-static inline void rtc_set_alarm (uint32_t x)
+INLINE_ALWAYS void rtc_set_alarm (uint32_t x)
 {
     RTC32->ALRL = x;
     RTC32->ALRH = x >> 16;
 }
 
 /// Get the current RTC reload counter
-static inline uint32_t rtc_reload ()
+INLINE_ALWAYS uint32_t rtc_reload ()
 {
     return (RTC32->PRLL & 0xffff) | (RTC32->PRLH << 16);
 }
 
 /// Set RTC reload counter
-static inline void rtc_set_reload (uint32_t prl)
+INLINE_ALWAYS void rtc_set_reload (uint32_t prl)
 {
     RTC32->PRLL = prl;
     RTC32->PRLH = prl >> 16;
 }
 
 /// Get current RTC prescaler divider (can be used to get sub-clock accuracy)
-static inline uint32_t rtc_divider ()
+INLINE_ALWAYS uint32_t rtc_divider ()
 {
     return (RTC32->DIVL & 0xffff) | ((RTC32->DIVH & 15) << 16);
 }
@@ -183,7 +183,7 @@ static inline uint32_t rtc_divider ()
  * @arg ie
  *      Interrupts to enable (combination of RTC_CRH_XXX bit flags)
  */
-static inline void rtc_irqs (uint32_t ie)
+INLINE_ALWAYS void rtc_irqs (uint32_t ie)
 {
     RTC32->CRH =
         (RTC32->CRH & ~(RTC_CRH_OWIE | RTC_CRH_ALRIE | RTC_CRH_SECIE)) |
@@ -212,7 +212,7 @@ typedef enum
  * @arg mode
  *      The mode to run TAMPER pin.
  */
-static inline void rtc_tamper_pin (rtc_tamper_pin_t mode)
+INLINE_ALWAYS void rtc_tamper_pin (rtc_tamper_pin_t mode)
 {
     if (mode & BKP_CR_TPE)
     {
@@ -231,7 +231,7 @@ static inline void rtc_tamper_pin (rtc_tamper_pin_t mode)
  * @arg enable
  *      If true, a IRQ will be generated when TAMPER event occurs.
  */
-static inline void rtc_tamper_irq (bool enable)
+INLINE_ALWAYS void rtc_tamper_irq (bool enable)
 {
     if (enable)
         BKP->CSR |= BKP_CSR_TPIE;
@@ -240,25 +240,25 @@ static inline void rtc_tamper_irq (bool enable)
 }
 
 /// Query TAMPER IRQ status (non-zero if IRQ was asserted)
-static inline uint32_t rtc_tamper_get_irq ()
+INLINE_ALWAYS uint32_t rtc_tamper_get_irq ()
 {
     return BKP->CSR & BKP_CSR_TIF;
 }
 
 /// Query TAMPER event status (non-zero if tamper event occured, backup in reset state)
-static inline uint32_t rtc_tamper_get_event ()
+INLINE_ALWAYS uint32_t rtc_tamper_get_event ()
 {
     return BKP->CSR & BKP_CSR_TEF;
 }
 
 /// Clear TAMPER IRQ flag
-static inline void rtc_tamper_clear_irq ()
+INLINE_ALWAYS void rtc_tamper_clear_irq ()
 {
     BKP->CSR |= BKP_CSR_CTI;
 }
 
 /// Clear TAMPER event flag
-static inline void rtc_tamper_clear_event ()
+INLINE_ALWAYS void rtc_tamper_clear_event ()
 {
     BKP->CSR |= BKP_CSR_CTE;
 }
@@ -270,7 +270,7 @@ static inline void rtc_tamper_clear_event ()
  * @arg calib
  *      Number of clocks to ignore after every 2^20 clock pulses, range 0-127.
  */
-static inline void rtc_calibrate (uint32_t calib)
+INLINE_ALWAYS void rtc_calibrate (uint32_t calib)
 {
     BKP->RTCCR = (BKP->RTCCR & ~BKP_RTCCR_CAL) | (calib & BKP_RTCCR_CAL);
 }
@@ -289,7 +289,7 @@ static inline void rtc_calibrate (uint32_t calib)
  * @return
  *      The 16-bit value of the corresponding data register
  */
-static inline uint16_t bkp_data (uint32_t idx)
+INLINE_ALWAYS uint16_t bkp_data (uint32_t idx)
 {
     return (idx < 10) ? ((uint16_t *)&BKP->DR1) [idx * 2] :
 #if BKP_SIZE > (10*2)
@@ -305,7 +305,7 @@ static inline uint16_t bkp_data (uint32_t idx)
  * @arg val
  *      The new 16-bit value of the corresponding data register
  */
-static inline void bkp_set_data (uint32_t idx, uint16_t val)
+INLINE_ALWAYS void bkp_set_data (uint32_t idx, uint16_t val)
 {
     if (idx < 10)
         ((uint16_t *)&BKP->DR1) [idx * 2] = val;

@@ -151,8 +151,11 @@ typedef uint16_t gpio_config_t;
  * @arg mod GPIO mode (without the GPIO_MODE_ prefix):
  *      INPUT, OUTPUT_2MHz, OUTPUT_10MHz, OUTPUT_50MHz
  * @arg cnf Port configuration (without GPIO_CNF_ prefix):
- *      PUSHPULL, OPENDRAIN, AF_PUSHPULL, AF_OPENDRAIN
- * @arg ini Initial output state: 0, 1 or X
+ *      ANALOG, FLOATING, PUD (in INPUT mode),
+ *      PUSHPULL, OPENDRAIN, AF_PUSHPULL, AF_OPENDRAIN (in OUTPUT_XXX modes)
+ * @arg ini Initial output state:
+ *      X, PU, PD in INPUT mode,
+ *      0, 1 or X in OUTPUT_XXX mode
  */
 #define GPIO_CONFIG(x,mod,cnf,ini) (\
 	JOIN2 (GPIO_PORT_, GPIO_PORT(x)) | \
@@ -352,7 +355,7 @@ extern void gpio_setups (const gpio_config_t *conf, unsigned n);
  *      port & pin numbers (generated with GPIO_CONF_PP() macro) where the
  *      Cortex EVENT output is routed.
  */
-static inline void gpio_eventout (int conf)
+INLINE_ALWAYS void gpio_eventout (int conf)
 {
     uint32_t evcr = AFIO->EVCR;
 

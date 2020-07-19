@@ -777,7 +777,7 @@ typedef enum
 /**
  * Clear reset flag.
  */
-static inline void rcc_reset_cause_clear ()
+INLINE_ALWAYS void rcc_reset_cause_clear ()
 {
     RCC->CSR |= RCC_CSR_RMVF;
 }
@@ -787,7 +787,7 @@ static inline void rcc_reset_cause_clear ()
  * @return
  *      One of the rstXXX values.
  */
-static inline rst_reset_cause_t rcc_reset_cause ()
+INLINE_ALWAYS rst_reset_cause_t rcc_reset_cause ()
 {
     uint32_t csr = RCC->CSR;
     rcc_reset_cause_clear ();

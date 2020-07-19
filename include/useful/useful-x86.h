@@ -10,27 +10,27 @@
 #define __USEFUL_X86_H__
 
 #define __USEFUL_ROL32
-static inline uint32_t rol32 (uint32_t s, uint8_t count)
+INLINE_ALWAYS uint32_t rol32 (uint32_t s, uint8_t count)
 { uint32_t ret; asm ("roll %%cl,%1" : "=r" (ret) : "0" (s), "c" (count)); return ret; }
 
 #define __USEFUL_ROR32
-static inline uint32_t ror32 (uint32_t s, uint8_t count)
+INLINE_ALWAYS uint32_t ror32 (uint32_t s, uint8_t count)
 { uint32_t ret; asm ("rorl %%cl,%1" : "=r" (ret) : "0" (s), "c" (count)); return ret; }
 
 #define __USEFUL_ROL8
-static inline uint8_t rol8 (uint8_t s, uint8_t count)
+INLINE_ALWAYS uint8_t rol8 (uint8_t s, uint8_t count)
 { uint8_t ret; asm ("rolb %%cl,%1" : "=r" (ret) : "0" (s), "c" (count)); return ret; }
 
 #define __USEFUL_ROR8
-static inline uint8_t ror8 (uint8_t s, uint8_t count)
+INLINE_ALWAYS uint8_t ror8 (uint8_t s, uint8_t count)
 { uint8_t ret; asm ("rorb %%cl,%1" : "=r" (ret) : "0" (s), "c" (count)); return ret; }
 
 #define __USEFUL_BSWAP16
-static inline uint16_t bswap16 (uint16_t x)
+INLINE_ALWAYS uint16_t bswap16 (uint16_t x)
 { uint16_t ret; asm ("xchgb %%al,%%ah" : "=a" (ret) : "0" (x)); return ret; }
 
 #define __USEFUL_BSWAP32
-static inline uint32_t bswap32 (uint32_t x)
+INLINE_ALWAYS uint32_t bswap32 (uint32_t x)
 { uint32_t ret; asm ("bswap %1" : "=r" (ret) : "0" (x)); return ret; }
 
 #endif // __USEFUL_X86_H__

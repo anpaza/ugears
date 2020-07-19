@@ -48,7 +48,7 @@
  * @return
  *      The result of fixed-point multiplication
  */
-static inline uint32_t fp_umul (uint32_t x, uint32_t xfb, uint32_t y, uint32_t yfb, uint32_t rfb)
+INLINE_ALWAYS uint32_t fp_umul (uint32_t x, uint32_t xfb, uint32_t y, uint32_t yfb, uint32_t rfb)
 {
     if (xfb + yfb < rfb)
         return (x * y) << (rfb - (xfb + yfb));
@@ -71,7 +71,7 @@ static inline uint32_t fp_umul (uint32_t x, uint32_t xfb, uint32_t y, uint32_t y
  * @return
  *      The result of fixed-point multiplication
  */
-static inline int32_t fp_smul (int32_t x, uint32_t xfb, int32_t y, uint32_t yfb, uint32_t rfb)
+INLINE_ALWAYS int32_t fp_smul (int32_t x, uint32_t xfb, int32_t y, uint32_t yfb, uint32_t rfb)
 {
     if (xfb + yfb < rfb)
         return (x * y) << (rfb - (xfb + yfb));
@@ -92,7 +92,7 @@ static inline int32_t fp_smul (int32_t x, uint32_t xfb, int32_t y, uint32_t yfb,
  * @return
  *      Returns (x * y) >> 32
  */
-static inline uint32_t umul_h32 (uint32_t x, uint32_t y)
+INLINE_ALWAYS uint32_t umul_h32 (uint32_t x, uint32_t y)
 {
     uint32_t r;
 
@@ -170,7 +170,7 @@ static inline uint32_t umul_h32 (uint32_t x, uint32_t y)
  * @arg period
  *     Длина усредняемого периода, степень двойки
  */
-static inline void update_moving_average_16 (int16_t x, int16_t *ma, uint8_t period)
+INLINE_ALWAYS void update_moving_average_16 (int16_t x, int16_t *ma, uint8_t period)
 {
 #if defined ARCH_ARM
     // MA = ((MA * (N - 1)) + X) / N
@@ -202,7 +202,7 @@ static inline void update_moving_average_16 (int16_t x, int16_t *ma, uint8_t per
  * @arg period
  *     Длина усредняемого периода, степень двойки
  */
-static inline void update_moving_average_32 (int32_t x, int32_t *ma, uint8_t period)
+INLINE_ALWAYS void update_moving_average_32 (int32_t x, int32_t *ma, uint8_t period)
 {
 #if defined ARCH_ARM
     // MA = ((MA * (N - 1)) + X) / N
@@ -240,7 +240,7 @@ extern int fp_sin_8 (uint8_t angle);
  * @return
  *      The cosine value in signed 1.8 format
  */
-static inline int fp_cos_8 (uint8_t angle)
+INLINE_ALWAYS int fp_cos_8 (uint8_t angle)
 { return fp_sin_8 (angle + 64); }
 
 /**

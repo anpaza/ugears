@@ -12,49 +12,49 @@
 #ifndef __USEFUL_ROL8
 #define __USEFUL_ROL8
 /// Циклическое вращение 8-х битного числа влево данное количество раз.
-static inline uint8_t rol8 (uint8_t s, uint8_t count)
+INLINE_ALWAYS uint8_t rol8 (uint8_t s, uint8_t count)
 { count &= 7; return (uint8_t)(((s) << count) | ((s) >> (8 - count))); }
 #endif
 
 #ifndef __USEFUL_ROR8
 #define __USEFUL_ROR8
 /// Циклическое вращение 8-х битного числа вправо данное количество раз.
-static inline uint8_t ror8 (uint8_t s, uint8_t count)
+INLINE_ALWAYS uint8_t ror8 (uint8_t s, uint8_t count)
 { count &= 7; return (uint8_t)(((s) >> count) | ((s) << (8 - count))); }
 #endif
 
 #ifndef __USEFUL_ROL32
 #define __USEFUL_ROL32
 /// Циклическое вращение 32-х битного числа влево данное количество раз.
-static inline uint32_t rol32 (uint32_t s, uint8_t count)
+INLINE_ALWAYS uint32_t rol32 (uint32_t s, uint8_t count)
 { return (uint32_t)(((s) << count) | ((s) >> (32 - count))); }
 #endif
 
 #ifndef __USEFUL_ROR32
 #define __USEFUL_ROR32
 /// Циклическое вращение 32-х битного числа вправо данное количество раз.
-static inline uint32_t ror32 (uint32_t s, uint8_t count)
+INLINE_ALWAYS uint32_t ror32 (uint32_t s, uint8_t count)
 { return (uint32_t)(((s) >> count) | ((s) << (32 - count))); }
 #endif
 
 #ifndef __USEFUL_BSWAP16
 #define __USEFUL_BSWAP16
 /// Изменения порядка байт в 16-битном числе.
-static inline uint16_t bswap16 (uint16_t x)
+INLINE_ALWAYS uint16_t bswap16 (uint16_t x)
 { return (uint16_t)(((x >> 8) | (x << 8)) & 0xffff); }
 #endif
 
 #ifndef __USEFUL_BSWAP32
 #define __USEFUL_BSWAP32
 /// Изменения порядка байт в 32-битном числе.
-static inline uint32_t bswap32 (uint32_t x)
+INLINE_ALWAYS uint32_t bswap32 (uint32_t x)
 { return (uint32_t)((x >> 24) | ((x >> 8) & 0xff00) | ((x << 8) & 0xff0000) | (x << 24)); }
 #endif
 
 #ifndef __USEFUL_FLS32
 #define __USEFUL_FLS32
 /// Получить номер старшего значашего бита, 0..31
-static inline uint32_t fls32 (uint32_t bits)
+INLINE_ALWAYS uint32_t fls32 (uint32_t bits)
 {
     unsigned r = 0;
     if (bits & 0xffff0000) { r += 16; bits >>= 16; }

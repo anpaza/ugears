@@ -89,7 +89,7 @@ extern void exti_config (uint32_t exti, uint32_t conf);
  * @arg exti
  *      EXTI line number (from 0, count depends on chip)
  */
-static inline void exti_trigger (uint32_t exti)
+INLINE_ALWAYS void exti_trigger (uint32_t exti)
 { EXTI->SWIER |= 1 << exti; }
 
 /**
@@ -99,7 +99,7 @@ static inline void exti_trigger (uint32_t exti)
  * @return
  *      Non-zero if a event or interrupt is pending
  */
-static inline uint32_t exti_pending (uint32_t exti)
+INLINE_ALWAYS uint32_t exti_pending (uint32_t exti)
 { return EXTI->PR & (1 << exti); }
 
 /**
@@ -109,7 +109,7 @@ static inline uint32_t exti_pending (uint32_t exti)
  * @return
  *      Non-zero if a event or interrupt is pending
  */
-static inline uint32_t exti_pending_mask (uint32_t mask)
+INLINE_ALWAYS uint32_t exti_pending_mask (uint32_t mask)
 { return EXTI->PR & mask; }
 
 /**
@@ -117,7 +117,7 @@ static inline uint32_t exti_pending_mask (uint32_t mask)
  * @arg exti
  *      EXTI line number (from 0, count depends on chip)
  */
-static inline void exti_clear (uint32_t exti)
+INLINE_ALWAYS void exti_clear (uint32_t exti)
 { EXTI->PR |= (1 << exti); }
 
 /**
@@ -125,13 +125,13 @@ static inline void exti_clear (uint32_t exti)
  * @arg mask
  *      A bitwise OR of events to clear
  */
-static inline void exti_clear_mask (uint32_t mask)
+INLINE_ALWAYS void exti_clear_mask (uint32_t mask)
 { EXTI->PR |= mask; }
 
 /**
  * Clear all EXTI pending flags at once.
  */
-static inline void exti_clear_all ()
+INLINE_ALWAYS void exti_clear_all ()
 { EXTI->PR = 0xffffffff; }
 
 #endif // _STM32_EXTI_H
