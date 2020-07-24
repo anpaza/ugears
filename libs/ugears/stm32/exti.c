@@ -20,22 +20,22 @@
 void exti_config (uint32_t exti, uint32_t conf)
 {
     uint32_t mask = (1 << exti);
-    if (conf & EXTI_INT)
+    if (conf & _EXTI_INT)
         EXTI->IMR |= mask;
     else
         EXTI->IMR &= ~mask;
 
-    if (conf & EXTI_EVENT)
+    if (conf & _EXTI_EVENT)
         EXTI->EMR |= mask;
     else
         EXTI->EMR &= ~mask;
 
-    if (conf & EXTI_RISING)
+    if (conf & _EXTI_RISING)
         EXTI->RTSR |= mask;
     else
         EXTI->RTSR &= ~mask;
 
-    if (conf & EXTI_FALLING)
+    if (conf & _EXTI_FALLING)
         EXTI->FTSR |= mask;
     else
         EXTI->FTSR &= ~mask;
@@ -46,6 +46,6 @@ void exti_config (uint32_t exti, uint32_t conf)
         uint32_t shift = (exti & 3) * 4;
         mask = 0x0000000f << shift;
         *exticr = (*exticr & ~mask) |
-            ((conf & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT) << shift;
+            ((conf & _GPIO_PORT_MASK) >> _GPIO_PORT_SHIFT) << shift;
     }
 }

@@ -56,47 +56,47 @@
 #define GPIO_PINM(x)		BV (GPIO_PIN (x))
 
 // Auxiliary macros (not meant to be directly used by user)
-#define GPIO_PORT_MASK		0xf000
-#define GPIO_PORT_SHIFT		12
-#define GPIO_PORT_A		0x0000
-#define GPIO_PORT_B		0x1000
-#define GPIO_PORT_C		0x2000
-#define GPIO_PORT_D		0x3000
-#define GPIO_PORT_E		0x4000
-#define GPIO_PORT_F		0x5000
-#define GPIO_PORT_G		0x6000
-#define GPIO_PORT_H		0x7000
-#define GPIO_PORT_I		0x8000
-#define GPIO_PORT_J		0x9000
-#define GPIO_PORT_K		0xA000
+#define _GPIO_PORT_MASK		0xf000
+#define _GPIO_PORT_SHIFT	12
+#define _GPIO_PORT_A		0x0000
+#define _GPIO_PORT_B		0x1000
+#define _GPIO_PORT_C		0x2000
+#define _GPIO_PORT_D		0x3000
+#define _GPIO_PORT_E		0x4000
+#define _GPIO_PORT_F		0x5000
+#define _GPIO_PORT_G		0x6000
+#define _GPIO_PORT_H		0x7000
+#define _GPIO_PORT_I		0x8000
+#define _GPIO_PORT_J		0x9000
+#define _GPIO_PORT_K		0xA000
 
-#define GPIO_PIN_MASK		0x0F00
-#define GPIO_PIN_SHIFT		8
+#define _GPIO_PIN_MASK		0x0F00
+#define _GPIO_PIN_SHIFT		8
 
 /// Preprocessor: is hw feature x port equal to port name p (A, B, ...)?
-#define PORT_EQ(x, p)		(JOIN2 (GPIO_PORT_, GPIO_PORT (x)) == JOIN2 (GPIO_PORT_, p))
+#define PORT_EQ(x, p)		(JOIN2 (_GPIO_PORT_, GPIO_PORT (x)) == JOIN2 (_GPIO_PORT_, p))
 /// Preprocessor: is port and pin of hw feature x equal to port p (A, B, ...) and pin b?
-#define PORTPIN_EQ(x, p, b)	(_PORT_EQ (x, p) && (GPIO_PIN (x) == b))
+#define PORTPIN_EQ(x, p, b)	(PORT_EQ (x, p) && (GPIO_PIN (x) == b))
 /// Preprocessor: is port of hw feature x equal to port of hw feature y?
-#define PORTS_EQ(x, y)		(JOIN2 (GPIO_PORT_, GPIO_PORT(x)) == JOIN2 (GPIO_PORT_, GPIO_PORT(y)))
+#define PORTS_EQ(x, y)		(JOIN2 (_GPIO_PORT_, GPIO_PORT(x)) == JOIN2 (_GPIO_PORT_, GPIO_PORT(y)))
 
 /// Return the GPIO port (GPIOA, GPIOB etc) given feature name
 #define GPIO(x)			JOIN2 (GPIO, GPIO_PORT (x))
 /// Extract the port number (0-10, corresponding to A-K) from a gpio_config_t
-#define GPIO_CONF_PORT(c)	((c & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT)
+#define GPIO_CONF_PORT(c)	((c & _GPIO_PORT_MASK) >> _GPIO_PORT_SHIFT)
 /// Extract the pin number (0-15) from a gpio_config_t
-#define GPIO_CONF_PIN(c)	((c & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT)
+#define GPIO_CONF_PIN(c)	((c & _GPIO_PIN_MASK) >> _GPIO_PIN_SHIFT)
 
 // -------------------- // GPIO configuration bits // -------------------- //
 
 // Port initial state (output) or pullup/pulldown (if input with pud)
 
 // Don't care (equivalent to 0)
-#define GPIO_INIT_X		0x0000
+#define _GPIO_INIT_X		0x0000
 // output a '0'
-#define GPIO_INIT_0		0x0000
+#define _GPIO_INIT_0		0x0000
 // output a '1'
-#define GPIO_INIT_1		0x0080
+#define _GPIO_INIT_1		0x0080
 
 #if defined GPIO_TYPE_1
 
@@ -105,64 +105,64 @@ typedef uint16_t gpio_config_t;
 // GPIO mode
 
 /// Input mode (reset state)
-#define GPIO_MODE_INPUT		0x0000
+#define _GPIO_MODE_INPUT	0x0000
 /// Output mode, max speed 10 MHz
-#define GPIO_MODE_OUTPUT_10MHz	0x0001
+#define _GPIO_MODE_OUTPUT_10MHz	0x0001
 /// Output mode, max speed 2 MHz
-#define GPIO_MODE_OUTPUT_2MHz	0x0002
+#define _GPIO_MODE_OUTPUT_2MHz	0x0002
 /// Output mode, max speed 50 MHz
-#define GPIO_MODE_OUTPUT_50MHz	0x0003
+#define _GPIO_MODE_OUTPUT_50MHz	0x0003
 /// Just the bitmask for all bits
-#define GPIO_MODE_MASK		0x0003
+#define _GPIO_MODE_MASK		0x0003
 
 // In input mode (MODE[1:0]=00)
 
 /// Analog mode
-#define GPIO_CNF_ANALOG		0x0000
+#define _GPIO_CNF_ANALOG	0x0000
 /// Floating input (reset state)
-#define GPIO_CNF_FLOATING	0x0004
+#define _GPIO_CNF_FLOATING	0x0004
 /// Input with pull-up / pull-down (ODR sets 0=pulldown, 1=pullup)
-#define GPIO_CNF_PUD		0x0008
+#define _GPIO_CNF_PUD		0x0008
 
 // enable pull-down input
-#define GPIO_INIT_PD		GPIO_INIT_0
+#define _GPIO_INIT_PD		_GPIO_INIT_0
 // enable pull-up input
-#define GPIO_INIT_PU		GPIO_INIT_1
+#define _GPIO_INIT_PU		_GPIO_INIT_1
 
 // In output mode (MODE[1:0] > 00)
 
 /// General purpose output push-pull
-#define GPIO_CNF_PUSHPULL	0x0000
+#define _GPIO_CNF_PUSHPULL	0x0000
 /// General purpose output Open-drain
-#define GPIO_CNF_OPENDRAIN	0x0004
+#define _GPIO_CNF_OPENDRAIN	0x0004
 /// Alternate function output Push-pull
-#define GPIO_CNF_AF_PUSHPULL	0x0008
+#define _GPIO_CNF_AF_PUSHPULL	0x0008
 /// Alternate function output Open-drain
-#define GPIO_CNF_AF_OPENDRAIN	0x000C
+#define _GPIO_CNF_AF_OPENDRAIN	0x000C
 
 /// Just the bitmask for all bits
-#define GPIO_CNF_MASK		0x000C
+#define _GPIO_CNF_MASK		0x000C
 
 /**
  * Define the configuration of a single GPIO port.
  * This applies to STM32F1xx MCU series.
  *
  * @arg x hw feature name
- * @arg mod GPIO mode (without the GPIO_MODE_ prefix):
+ * @arg mod GPIO mode (without the _GPIO_MODE_ prefix):
  *      INPUT, OUTPUT_2MHz, OUTPUT_10MHz, OUTPUT_50MHz
- * @arg cnf Port configuration (without GPIO_CNF_ prefix):
+ * @arg cnf Port configuration (without _GPIO_CNF_ prefix):
  *      ANALOG, FLOATING, PUD (in INPUT mode),
  *      PUSHPULL, OPENDRAIN, AF_PUSHPULL, AF_OPENDRAIN (in OUTPUT_XXX modes)
- * @arg ini Initial output state:
+ * @arg ini Initial pin state (without the _GPIO_INIT_ prefix):
  *      X, PU, PD in INPUT mode,
  *      0, 1 or X in OUTPUT_XXX mode
  */
 #define GPIO_CONFIG(x,mod,cnf,ini) (\
-	JOIN2 (GPIO_PORT_, GPIO_PORT(x)) | \
-	(GPIO_PIN (x) << GPIO_PIN_SHIFT) | \
-	JOIN2 (GPIO_MODE_, mod) | \
-	JOIN2 (GPIO_CNF_, cnf) | \
-	JOIN2 (GPIO_INIT_, ini) \
+	JOIN2 (_GPIO_PORT_, GPIO_PORT(x)) | \
+	(GPIO_PIN (x) << _GPIO_PIN_SHIFT) | \
+	JOIN2 (_GPIO_MODE_, mod) | \
+	JOIN2 (_GPIO_CNF_, cnf) | \
+	JOIN2 (_GPIO_INIT_, ini) \
 )
 
 #elif defined GPIO_TYPE_2 || defined GPIO_TYPE_3
@@ -170,112 +170,114 @@ typedef uint16_t gpio_config_t;
 typedef uint32_t gpio_config_t;
 
 /// Input mode
-#define GPIO_MODE_INPUT		0x00000000
+#define _GPIO_MODE_INPUT	0x00000000
 /// Push-Pull output mode
-#define GPIO_MODE_PUSHPULL	0x00000001
+#define _GPIO_MODE_PUSHPULL	0x00000001
 /// Open-Drain output mode
-#define GPIO_MODE_OPENDRAIN	0x00000005
+#define _GPIO_MODE_OPENDRAIN	0x00000005
 /// Alternate function mode
-#define GPIO_MODE_AF		0x00000002
+#define _GPIO_MODE_AF		0x00000002
 /// Alternate function push-pull mode
-#define GPIO_MODE_AF_PUSHPULL	0x00000002
+#define _GPIO_MODE_AF_PUSHPULL	0x00000002
 /// Alternate function open-drain mode
-#define GPIO_MODE_AF_OPENDRAIN	0x00000006
+#define _GPIO_MODE_AF_OPENDRAIN	0x00000006
 /// Analog mode
-#define GPIO_MODE_ANALOG	0x00000003
+#define _GPIO_MODE_ANALOG	0x00000003
 /// The mask to select the bits for MODER
-#define GPIO_MODE_MASK		0x00000003
+#define _GPIO_MODE_MASK		0x00000003
 /// Test if user wants push-pull or open-drain
-#define GPIO_OTYPE_MASK		0x00000004
+#define _GPIO_OTYPE_MASK	0x00000004
 
 /// No pull-up or pull-down
-#define GPIO_PUD_X		0x00000000
+#define _GPIO_PUD_X		0x00000000
 /// Enable pull-up resistor
-#define GPIO_PUD_UP		0x00000008
+#define _GPIO_PUD_UP		0x00000008
 /// Enable pull-down resistor
-#define GPIO_PUD_DOWN		0x00000010
+#define _GPIO_PUD_DOWN		0x00000010
 /// The mask for all pull-up-down bits
-#define GPIO_PUD_MASK		0x00000018
+#define _GPIO_PUD_MASK		0x00000018
 /// Amount to shift PUD to right to get the value for PUPDR
-#define GPIO_PUD_SHIFT		3
+#define _GPIO_PUD_SHIFT		3
 
 /// Speed don't care (for inputs)
-#define GPIO_SPEED_X		0x00000000
+#define _GPIO_SPEED_X		0x00000000
 /// Output low-speed (2MHz) mode
-#define GPIO_SPEED_LOW		0x00000000
-#define GPIO_SPEED_2MHz		0x00000000
+#define _GPIO_SPEED_LOW		0x00000000
+#define _GPIO_SPEED_2MHz	0x00000000
 /// Output medium-speed (10MHz) mode
-#define GPIO_SPEED_MEDIUM	0x00000020
-#define GPIO_SPEED_10MHz	0x00000020
+#define _GPIO_SPEED_MEDIUM	0x00000020
+#define _GPIO_SPEED_10MHz	0x00000020
 /// Output high-speed (50MHz) mode
-#define GPIO_SPEED_HIGH		0x00000060
-#define GPIO_SPEED_50MHz	0x00000060
+#define _GPIO_SPEED_HIGH	0x00000060
+#define _GPIO_SPEED_50MHz	0x00000060
 /// The mask for output speed bits
-#define GPIO_SPEED_MASK		0x00000060
+#define _GPIO_SPEED_MASK	0x00000060
 /// Amount to shift speed bits to right to get the value for OSPEEDR
-#define GPIO_SPEED_SHIFT	5
+#define _GPIO_SPEED_SHIFT	5
 
 /// Alternate Function 0 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_0		0x00000000
+#define _GPIO_AF_0		0x00000000
 /// Alternate Function 1 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_1		0x00010000
+#define _GPIO_AF_1		0x00010000
 /// Alternate Function 2 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_2		0x00020000
+#define _GPIO_AF_2		0x00020000
 /// Alternate Function 3 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_3		0x00030000
+#define _GPIO_AF_3		0x00030000
 /// Alternate Function 4 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_4		0x00040000
+#define _GPIO_AF_4		0x00040000
 /// Alternate Function 5 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_5		0x00050000
+#define _GPIO_AF_5		0x00050000
 /// Alternate Function 6 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_6		0x00060000
+#define _GPIO_AF_6		0x00060000
 /// Alternate Function 7 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_7		0x00070000
+#define _GPIO_AF_7		0x00070000
 /// Alternate Function 8 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_8		0x00080000
+#define _GPIO_AF_8		0x00080000
 /// Alternate Function 9 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_9		0x00090000
+#define _GPIO_AF_9		0x00090000
 /// Alternate Function 10 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_10		0x000A0000
+#define _GPIO_AF_10		0x000A0000
 /// Alternate Function 11 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_11		0x000B0000
+#define _GPIO_AF_11		0x000B0000
 /// Alternate Function 12 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_12		0x000C0000
+#define _GPIO_AF_12		0x000C0000
 /// Alternate Function 13 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_13		0x000D0000
+#define _GPIO_AF_13		0x000D0000
 /// Alternate Function 14 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_14		0x000E0000
+#define _GPIO_AF_14		0x000E0000
 /// Alternate Function 15 on pin (use together with GPIO_MODE_AF*)
-#define GPIO_AF_15		0x000F0000
+#define _GPIO_AF_15		0x000F0000
 /// Alternative function "don't care"
-#define GPIO_AF_X		GPIO_AF_14
+#define _GPIO_AF_X		_GPIO_AF_14
 /// The mask to isolate all the bits making the AF value
-#define GPIO_AF_MASK		0x000F0000
+#define _GPIO_AF_MASK		0x000F0000
 /// The amount to shift the AF bits to the right
-#define GPIO_AF_SHIFT		16
+#define _GPIO_AF_SHIFT		16
 
 /**
  * Define the configuration of a single GPIO port.
  * This applies to STM32F0, STM32F2, STM32F3, STM32F4 series.
  *
  * @arg x hw feature name
- * @arg mod GPIO mode (without the GPIO_MODE_ prefix):
+ * @arg mod GPIO mode (without the _GPIO_MODE_ prefix):
  *      INPUT, PUSHPULL, OPENDRAIN, AF, AF_PUSHPULL, AF_OPENDRAIN, ANALOG
- * @arg pud Pull up/down resistor configuration (without GPIO_PUD_ prefix):
+ * @arg pud Pull up/down resistor configuration (without _GPIO_PUD_ prefix):
  *      X, UP, DOWN
- * @arg spd Port speed configuration (without GPIO_SPEED_ prefix):
+ * @arg spd Port speed configuration (without _GPIO_SPEED_ prefix):
  *      X, LOW (2MHz), MEDIUM (10MHz), HIGH (50MHz)
- * @arg af Alternate function number, 0-15 or X (without GPIO_AF_ prefix)
- * @arg ini Initial output state (0, 1 or X)
+ * @arg af Alternate function number, 0-15 or X (without _GPIO_AF_ prefix)
+ * @arg ini Initial pin state (without the _GPIO_INIT_ prefix):
+ *      X, PU, PD in INPUT mode,
+ *      0, 1 or X in OUTPUT mode
  */
 #define GPIO_CONFIG(x,mod,pud,spd,af,ini) (\
-	JOIN2 (GPIO_PORT_, GPIO_PORT(x)) | \
-	(GPIO_PIN (x) << GPIO_PIN_SHIFT) | \
-	JOIN2 (GPIO_MODE_, mod) | \
-	JOIN2 (GPIO_PUD_, pud) | \
-	JOIN2 (GPIO_SPEED_, spd) | \
-	JOIN2 (GPIO_AF_, af) | \
-	JOIN2 (GPIO_INIT_, ini) \
+	JOIN2 (_GPIO_PORT_, GPIO_PORT(x)) | \
+	(GPIO_PIN (x) << _GPIO_PIN_SHIFT) | \
+	JOIN2 (_GPIO_MODE_, mod) | \
+	JOIN2 (_GPIO_PUD_, pud) | \
+	JOIN2 (_GPIO_SPEED_, spd) | \
+	JOIN2 (_GPIO_AF_, af) | \
+	JOIN2 (_GPIO_INIT_, ini) \
 )
 
 #endif
@@ -362,8 +364,8 @@ INLINE_ALWAYS void gpio_eventout (int conf)
     evcr &= ~(AFIO_EVCR_EVOE | AFIO_EVCR_PIN | AFIO_EVCR_PORT);
     if (conf >= 0)
         evcr |= AFIO_EVCR_EVOE |
-            (((conf & GPIO_PIN_MASK) >> GPIO_PIN_SHIFT) << AFIO_EVCR_PIN_Pos) |
-            (((conf & GPIO_PORT_MASK) >> GPIO_PORT_SHIFT) << AFIO_EVCR_PORT_Pos);
+            (((conf & _GPIO_PIN_MASK) >> _GPIO_PIN_SHIFT) << AFIO_EVCR_PIN_Pos) |
+            (((conf & _GPIO_PORT_MASK) >> _GPIO_PORT_SHIFT) << AFIO_EVCR_PORT_Pos);
 
     AFIO->EVCR = evcr;
 }

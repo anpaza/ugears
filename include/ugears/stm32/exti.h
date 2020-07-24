@@ -16,13 +16,13 @@
  */
 
 /// Generate a interrupt
-#define EXTI_INT		0x0001
+#define _EXTI_INT		0x0001
 /// Generate a event
-#define EXTI_EVENT		0x0002
+#define _EXTI_EVENT		0x0002
 /// Detect rising edge
-#define EXTI_RISING		0x0004
+#define _EXTI_RISING		0x0004
 /// Detect falling edge
-#define EXTI_FALLING		0x0008
+#define _EXTI_FALLING		0x0008
 /// Select port to use for this EXTI line (A, B, C, ...)
 #define EXTI_PORT(p)		JOIN2 (GPIO_PORT_,p)
 
@@ -35,7 +35,7 @@
  */
 #define EXTI_CONF1(p, a1) \
     EXTI_PORT (p) | \
-    JOIN2 (EXTI_, a1)
+    JOIN2 (_EXTI_, a1)
 
 /**
  * A shorter way to create a EXTI_XXX bitmask.
@@ -46,7 +46,7 @@
  */
 #define EXTI_CONF2(p, a1, a2) \
     EXTI_PORT (p) | \
-    JOIN2 (EXTI_, a1) | JOIN2 (EXTI_, a2)
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2)
 
 /**
  * A shorter way to create a EXTI_XXX bitmask.
@@ -57,8 +57,8 @@
  */
 #define EXTI_CONF3(p, a1, a2, a3) \
     EXTI_PORT (p) | \
-    JOIN2 (EXTI_, a1) | JOIN2 (EXTI_, a2) | \
-    JOIN2 (EXTI_, a3)
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2) | \
+    JOIN2 (_EXTI_, a3)
 
 /**
  * A shorter way to create a EXTI_XXX bitmask.
@@ -69,8 +69,8 @@
  */
 #define EXTI_CONF4(p, a1, a2, a3, a4) \
     EXTI_PORT (p) | \
-    JOIN2 (EXTI_, a1) | JOIN2 (EXTI_, a2) | \
-    JOIN2 (EXTI_, a3) | JOIN2 (EXTI_, a4)
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2) | \
+    JOIN2 (_EXTI_, a3) | JOIN2 (_EXTI_, a4)
 
 /**
  * Configure a EXTI line.
