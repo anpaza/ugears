@@ -77,10 +77,9 @@ are placed directly under tests/, and there are a number of directories
 named by platform names - those contains tests, specific for a
 hardware platform.
 
-There could be an apps/ subdirectory. It doesn't exist now because
-uGears project doesn't provide any apps. You may create it yourself,
-and under apps/ you can create subdirectories for your app modules.
-The TIBS will automatically load any `apps/*/*.mak` files.
+There is also an apps/ subdirectory. Under apps/ you can create
+subdirectories for your application modules. TIBS will automatically load
+any existing `apps/*/*.mak` files.
 
 
 ### Where to start
@@ -171,9 +170,6 @@ under the Apache License version 2.0.
     limitations under the License.
 
 A copy of Apache license can be found [in the doc/ directory](doc/LICENSE-2.0).
-
-The only caveat is the tfp_printf routine which is LGPL licensed.
-I'll rewrite it from scratch one day when I'll be in a mood for it.
 
 On the compatibility between Apache license and GPL
 [you can read here](https://www.apache.org/licenses/GPL-compatibility.html).
