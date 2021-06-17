@@ -38,7 +38,7 @@
  * @arg period
  *      Period length in SysTick ticks. The maximal value is 2^24.
  */
-static inline void systick_config (uint32_t period)
+INLINE_ALWAYS void systick_config (uint32_t period)
 {
     // stop the timer in case it's running
     SysTick->CTRL = 0;
@@ -55,7 +55,7 @@ static inline void systick_config (uint32_t period)
  * @arg priority
  *      IRQ priority
  */
-static inline void systick_int_enable (uint8_t priority)
+INLINE_ALWAYS void systick_int_enable (uint8_t priority)
 {
     /* set Priority for Systick Interrupt */
     nvic_set_priority (SysTick_IRQn, priority);
@@ -66,7 +66,7 @@ static inline void systick_int_enable (uint8_t priority)
 /**
  * Disable SysTick_Handler.
  */
-static inline void systick_int_disable ()
+INLINE_ALWAYS void systick_int_disable ()
 {
     /* Disable SysTick IRQ */
     SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
@@ -78,7 +78,7 @@ static inline void systick_int_disable ()
  * @arg enable
  *      If non-zero, enable SysTick timer, otherwise disable
  */
-static inline void systick_enable_set (bool enable)
+INLINE_ALWAYS void systick_enable_set (bool enable)
 {
     if (enable)
         SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
@@ -89,13 +89,13 @@ static inline void systick_enable_set (bool enable)
 /**
  * Return the current SysTick timer counter
  */
-static inline uint32_t systick_counter ()
+INLINE_ALWAYS uint32_t systick_counter ()
 { return SysTick->VAL; }
 
 /**
  * Return the SysTick timer counter reload value
  */
-static inline uint32_t systick_reload ()
+INLINE_ALWAYS uint32_t systick_reload ()
 { return SysTick->LOAD + 1; }
 
 /**
@@ -123,7 +123,7 @@ extern void _delay_clocks (uint32_t clocks);
  *      Number of CPU clocks to delay execution. Must be constant,
  *      otherwise the function will generate a mess.
  */
-static inline __attribute__((always_inline))
+INLINE_ALWAYS __attribute__((always_inline))
 void _delay_few_const_clocks (uint32_t clocks)
 {
 #ifdef MCU_CORE_CORTEX_M0

@@ -165,7 +165,7 @@ typedef enum
  * @arg mode
  *      Address mode
  */
-static inline void i2c_address_set (I2C_TypeDef *i2c, uint32_t addr, i2c_addr_mode_t mode)
+INLINE_ALWAYS void i2c_address_set (I2C_TypeDef *i2c, uint32_t addr, i2c_addr_mode_t mode)
 {
     i2c->OAR1 = ((mode == i2c_Addr_7bit) ? (addr << 1) : addr) |
 #if defined I2C_TYPE_1
@@ -183,7 +183,7 @@ static inline void i2c_address_set (I2C_TypeDef *i2c, uint32_t addr, i2c_addr_mo
  * @arg addr
  *      The second 7-bit device address. If larger than 127, second address is disabled
  */
-static inline void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
+INLINE_ALWAYS void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
 {
     i2c->OAR2 = (addr > 127) ? 0 :
 #if defined I2C_TYPE_1
@@ -350,7 +350,7 @@ typedef struct
  * @arg i2c
  *      Указатель на контроллер i2c
  */
-static inline volatile i2c_state_t *i2c_state (I2C_TypeDef *i2c)
+INLINE_ALWAYS volatile i2c_state_t *i2c_state (I2C_TypeDef *i2c)
 {
     (void)i2c;
 
@@ -412,7 +412,7 @@ extern void i2ce2_abort ();
  *      true если буффер был свободен, и он заблокирован по требованию
  *      вызывающего кода. false, если буффер был занят.
  */
-static inline bool i2c_grasp (I2C_TypeDef *i2c, const void *cmd)
+INLINE_ALWAYS bool i2c_grasp (I2C_TypeDef *i2c, const void *cmd)
 {
     (void)i2c; (void)cmd;
 
@@ -436,7 +436,7 @@ static inline bool i2c_grasp (I2C_TypeDef *i2c, const void *cmd)
  * @arg i2c
  *      Указатель на контроллер i2c
  */
-static inline void i2c_command (I2C_TypeDef *i2c)
+INLINE_ALWAYS void i2c_command (I2C_TypeDef *i2c)
 {
     (void)i2c;
 
@@ -457,7 +457,7 @@ static inline void i2c_command (I2C_TypeDef *i2c)
  * @arg i2c
  *      Указатель на контроллер i2c
  */
-static inline void i2c_abort (I2C_TypeDef *i2c)
+INLINE_ALWAYS void i2c_abort (I2C_TypeDef *i2c)
 {
     (void)i2c;
 

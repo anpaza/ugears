@@ -51,7 +51,7 @@
  * @arg adc
  *      ADC to reset
  */
-static inline void adc_reset (ADC_TypeDef *adc)
+INLINE_ALWAYS void adc_reset (ADC_TypeDef *adc)
 {
 #ifdef RCC_APB2RSTR_ADC1RST
     if (adc == ADC1) { RCC_RESET (_ADC1); } else
@@ -73,7 +73,7 @@ static inline void adc_reset (ADC_TypeDef *adc)
  * @arg adc
  *      ADC to reset
  */
-static inline void adc_clock_disable (ADC_TypeDef *adc)
+INLINE_ALWAYS void adc_clock_disable (ADC_TypeDef *adc)
 {
 #ifdef RCC_APB2RSTR_ADC1RST
     if (adc == ADC1) { RCC_DISABLE (_ADC1); } else
@@ -95,7 +95,7 @@ static inline void adc_clock_disable (ADC_TypeDef *adc)
  * @arg adc
  *      ADC to initialize
  */
-static inline void adc_clock_enable (ADC_TypeDef *adc)
+INLINE_ALWAYS void adc_clock_enable (ADC_TypeDef *adc)
 {
 #ifdef RCC_APB2RSTR_ADC1RST
     if (adc == ADC1) { RCC_ENABLE (_ADC1); } else
@@ -115,7 +115,7 @@ static inline void adc_clock_enable (ADC_TypeDef *adc)
 /**
  * Get a pointer to ADCx_COMMON controlling given ADC
  */
-static inline ADC_Common_TypeDef *adc_common (ADC_TypeDef *adc)
+INLINE_ALWAYS ADC_Common_TypeDef *adc_common (ADC_TypeDef *adc)
 {
     (void)adc;
 #if defined ADC12_COMMON && defined ADC34_COMMON
@@ -146,7 +146,7 @@ static inline ADC_Common_TypeDef *adc_common (ADC_TypeDef *adc)
  * @arg enable
  *      Enable ADC if non-zero, disable otherwise
  */
-static inline void adc_enable (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_enable (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR2 |= ADC_CR2_ADON;
@@ -196,7 +196,7 @@ static inline void adc_enable (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      Enable TS & VREF if non-zero, disable otherwise
  */
-static inline void adc_tsvref (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_tsvref (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR2 |= ADC_CR2_TSVREFE;
@@ -234,7 +234,7 @@ typedef enum
  * @arg mode
  *      one of the aextXXX triggers
  */
-static inline void adc_extsel (ADC_TypeDef *adc, adc_extsel_t mode)
+INLINE_ALWAYS void adc_extsel (ADC_TypeDef *adc, adc_extsel_t mode)
 {
     if (mode)
         adc->CR2 = (adc->CR2 & ~ADC_CR2_EXTSEL) | mode;
@@ -272,7 +272,7 @@ typedef enum
  * @arg mode
  *      one of the ajextXXX triggers
  */
-static inline void adc_jextsel (ADC_TypeDef *adc, adc_jextsel_t mode)
+INLINE_ALWAYS void adc_jextsel (ADC_TypeDef *adc, adc_jextsel_t mode)
 {
     if (mode)
         adc->CR2 = (adc->CR2 & ~ADC_CR2_JEXTSEL) | mode;
@@ -321,7 +321,7 @@ typedef enum
  * @arg bits
  *      Channel sampling time
  */
-static inline void adc_sampling_clocks (ADC_TypeDef *adc, unsigned chan, adc_sampling_t bits)
+INLINE_ALWAYS void adc_sampling_clocks (ADC_TypeDef *adc, unsigned chan, adc_sampling_t bits)
 {
     if (chan < 10)
         adc->SMPR2 = (adc->SMPR2 & ~(7 << (chan * 3))) | (((uint32_t)bits) << (chan * 3));
@@ -337,7 +337,7 @@ static inline void adc_sampling_clocks (ADC_TypeDef *adc, unsigned chan, adc_sam
  *      Largest sampling time bits which define a sampling time
  *      not shorter than given amount of ADC clocks.
  */
-static inline adc_sampling_t adc_clk2bits (uint32_t clocks)
+INLINE_ALWAYS adc_sampling_t adc_clk2bits (uint32_t clocks)
 {
     if (clocks < 2)
         return asc1_5;
@@ -369,7 +369,7 @@ static inline adc_sampling_t adc_clk2bits (uint32_t clocks)
  *      Time in 0.32 fixed-point format (2^32 = 1 second), use
  *      FP32() macro to convert seconds to 0.32 fixed-point.
  */
-static inline void adc_sampling_time (ADC_TypeDef *adc,
+INLINE_ALWAYS void adc_sampling_time (ADC_TypeDef *adc,
     unsigned chan, uint32_t time)
 {
     /* Convert microseconds to ADC clocks */
@@ -387,7 +387,7 @@ static inline void adc_sampling_time (ADC_TypeDef *adc,
  * @arg time0, time1, ... time17
  *      ADC channel sampling time in seconds in 0.32 fixed-point format.
  */
-static inline void adc_sampling_time_all (ADC_TypeDef *adc,
+INLINE_ALWAYS void adc_sampling_time_all (ADC_TypeDef *adc,
     uint32_t time0, uint32_t time1, uint32_t time2, uint32_t time3,
     uint32_t time4, uint32_t time5, uint32_t time6, uint32_t time7,
     uint32_t time8, uint32_t time9, uint32_t time10, uint32_t time11,
@@ -458,7 +458,7 @@ static inline void adc_sampling_time_all (ADC_TypeDef *adc,
  * @return
  *      A combination of bit flags, see ADC_STATUS_XXX
  */
-static inline uint32_t adc_status (ADC_TypeDef *adc)
+INLINE_ALWAYS uint32_t adc_status (ADC_TypeDef *adc)
 { return adc->SR; }
 
 /**
@@ -468,7 +468,7 @@ static inline uint32_t adc_status (ADC_TypeDef *adc)
  * @arg flags
  *      The flags to clear, a combination of the ADC_STATUS_XXX bit flags
  */
-static inline void adc_status_clear (ADC_TypeDef *adc, uint32_t flags)
+INLINE_ALWAYS void adc_status_clear (ADC_TypeDef *adc, uint32_t flags)
 { adc->SR &= ~flags; }
 
 /// Generate IRQ from the analog watchdog
@@ -488,7 +488,7 @@ static inline void adc_status_clear (ADC_TypeDef *adc, uint32_t flags)
  *      The events on which to generate IRQs (a combination of
  *      ADC_IRQ_XXX bit flags)
  */
-static inline void adc_irqs (ADC_TypeDef *adc, uint32_t irqs)
+INLINE_ALWAYS void adc_irqs (ADC_TypeDef *adc, uint32_t irqs)
 {
     adc->CR1 = (adc->CR1 & ~ADC_IRQ_ALL) | (irqs & ADC_IRQ_ALL);
 }
@@ -512,7 +512,7 @@ extern void adc_regseq_chan (ADC_TypeDef *adc, uint32_t idx, uint32_t chan);
  *      Number of channels to convert (ADC will convert channels
  *      with indices 0 .. len-1).
  */
-static inline void adc_regseq_len (ADC_TypeDef *adc, uint32_t len)
+INLINE_ALWAYS void adc_regseq_len (ADC_TypeDef *adc, uint32_t len)
 { adc->SQR1 = (adc->SQR1 & ~ADC_SQR1_L) | ((len - 1) << 20); }
 
 /**
@@ -526,7 +526,7 @@ static inline void adc_regseq_len (ADC_TypeDef *adc, uint32_t len)
  *      ADC channel numbers (0-17) stuffed into their respective bit position
  *      with the ADC_REGSEQ_X() macro
  */
-static inline void adc_regseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
+INLINE_ALWAYS void adc_regseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
 {
     adc->SQR3 = chans;
     adc_regseq_len (adc, len);
@@ -546,7 +546,7 @@ static inline void adc_regseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
  *      ADC channel numbers (0-17) stuffed into their respective bit position
  *      with the ADC_REGSEQ_X() macro
  */
-static inline void adc_regseq2 (ADC_TypeDef *adc, uint32_t len,
+INLINE_ALWAYS void adc_regseq2 (ADC_TypeDef *adc, uint32_t len,
     uint32_t chans1, uint32_t chans2)
 {
     adc->SQR3 = chans1;
@@ -664,7 +664,7 @@ static inline void adc_regseq2 (ADC_TypeDef *adc, uint32_t len,
  *      ADC channel numbers (0-17) stuffed into their respective bit position
  *      with the ADC_JREGSEQ_X() macro
  */
-static inline void adc_jregseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
+INLINE_ALWAYS void adc_jregseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
 {
     adc->JSQR = (chans &
         (ADC_JSQR_JSQ1 | ADC_JSQR_JSQ2 | ADC_JSQR_JSQ3 | ADC_JSQR_JSQ4)) |
@@ -698,7 +698,7 @@ static inline void adc_jregseq (ADC_TypeDef *adc, uint32_t len, uint32_t chans)
  * @arg max
  *      The upper ADC threshold boundary (in lower 12 bits, independent on alignment)
  */
-static inline void adc_watchdog_bounds (ADC_TypeDef *adc, uint32_t min, uint32_t max)
+INLINE_ALWAYS void adc_watchdog_bounds (ADC_TypeDef *adc, uint32_t min, uint32_t max)
 {
     adc->LTR = min;
     adc->HTR = max;
@@ -734,7 +734,7 @@ typedef enum
  * @arg chan
  *      ADC channel number to watch on (valid only if mode & ADC_WATCHDOG_SINGLE)
  */
-static inline void adc_watchdog_enable (ADC_TypeDef *adc,
+INLINE_ALWAYS void adc_watchdog_enable (ADC_TypeDef *adc,
     adc_watchdog_mode_t mode, uint32_t chan)
 {
     adc->CR1 = (adc->CR1 & ~(ADC_CR1_AWDCH | awdmAll)) |
@@ -769,7 +769,7 @@ typedef enum
  *      Number of channels in the discontinuous group (0-8). If set to 0,
  *      discontinuous mode is disabled.
  */
-static inline void adc_discmode (ADC_TypeDef *adc,
+INLINE_ALWAYS void adc_discmode (ADC_TypeDef *adc,
     adc_discmode_t mode, uint32_t count)
 {
     adc->CR1 = (adc->CR1 & ~(ADC_CR1_DISCNUM | admAll)) |
@@ -785,7 +785,7 @@ static inline void adc_discmode (ADC_TypeDef *adc,
  * @arg enable
  *      If non-zero, enable scan mode, otherwise disable
  */
-static inline void adc_scanmode (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_scanmode (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR1 |= ADC_CR1_SCAN;
@@ -802,7 +802,7 @@ static inline void adc_scanmode (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      If non-zero, enable auto mode, otherwise disable
  */
-static inline void adc_jauto (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_jauto (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR1 |= ADC_CR1_JAUTO;
@@ -817,7 +817,7 @@ static inline void adc_jauto (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      If non-zero, enable DMA usage, otherwise disable
  */
-static inline void adc_dma (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_dma (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR2 |= ADC_CR2_DMA;
@@ -830,7 +830,7 @@ static inline void adc_dma (ADC_TypeDef *adc, bool enable)
  * @arg adc
  *      The ADC to start regular sequence conversions
  */
-static inline void adc_start (ADC_TypeDef *adc)
+INLINE_ALWAYS void adc_start (ADC_TypeDef *adc)
 { adc->CR2 |= ADC_CR2_SWSTART; }
 
 /**
@@ -838,7 +838,7 @@ static inline void adc_start (ADC_TypeDef *adc)
  * @arg adc
  *      The ADC to start injected sequence conversions
  */
-static inline void adc_jstart (ADC_TypeDef *adc)
+INLINE_ALWAYS void adc_jstart (ADC_TypeDef *adc)
 { adc->CR2 |= ADC_CR2_JSWSTART; }
 
 /**
@@ -849,7 +849,7 @@ static inline void adc_jstart (ADC_TypeDef *adc)
  *      If non-zero, left-align ADC conversion result (12 bits) in the
  *      output registers (16 bits), otherwise right-align
  */
-static inline void adc_left_align (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_left_align (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR2 |= ADC_CR2_ALIGN;
@@ -864,7 +864,7 @@ static inline void adc_left_align (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      If non-zero, enable continous mode, disable otherwise
  */
-static inline void adc_continuous (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_continuous (ADC_TypeDef *adc, bool enable)
 {
     if (enable)
         adc->CR2 |= ADC_CR2_CONT;
@@ -882,7 +882,7 @@ static inline void adc_continuous (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      Enable TS & VREF if non-zero, disable otherwise
  */
-static inline void adc_tsvref (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_tsvref (ADC_TypeDef *adc, bool enable)
 {
     ADC_Common_TypeDef *adcc = adc_common (adc);
     if (enable)
@@ -900,7 +900,7 @@ static inline void adc_tsvref (ADC_TypeDef *adc, bool enable)
  * @arg enable
  *      Enable VBAT measuring if non-zero, disable otherwise
  */
-static inline void adc_vbat (ADC_TypeDef *adc, bool enable)
+INLINE_ALWAYS void adc_vbat (ADC_TypeDef *adc, bool enable)
 {
     ADC_Common_TypeDef *adcc = adc_common (adc);
     if (enable)

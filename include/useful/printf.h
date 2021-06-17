@@ -124,7 +124,7 @@ extern printf_backend_t *printf_stdout;
  *
  * @param stdout The backend for printing to stdout
  */
-static inline void init_printf (printf_backend_t *stdout)
+INLINE_ALWAYS void init_printf (printf_backend_t *stdout)
 { printf_stdout = stdout; }
 
 /**

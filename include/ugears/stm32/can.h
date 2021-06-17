@@ -178,7 +178,7 @@ extern void can_filter (uint32_t n, uint32_t fr1, uint32_t fr2, uint32_t flags);
  * @arg fifo
  *      0 if filter puts matching packets in FIFO0, 1 in FIFO1
  */
-static inline void can_filter_32 (uint32_t n, uint32_t id1, uint32_t id2,
+INLINE_ALWAYS void can_filter_32 (uint32_t n, uint32_t id1, uint32_t id2,
     bool ide, bool rtr, uint32_t fifo)
 {
     can_filter (n, CAN_FR32 (id1, ide, rtr), CAN_FR32 (id2, ide, rtr),
@@ -201,7 +201,7 @@ static inline void can_filter_32 (uint32_t n, uint32_t id1, uint32_t id2,
  * @arg fifo
  *      0 if filter puts matching packets in FIFO0, 1 in FIFO1
  */
-static inline void can_filter_mask_32 (uint32_t n, uint32_t id, uint32_t mask,
+INLINE_ALWAYS void can_filter_mask_32 (uint32_t n, uint32_t id, uint32_t mask,
     bool ide, bool rtr, uint32_t fifo)
 {
     can_filter (n, CAN_FR32 (id, ide, rtr), CAN_FR32 (mask, true, true),
@@ -228,7 +228,7 @@ static inline void can_filter_mask_32 (uint32_t n, uint32_t id, uint32_t mask,
  * @arg fifo
  *      0 if filter puts matching packets in FIFO0, 1 in FIFO1
  */
-static inline void can_filter_16 (uint32_t n, uint32_t id1, uint32_t id2,
+INLINE_ALWAYS void can_filter_16 (uint32_t n, uint32_t id1, uint32_t id2,
     uint32_t id3, uint32_t id4, bool ide, bool rtr, uint32_t fifo)
 {
     can_filter (n, CAN_FR16 (id1, ide, rtr, id2, ide, rtr),
@@ -256,7 +256,7 @@ static inline void can_filter_16 (uint32_t n, uint32_t id1, uint32_t id2,
  * @arg fifo
  *      0 if filter puts matching packets in FIFO0, 1 in FIFO1
  */
-static inline void can_filter_mask_16 (uint32_t n, uint32_t id1, uint32_t mask1,
+INLINE_ALWAYS void can_filter_mask_16 (uint32_t n, uint32_t id1, uint32_t mask1,
     uint32_t id2, uint32_t mask2, bool ide, bool rtr, uint32_t fifo)
 {
     can_filter (n, CAN_FR16 (id1, ide, rtr, mask1, ide, rtr),

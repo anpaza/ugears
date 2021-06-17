@@ -56,21 +56,21 @@
 #if defined STM32F070xB || defined STM32F030xC || \
     defined STM32F105xC || defined STM32F107xC || \
     defined SRM32F3
-static inline uint32_t flash_page_size(uint32_t address)
+INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
 {
     (void)address;
     return 2048;
 }
 
 #elif defined STM32F0
-static inline uint32_t flash_page_size(uint32_t address)
+INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
 {
     (void)address;
     return (STM32_RAM_SIZE <= 64*1024) ? 1024 : 2048;
 }
 
 #elif defined STM32F1
-static inline uint32_t flash_page_size(uint32_t address)
+INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
 {
     (void)address;
     return (STM32_RAM_SIZE <= 128*1024) ? 1024 : 2048;
@@ -78,7 +78,7 @@ static inline uint32_t flash_page_size(uint32_t address)
 
 #elif defined STM32F2
 // Return the flash memory page size at certain address
-static inline uint32_t flash_page_size(uint32_t address)
+INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
 {
     return (address >= 0x08020000) ? 128*1024 :
            (address >= 0x08010000) ? 64*1024 :
@@ -86,7 +86,7 @@ static inline uint32_t flash_page_size(uint32_t address)
 }
 
 #elif defined STM32F4
-static inline uint32_t flash_page_size(uint32_t address)
+INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
 {
     (void)address;
     return 128*1024;

@@ -22,7 +22,7 @@
  * @arg enable
  *      If true, allow writes to RTC & backup registers, disallow otherwise.
  */
-static inline void pwr_rtc_backup (bool enable)
+INLINE_ALWAYS void pwr_rtc_backup (bool enable)
 {
     if (enable)
         PWR->CR |= PWR_CR_DBP;
@@ -38,7 +38,7 @@ static inline void pwr_rtc_backup (bool enable)
  * @arg pvd
  *      Voltage threshold (see PWR_CR_PLS_XXX).
  */
-static inline void pwr_pvd (uint32_t pvd)
+INLINE_ALWAYS void pwr_pvd (uint32_t pvd)
 {
     PWR->CR = (PWR->CR & ~PWR_CR_PLS) | (pvd & PWR_CR_PLS) | PWR_CR_PVDE;
 }
@@ -48,7 +48,7 @@ static inline void pwr_pvd (uint32_t pvd)
  * @return
  *      Non-zero if VDD is lower than PVD threshold.
  */
-static inline uint32_t pwr_pvd_get ()
+INLINE_ALWAYS uint32_t pwr_pvd_get ()
 {
     return (PWR->CSR & PWR_CSR_PVDO);
 }
@@ -64,7 +64,7 @@ static inline uint32_t pwr_pvd_get ()
  *      the processor from the Standby mode. The pin is in input pull-down
  *      configuration. If 0, the WKUP pin can be used as a regular IO.
  */
-static inline void pwr_wkup (unsigned mask)
+INLINE_ALWAYS void pwr_wkup (unsigned mask)
 {
 #if defined PWR_CSR_EWUP8
     // We have 8 wakeup pins
@@ -100,13 +100,13 @@ static inline void pwr_wkup (unsigned mask)
  * @return
  *      Non-zero if device was in Standby mode, zero if not.
  */
-static inline uint32_t pwr_standby_get ()
+INLINE_ALWAYS uint32_t pwr_standby_get ()
 {
     return PWR->CSR & PWR_CSR_SBF;
 }
 
 /// Clear Standby flag
-static inline void pwr_standby_clear ()
+INLINE_ALWAYS void pwr_standby_clear ()
 {
     PWR->CR |= PWR_CR_CSBF;
 }
@@ -117,13 +117,13 @@ static inline void pwr_standby_clear ()
  * @return
  *      Non-zero if device woke up through WKUP or RTC Alarm, zero if not.
  */
-static inline uint32_t pwr_wakeup_get ()
+INLINE_ALWAYS uint32_t pwr_wakeup_get ()
 {
     return PWR->CSR & PWR_CSR_WUF;
 }
 
 /// Clear Wakeup flag
-static inline void pwr_wakeup_clear ()
+INLINE_ALWAYS void pwr_wakeup_clear ()
 {
     PWR->CR |= PWR_CR_CWUF;
 }
@@ -172,7 +172,7 @@ typedef enum
  * @arg flags
  *      A combination of SLEEP_XXX bit flags
  */
-static inline void pwr_sleep (pwr_sleep_mode_t pwr_mode, uint32_t flags)
+INLINE_ALWAYS void pwr_sleep (pwr_sleep_mode_t pwr_mode, uint32_t flags)
 {
     // Clear all EXTI pending interrupts/events
     exti_clear_all ();

@@ -19,20 +19,20 @@ void gpio_setup (gpio_config_t conf)
 
     // Set up ODR
 #if defined GPIO_TYPE_3
-    if (conf & GPIO_INIT_1)
+    if (conf & _GPIO_INIT_1)
         gpio->BSRR = 1 << b;
     else
         gpio->BSRR = 16 << b;
 #else
-    if (conf & GPIO_INIT_1)
+    if (conf & _GPIO_INIT_1)
         gpio->BSRR = 1 << b;
     else
         gpio->BRR = 1 << b;
 #endif
 
 #if defined GPIO_TYPE_1
-    uint32_t n = (conf & (GPIO_MODE_MASK | GPIO_CNF_MASK)) << ((b & 7) * 4);
-    uint32_t m = ~((GPIO_MODE_MASK | GPIO_CNF_MASK) << ((b & 7) * 4));
+    uint32_t n = (conf & (_GPIO_MODE_MASK | _GPIO_CNF_MASK)) << ((b & 7) * 4);
+    uint32_t m = ~((_GPIO_MODE_MASK | _GPIO_CNF_MASK) << ((b & 7) * 4));
 
     // Set up GPIO config & mode
     if (b < 8)
@@ -41,26 +41,26 @@ void gpio_setup (gpio_config_t conf)
         gpio->CRH = (gpio->CRH & m) | n;
 
 #elif defined GPIO_TYPE_2 || defined GPIO_TYPE_3
-    uint32_t n = (conf & GPIO_MODE_MASK) << (b * 2);
-    uint32_t m = ~(GPIO_MODE_MASK << (b * 2));
+    uint32_t n = (conf & _GPIO_MODE_MASK) << (b * 2);
+    uint32_t m = ~(_GPIO_MODE_MASK << (b * 2));
     gpio->MODER = (gpio->MODER & m) | n;
 
     gpio->OTYPER = (gpio->OTYPER & ~(1 << b)) |
-        (((conf & GPIO_OTYPE_MASK) ? 1 : 0) << b);
+        (((conf & _GPIO_OTYPE_MASK) ? 1 : 0) << b);
 
-    n = ((conf & GPIO_PUD_MASK) >> GPIO_PUD_SHIFT) << (b * 2);
-    m = ~((GPIO_PUD_MASK >> GPIO_PUD_SHIFT) << (b * 2));
+    n = ((conf & _GPIO_PUD_MASK) >> _GPIO_PUD_SHIFT) << (b * 2);
+    m = ~((_GPIO_PUD_MASK >> _GPIO_PUD_SHIFT) << (b * 2));
     gpio->PUPDR = (gpio->PUPDR & m) | n;
 
-    n = ((conf & GPIO_SPEED_MASK) >> GPIO_SPEED_SHIFT) << (b * 2);
-    m = ~((GPIO_SPEED_MASK >> GPIO_SPEED_SHIFT) << (b * 2));
+    n = ((conf & _GPIO_SPEED_MASK) >> _GPIO_SPEED_SHIFT) << (b * 2);
+    m = ~((_GPIO_SPEED_MASK >> _GPIO_SPEED_SHIFT) << (b * 2));
     gpio->OSPEEDR = (gpio->OSPEEDR & m) | n;
 
-    n = conf & GPIO_AF_MASK;
-    if (n != GPIO_AF_X)
+    n = conf & _GPIO_AF_MASK;
+    if (n != _GPIO_AF_X)
     {
-        n = (n >> GPIO_AF_SHIFT) << ((b & 7) * 4);
-        m = ~((GPIO_AF_MASK >> GPIO_AF_SHIFT) << ((b & 7) * 4));
+        n = (n >> _GPIO_AF_SHIFT) << ((b & 7) * 4);
+        m = ~((_GPIO_AF_MASK >> _GPIO_AF_SHIFT) << ((b & 7) * 4));
         gpio->AFR [b >> 3] = (gpio->AFR [b >> 3] & m) | n;
     }
 #endif
@@ -81,24 +81,24 @@ gpio_config_t gpio_get_setup (gpio_config_t conf)
     // GPIO bit number (0-15)
     unsigned b = GPIO_CONF_PIN (conf);
 
-    conf &= GPIO_PORT_MASK | GPIO_PIN_MASK;
+    conf &= _GPIO_PORT_MASK | _GPIO_PIN_MASK;
 
 #if defined GPIO_TYPE_1
     uint32_t s = (b & 7) * 4;
-    uint32_t m = (GPIO_MODE_MASK | GPIO_CNF_MASK) << s;
+    uint32_t m = (_GPIO_MODE_MASK | _GPIO_CNF_MASK) << s;
     if (b < 8)
         conf |= (gpio->CRL & m) >> s;
     else
         conf |= (gpio->CRH & m) >> s;
 
 #elif defined GPIO_TYPE_2 || defined GPIO_TYPE_3
-    conf |= (gpio->MODER >> (b * 2)) & GPIO_MODE_MASK;
+    conf |= (gpio->MODER >> (b * 2)) & _GPIO_MODE_MASK;
     if (gpio->OTYPER & (1 << b))
-        conf |= GPIO_OTYPE_MASK;
-    conf |= ((gpio->PUPDR >> (b * 2)) << GPIO_PUD_SHIFT) & GPIO_PUD_MASK;
-    conf |= ((gpio->OSPEEDR >> (b * 2)) << GPIO_SPEED_SHIFT) & GPIO_SPEED_MASK;
-    if (conf & GPIO_MODE_AF)
-        conf |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << GPIO_AF_SHIFT) & GPIO_AF_MASK;
+        conf |= _GPIO_OTYPE_MASK;
+    conf |= ((gpio->PUPDR >> (b * 2)) << _GPIO_PUD_SHIFT) & _GPIO_PUD_MASK;
+    conf |= ((gpio->OSPEEDR >> (b * 2)) << _GPIO_SPEED_SHIFT) & _GPIO_SPEED_MASK;
+    if (conf & _GPIO_MODE_AF)
+        conf |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << _GPIO_AF_SHIFT) & _GPIO_AF_MASK;
 #endif
 
     return conf;

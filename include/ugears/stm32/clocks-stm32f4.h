@@ -292,7 +292,7 @@ extern uint8_t clock_APB2 (uint32_t pclk2_div_flags);
 /**
  * Stop the HSE generator.
  */
-static inline void clock_HSE_stop ()
+INLINE_ALWAYS void clock_HSE_stop ()
 { RCC->CR &= ~RCC_CR_HSEON; }
 
 /**
@@ -325,7 +325,7 @@ extern void clock_flash_setup (uint8_t ws, bool prefetch);
  * @return
  *     true if HSI clock is enabled
  */
-static inline bool clock_HSI_enabled ()
+INLINE_ALWAYS bool clock_HSI_enabled ()
 { return !!(RCC->CR & RCC_CR_HSION); }
 
 /**
@@ -337,7 +337,7 @@ extern uint8_t clock_HSI_start ();
  * Stop the HSI clock unconditionally. Take care not to stop the system clock!
  * The best practice is to save HSI clock state before starting modifying it.
  */
-static inline void clock_HSI_stop ()
+INLINE_ALWAYS void clock_HSI_stop ()
 { RCC->CR &= ~RCC_CR_HSION; }
 
 #endif // _STM32_CLOCKS_STM32F4_H

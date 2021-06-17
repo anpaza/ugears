@@ -42,6 +42,7 @@ extern void memclr (void *dest, unsigned len);
 
 /**
  * Optimized traditional memcpy().
+ *
  * @arg dest
  *      The destination pointer
  * @arg src
@@ -58,6 +59,20 @@ extern void _memcpy (void *dest, const void *src, unsigned len);
  * @return String length, bytes
  */
 extern size_t _strlen (const char *str);
+
+/**
+ * Optimized traditional memcmp().
+ * Compare two memory areas.
+ *
+ * @param s1 A pointer to memory area 1
+ * @param s2 A pointer to memory area 2
+ * @param n The size of both memory areas
+ * @return 0 if contents of memory is equal, negative number if first
+ *  different byte in s1 is less than corresponding byte from s2, or
+ *  a positive number if first different byte in s1 is greater than
+ *  corresponding byte from s2.
+ */
+extern int _memcmp (const void *s1, const void *s2, size_t n);
 
 /**
  * Xorshift Random Number Generator by George Marsaglia:
@@ -98,7 +113,7 @@ extern uint32_t xs_rand (xs_rng_t xsr);
  *
  * @arg seed The number that determines the pseudo-random sequence.
  */
-extern void srand (unsigned seed);
+extern void _srand (unsigned seed);
 
 /**
  * Get a pseudo-random number.
@@ -106,7 +121,7 @@ extern void srand (unsigned seed);
  *
  * @return A new random number in the range 0..MAX_UNSIGNED_INT
  */
-extern unsigned rand ();
+extern unsigned _rand ();
 
 /**
  * Return the sine of the angle
@@ -124,7 +139,7 @@ extern int sin64 (uint8_t angle);
  * @return
  *      The cosine value in signed 1.8 format
  */
-static inline int cos64 (uint8_t angle)
+INLINE_ALWAYS int cos64 (uint8_t angle)
 { return sin64 (angle + 64); }
 
 /**
@@ -154,7 +169,7 @@ extern int32_t sleb128 (const uint8_t **data);
  * @return
  *      A pointer past the encoded LEB128 value
  */
-static inline const uint8_t *skip_leb128 (const uint8_t *data)
+INLINE_ALWAYS const uint8_t *skip_leb128 (const uint8_t *data)
 { while (*data & 0x80) data++; return data + 1; }
 
 /**
@@ -164,7 +179,7 @@ static inline const uint8_t *skip_leb128 (const uint8_t *data)
  * @return
  *      -1 if @a x is negative, +1 if @a x is positive and 0 if @a x is 0.
  */
-static inline int32_t sign (int32_t x)
+INLINE_ALWAYS int32_t sign (int32_t x)
 { return (x >> 31) + (x > 0); }
 
 /**
@@ -199,7 +214,7 @@ extern uint16_t ip_crc_fin (uint32_t sum);
  * @return
  *      The 16-bit checksum in network endian format
  */
-static inline uint16_t ip_crc (void *data, unsigned len)
+INLINE_ALWAYS uint16_t ip_crc (void *data, unsigned len)
 { return ip_crc_fin (ip_crc_block (0, data, len)); }
 
 /**
@@ -249,7 +264,10 @@ extern uint32_t uget32be (const void *data);
 #ifndef USING_LIBC
 #  define memset        _memset
 #  define memcpy        _memcpy
-#  define strlen        _strlen
+#  define memcmp        _memcmp
+#  define strlen(s)     (__builtin_constant_p (*s) ? __builtin_strlen (s) : _strlen (s))
+#  define srand         _srand
+#  define rand          _rand
 #endif
 
 #endif // __USEFUN_H__

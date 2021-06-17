@@ -163,7 +163,7 @@ extern uint8_t usart_getc (USART_TypeDef *usart);
  * @param usart The USART to check data readiness in
  * @return true if there is data in the receive buffer
  */
-static inline bool usart_rx_ready (USART_TypeDef *usart)
+INLINE_ALWAYS bool usart_rx_ready (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { return (usart->SR & USART_SR_RXNE) != 0; }
 #elif defined USART_TYPE_2
@@ -175,7 +175,7 @@ static inline bool usart_rx_ready (USART_TypeDef *usart)
  * @param usart A pointer to USART to check
  * @return true if transmission data register is free
  */
-static inline bool usart_tx_ready (USART_TypeDef *usart)
+INLINE_ALWAYS bool usart_tx_ready (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { return (usart->SR & USART_SR_TXE) != 0; }
 #elif defined USART_TYPE_2
@@ -188,7 +188,7 @@ static inline bool usart_tx_ready (USART_TypeDef *usart)
  * @param usart A pointer to USART to check
  * @return true if transmission is complete
  */
-static inline bool usart_tx_complete (USART_TypeDef *usart)
+INLINE_ALWAYS bool usart_tx_complete (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { return (usart->SR & USART_SR_TC) != 0; }
 #elif defined USART_TYPE_2
@@ -200,7 +200,7 @@ static inline bool usart_tx_complete (USART_TypeDef *usart)
  * @param usart A pointer to USART
  * @return a reference to transmission data register
  */
-static inline __IO uint16_t *usart_tdr (USART_TypeDef *usart)
+INLINE_ALWAYS __IO uint16_t *usart_tdr (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { return (__IO uint16_t *)&usart->DR; }
 #elif defined USART_TYPE_2
@@ -212,7 +212,7 @@ static inline __IO uint16_t *usart_tdr (USART_TypeDef *usart)
  * @param usart A pointer to USART
  * @return a reference to receiver data register
  */
-static inline __IO uint16_t *usart_rdr (USART_TypeDef *usart)
+INLINE_ALWAYS __IO uint16_t *usart_rdr (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { return (__IO uint16_t *)&usart->DR; }
 #elif defined USART_TYPE_2
@@ -223,7 +223,7 @@ static inline __IO uint16_t *usart_rdr (USART_TypeDef *usart)
  * Send a BREAK metacharacter.
  * @param usart A pointer to USART
  */
-static inline void usart_send_break (USART_TypeDef *usart)
+INLINE_ALWAYS void usart_send_break (USART_TypeDef *usart)
 #if defined USART_TYPE_1
 { usart->CR1 |= USART_CR1_SBK; }
 #elif defined USART_TYPE_2
@@ -235,7 +235,7 @@ static inline void usart_send_break (USART_TypeDef *usart)
  * @param usart The USART to set DMA TX state
  * @param state true to enable transmission, false to disable
  */
-static inline void usart_dma_tx (USART_TypeDef *usart, bool state)
+INLINE_ALWAYS void usart_dma_tx (USART_TypeDef *usart, bool state)
 {
     if (state)
         usart->CR3 |= USART_CR3_DMAT;
@@ -249,7 +249,7 @@ static inline void usart_dma_tx (USART_TypeDef *usart, bool state)
  * @param usart The USART to check DMA state
  * @return true if TX DMA is enabled
  */
-static inline bool usart_dma_tx_enabled (USART_TypeDef *usart)
+INLINE_ALWAYS bool usart_dma_tx_enabled (USART_TypeDef *usart)
 { return (usart->CR3 & USART_CR3_DMAT) != 0; }
 
 /**
@@ -257,7 +257,7 @@ static inline bool usart_dma_tx_enabled (USART_TypeDef *usart)
  * @param usart The USART to set DMA RX state
  * @param state true to enable receiving, false to disable
  */
-static inline void usart_dma_rx (USART_TypeDef *usart, bool state)
+INLINE_ALWAYS void usart_dma_rx (USART_TypeDef *usart, bool state)
 {
     if (state)
         usart->CR3 |= USART_CR3_DMAR;
@@ -271,7 +271,7 @@ static inline void usart_dma_rx (USART_TypeDef *usart, bool state)
  * @param usart The USART to check DMA state
  * @return true if RX DMA is enabled
  */
-static inline bool usart_dma_rx_enabled (USART_TypeDef *usart)
+INLINE_ALWAYS bool usart_dma_rx_enabled (USART_TypeDef *usart)
 { return (usart->CR3 & USART_CR3_DMAR) != 0; }
 
 #ifdef __cplusplus

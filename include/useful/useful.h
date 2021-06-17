@@ -21,7 +21,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// Use code variants optimized by speed (1) or size (0) where appropiate
+// Optimize by speed (1) or size (0) where appropiate
 #define USEFUL_OPTIMIZE			1
 
 #if !defined __BYTE_ORDER__
@@ -38,6 +38,9 @@
 
 /// Structure attribute to avoid aligning structure members
 #define PACKED			__attribute__ ((packed))
+
+/// Use for inline functions in header files
+#define INLINE_ALWAYS           inline __attribute__((always_inline))
 
 /// Get the offset of member m in compound type t
 #define OFFSETOF(t, m)		__builtin_offsetof (t, m)
