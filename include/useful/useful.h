@@ -21,8 +21,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// Optimize by speed (1) or size (0) where appropiate
-#define __OPTIMIZE__			1
+// Use code variants optimized by speed (1) or size (0) where appropiate
+#define USEFUL_OPTIMIZE			1
 
 #if !defined __BYTE_ORDER__
 #  define __ORDER_LITTLE_ENDIAN__	3412

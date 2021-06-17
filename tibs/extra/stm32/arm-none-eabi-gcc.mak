@@ -22,7 +22,7 @@ ARM-NONE-EABI-GCC.CFLAGS.INC = $(addprefix -I,$(DIR.INCLUDE.C))
 # You might want to use -Os instead of -O2, depending on your priorities
 ARM-NONE-EABI-GCC.CFLAGS.release ?= -g -O2 -mabi=aapcs -fomit-frame-pointer \
     -fno-builtin -ffunction-sections -fdata-sections \
-    -fpeel-loops -ffast-math
+    -fpeel-loops -ffast-math $(ARM-NONE-EABI-GCC.FLTO)
 ARM-NONE-EABI-GCC.CFLAGS.debug ?= -g -Og -D__DEBUG__ -mabi=aapcs \
     -fno-builtin -ffunction-sections -fdata-sections \
     -ffast-math
@@ -50,11 +50,11 @@ ARM-NONE-EABI-GCC.CPPFLAGS ?= -pipe -x c-header $(ARM-NONE-EABI-GCC.CFLAGS.DEF) 
 
 ARM-NONE-EABI-GCC.LD ?= $(ARM-NONE-EABI-GCC.PFX)gcc
 ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
-    -Wl,--gc-sections -mabi=aapcs -nostartfiles \
+    -Wl,--gc-sections -mabi=aapcs -nostartfiles -nostdlib \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
 ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
 
-ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g
+ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g $(ARM-NONE-EABI-GCC.FLTO)
 ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g
 
 ARM-NONE-EABI-GCC.LINKLIB = $(if $(findstring $L,$1),,$(if $(findstring /,$1),$1,-l$1))
