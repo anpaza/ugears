@@ -19,7 +19,7 @@ CONF_INCLUDEDIR ?= $(CONF_PREFIX)include/
 CONF_DOCDIR ?= $(CONF_PREFIX)share/doc/$(CONF_PACKAGE)-$(CONF_VERSION)/
 CONF_LIBEXECDIR ?= $(CONF_PREFIX)libexec/$(CONF_PACKAGE)/
 
-.PHONY: default help all clean dist distclean cleandep cleangen install
+.PHONY: default showhelp all clean dist distclean cleandep cleangen install
 default: showhelp
 
 # Forget all the built-in exotic suffixes

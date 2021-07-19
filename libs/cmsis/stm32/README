@@ -1,0 +1,23 @@
+These are the microcontroller startup files from ST CubeMX libraries.
+The following changes were made to them:
+
+ * BUG: in startup files for STM32F2*, F4, H7* the invocation of main
+   was like this:
+
+        /* Call the application's entry point.*/
+        bl  main
+        bx  lr
+
+   but there's no guarantee main returns lr equal to the address of "bx".
+   In fact, gcc will generate code this way:
+
+        push {lr}
+        ...
+        pop {pc}
+
+   if you call any function from main, LR gets changed, and when you
+   return from main() "bx lr" will jump right into the middle of your main.
+
+   So, in all files all "bx lr"s were replaced by:
+
+    1:  b   1b
