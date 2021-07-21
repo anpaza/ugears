@@ -37,7 +37,7 @@
  * @endcode
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 // There are at least three different types of GPIO peripherial

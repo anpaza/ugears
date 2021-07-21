@@ -9,7 +9,7 @@
 #ifndef _STM32_USART_H
 #define _STM32_USART_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 
 /**
  * @file usart.h

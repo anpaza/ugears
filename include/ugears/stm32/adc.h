@@ -16,6 +16,7 @@
  *      a different API.
  */
 
+#include "cmsis.h"
 #include <useful/useful.h>
 #include <useful/fpmath.h>
 #include "rcc.h"

@@ -16,14 +16,13 @@
  * Influenced by atomic.h from AVR-libc.
  *
  * These macros will allow you to block interrupts (PRIMASK) for some
- * sections of code, with guaranteed exit action, not matter how you
+ * sections of code, with guaranteed exit action, no matter how you
  * leave the code section.
  *
  * Additionaly, since this is implemented internally with a 'for' loop,
  * you can use the 'break' operator as an alias to 'goto atomic block end'.
  */
 
-#include HARDWARE_H
 #include <useful/useful.h>
 
 /**
@@ -54,12 +53,13 @@
  *      if (flags & 0x400)
  *      {
  *          flag_10_count++;
- *          flags &= 0x400;
+ *          flags &= ~0x400;
  *      }
  * }
  * @endverbatim
  *
- * @param type RESTORE or FORCEON
+ * @param type RESTORE to restore interrupts after the block, or FORCEON
+ *      to always enable interrupts after the block.
  */
 #define ATOMIC_BLOCK(type) \
     for (JOIN2 (ATOMIC_, type), __pass = 1, __unused = (__disable_irq (), 0); \

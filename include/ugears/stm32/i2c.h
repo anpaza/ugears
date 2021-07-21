@@ -52,7 +52,7 @@
  * but will transmit next n bytes from txbuff.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 // There are at least two different types of I2C peripherial

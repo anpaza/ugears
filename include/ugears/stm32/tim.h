@@ -20,6 +20,7 @@
  *      for these checks on the caller code.
  */
 
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /// Return the number of TIM peripherial associated with given hw feature

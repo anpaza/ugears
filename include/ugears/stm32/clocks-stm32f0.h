@@ -9,7 +9,7 @@
 #ifndef _STM32_CLOCKS_STM32F0_H
 #define _STM32_CLOCKS_STM32F0_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /**
@@ -17,8 +17,6 @@
  *      This file contains the definitions and functions for setting up
  *      initial MCU clock setup and, optionally, providing functions
  *      for clock manipulations at runtime.
- *
- *      This file is typically included from HARDWARE_H.
  *
  * The following macros may be defined prior to including this file.
  * Most of them have reasonable defaults, so you may get started by

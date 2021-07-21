@@ -14,7 +14,7 @@
  *      A set of functions for easier management of power unit.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include "exti.h"
 
 /**

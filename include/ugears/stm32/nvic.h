@@ -21,7 +21,7 @@
  *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /// Return the IRQ priority corresponding to this hardware feature

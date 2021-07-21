@@ -20,7 +20,7 @@
  *      microcontrollers.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 
 /**
  * How many RTC ticks per second we want (1 = 1 tick per second).

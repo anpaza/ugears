@@ -9,7 +9,7 @@
 #ifndef _STM32_SYSTICK_H
 #define _STM32_SYSTICK_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include "nvic.h"
 #include <useful/fpmath.h>
 
