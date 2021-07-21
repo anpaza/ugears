@@ -20,17 +20,17 @@ ARM-NONE-EABI-GCC.CFLAGS.DEF = $(CFLAGS.DEF) $(addprefix -D,$(DEFINES))
 ARM-NONE-EABI-GCC.CFLAGS.INC = $(addprefix -I,$(DIR.INCLUDE.C))
 
 # You might want to use -Os instead of -O2, depending on your priorities
-ARM-NONE-EABI-GCC.CFLAGS.release ?= -g -O2 -mabi=aapcs -fomit-frame-pointer \
+ARM-NONE-EABI-GCC.CFLAGS.release ?= -g3 -O2 -mabi=aapcs -fomit-frame-pointer \
     -fno-builtin -ffunction-sections -fdata-sections \
     -fpeel-loops -ffast-math $(ARM-NONE-EABI-GCC.FLTO)
-ARM-NONE-EABI-GCC.CFLAGS.debug ?= -g -Og -D__DEBUG__ -mabi=aapcs \
+ARM-NONE-EABI-GCC.CFLAGS.debug ?= -g3 -Og -D__DEBUG__ -mabi=aapcs \
     -fno-builtin -ffunction-sections -fdata-sections \
     -ffast-math
 
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m0 = -mcpu=cortex-m0 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m3 = -mcpu=cortex-m3 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m4 = -mcpu=cortex-m4 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m7 = -mcpu=cortex-m7 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m0 = -mcpu=cortex-m0 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m3 = -mcpu=cortex-m3 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m4 = -mcpu=cortex-m4 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m7 = -mcpu=cortex-m7 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
 
 ifeq ($(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)),)
 $(error "Unknown MCU core $(MCU.CORE), cannot set -mcpu= C compiler flag")
@@ -54,8 +54,8 @@ ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
 ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
 
-ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g $(ARM-NONE-EABI-GCC.FLTO)
-ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g
+ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g3 $(ARM-NONE-EABI-GCC.FLTO)
+ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g3
 
 ARM-NONE-EABI-GCC.LINKLIB = $(if $(findstring $L,$1),,$(if $(findstring /,$1),$1,-l$1))
 

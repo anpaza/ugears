@@ -60,12 +60,17 @@
  * @li PLL_Q - 2..15 - the PLL output clock divider before
  *      feeding to USB OTG FS clock, the random number generator
  *      clock and the SDIO clock.
+ * @li PLL_VOS - Voltage Scaling for use in PLL mode. This chooses
+ *     one or two or three power profiles (depending on MCU).
+ *     VOS 0 supports max 168 MHz HCLK, 1 is max 144 MHz, 2 is max 120 MHz.
  * @li FLASH_WS - 0..15 - flash memory wait states. You must
  *      choose wait states carefully, according to section
  *      "3.5.1 Relation between CPU clock frequency and Flash memory read time"
  *      in STM32F4 datasheet.
  * @li FLASH_PREFETCH - 0/1 - enable flash memory prefetch buffer.
  *      You must disable prefetch if supply voltage < 2.1V.
+ * @li FLASH_ICACHE - 0/1 - enable instruction cache
+ * @li FLASH_DCACHE - 0/1 - enable data cache
  * @li VECT_TAB_SRAM - define this if you need to relocate your
  *      vector Table in Internal SRAM. Default is FLASH memory.
  * @li VECT_TAB_OFFSET - you can define this to a multiple of 0x200
@@ -104,12 +109,16 @@
 #define PCLK2_DIV_FLAGS(n)		JOIN2 (RCC_CFGR_PPRE2_DIV, n)
 
 #ifndef HSE_STARTUP_TIMEOUT
-/// Time out for HSE start up
+/// Time out for HSE start up (loop count)
 #define HSE_STARTUP_TIMEOUT		0xA000
 #endif
 #ifndef HSI_STARTUP_TIMEOUT
-/// Time out for HSI start up
+/// Time out for HSI start up (loop count)
 #define HSI_STARTUP_TIMEOUT		0xA000
+#endif
+#ifndef PLL_STARTUP_TIMEOUT
+/// Time out for PLL start up (loop count)
+#define PLL_STARTUP_TIMEOUT		0xA000
 #endif
 
 // default values
@@ -150,6 +159,14 @@
 #  define FLASH_PREFETCH 1
 #endif
 
+#ifndef FLASH_ICACHE
+#  define FLASH_ICACHE 1
+#endif
+
+#ifndef FLASH_DCACHE
+#  define FLASH_DCACHE 1
+#endif
+
 #if defined STM32F427_437xx || defined STM32F429_439xx
 #  define SYSCLK_FREQ_MAX		180000000
 #else
@@ -163,6 +180,10 @@
 #  if !defined (PLL_M) || !defined (PLL_N) || !defined (PLL_P) || !defined (PLL_Q)
 #    error "You must define the most important PLL multipliers and dividers!"
 #  endif
+#endif
+
+#ifndef PLL_VOS
+#  define PLL_VOS                       0
 #endif
 
 #ifndef CLOCK_DYNAMIC
@@ -252,11 +273,17 @@ extern uint8_t sysclk_PLL ();
  *   range 2..15 - the PLL output clock divider before
  *   feeding to USB OTG FS clock, the random number generator
  *   clock and the SDIO clock.
+ * @arg vos
+ *   Voltage Scaling (PLL_VOS). Use 0..1 or 0..2 here depending on which
+ *   voltage settings your MCU supports. Feeding an out-of-value range
+ *   will return an error code. For MCUs supporting two VOS modes
+ *   0 is max HCLK 168MHz, 1 is max 144 MHz. For MCUs supporting
+ *   three VOS modes 0..2 is max 168, 144, 120 MHz.
  * @return
  *   0 if PLL has been set up, non-zero on failure
  */
-extern uint8_t clock_PLL_setup (uint8_t clksrc,
-    uint32_t pllm, uint32_t plln, uint32_t pllp, uint32_t pllq);
+extern uint8_t clock_PLL_setup (uint8_t clksrc, uint32_t pllm, uint32_t plln,
+                                uint32_t pllp, uint32_t pllq, uint32_t vos);
 
 /**
  * Set the AHB bus clock. When using Ethernet, AHB clock must
@@ -306,18 +333,6 @@ extern void clock_PLL_stop ();
  */
 extern void clock_PLLI2S_stop ();
 
-/**
- * Set up the flash memory interface. This must be set according to
- * microcontroller voltage and frequency used, for details see section
- * "3.5.1 Relation between CPU clock frequency and Flash memory read time"
- * in microcontroller datasheet.
- * @arg ws
- *      Number of wait states (0..15).
- * @arg prefetch
- *      True to enable prefetch buffer (if VCC > 2.1V), false to disable.
- */
-extern void clock_flash_setup (uint8_t ws, bool prefetch);
-
 #endif // CLOCK_DYNAMIC
 
 /**
@@ -339,5 +354,24 @@ extern uint8_t clock_HSI_start ();
  */
 INLINE_ALWAYS void clock_HSI_stop ()
 { RCC->CR &= ~RCC_CR_HSION; }
+
+/**
+ * Set up the flash memory interface. This must be set according to
+ * microcontroller voltage and frequency used, for details see section
+ * "3.5.1 Relation between CPU clock frequency and Flash memory read time"
+ * in microcontroller datasheet.
+ * @arg ws
+ *      Number of wait states (0..15).
+ * @arg prefetch
+ *      True to enable prefetch buffer (if VCC > 2.1V), false to disable.
+ */
+extern void clock_flash_setup (uint8_t ws, bool prefetch);
+
+/**
+ * Set instruction and data cache states
+ * @param icache true to enable instruction cache
+ * @param dcache true to enable data cache
+ */
+extern void clock_cache_setup (bool icache, bool dcache);
 
 #endif // _STM32_CLOCKS_STM32F4_H

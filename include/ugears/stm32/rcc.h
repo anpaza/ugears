@@ -480,6 +480,8 @@
 #define RCC_GPIO(x)			JOIN2 (_GPIO, GPIO_PORT (x))
 /// RCC USART peripherial name by hw feature: SERIAL -> _USART1
 #define RCC_USART(x)			JOIN2 (_USART, USART_NUM (x))
+/// RCC UART peripherial name by hw feature: SERIAL -> _UART1
+#define RCC_UART(x)			JOIN2 (_UART, USART_NUM (x))
 /// RCC ADC peripherial name by hw feature: TEMP_INT -> _ADC1
 #define RCC_ADC(x)			JOIN2 (_ADC, ADC_NUM (x))
 /// RCC DMA peripherial name by hw feature: ADC -> _DMA1
@@ -697,6 +699,8 @@
 #define RCC_ENA_GPIO(x)			RCC_ENA (RCC_GPIO (x))
 /// Same as RCC_ENA (RCC_USART (x))
 #define RCC_ENA_USART(x)		RCC_ENA (RCC_USART (x))
+/// Same as RCC_ENA (RCC_UART (x))
+#define RCC_ENA_UART(x)			RCC_ENA (RCC_UART (x))
 /// Same as RCC_ENA (RCC_ADC (x))
 #define RCC_ENA_ADC(x)			RCC_ENA (RCC_ADC (x))
 /// Same as RCC_ENA (RCC_DMA (x))

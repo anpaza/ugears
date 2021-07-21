@@ -16,12 +16,22 @@ uint32_t SYSCLK_FREQ, HCLK_FREQ, PCLK1_FREQ, PCLK2_FREQ, PLL48CK_FREQ;
 #define DYNCLKFUN static inline
 #endif
 
-DYNCLKFUN void clock_flash_setup (uint8_t ws, bool prefetch)
+void clock_flash_setup (uint8_t ws, bool prefetch)
 {
-    uint32_t acr = FLASH->ACR & ~(FLASH_ACR_LATENCY | FLASH_ACR_PRFTEN);
-    acr |= (ws & FLASH_ACR_PRFTEN);
+    uint32_t acr = FLASH->ACR & ~(FLASH_ACR_LATENCY_Msk | FLASH_ACR_PRFTEN_Msk);
+    acr |= (ws & FLASH_ACR_LATENCY_Msk) << FLASH_ACR_LATENCY_Pos;
     if (prefetch)
         acr |= FLASH_ACR_PRFTEN;
+    FLASH->ACR = acr;
+}
+
+void clock_cache_setup (bool icache, bool dcache)
+{
+    uint32_t acr = FLASH->ACR & ~(FLASH_ACR_ICEN_Msk | FLASH_ACR_DCEN_Msk);
+    if (icache)
+        acr |= FLASH_ACR_ICEN;
+    if (dcache)
+        acr |= FLASH_ACR_DCEN;
     FLASH->ACR = acr;
 }
 
@@ -214,7 +224,7 @@ DYNCLKFUN uint8_t sysclk_HSE ()
 }
 
 DYNCLKFUN uint8_t clock_PLL_setup (uint8_t clksrc,
-    uint32_t pllm, uint32_t plln, uint32_t pllp, uint32_t pllq)
+    uint32_t pllm, uint32_t plln, uint32_t pllp, uint32_t pllq, uint32_t vos)
 {
     // We can't change PLL settings if PLL is on
     if (RCC->CR & RCC_CR_PLLON)
@@ -227,16 +237,35 @@ DYNCLKFUN uint8_t clock_PLL_setup (uint8_t clksrc,
         (pllq < 2) || (pllq > 15))
         return 3;
 
+#if defined (PWR_CR_VOS_1)
+    if (vos > 2)
+        return 3;
+    vos = 3 - vos;
+#else
+    if (vos > 1)
+        return 3;
+    vos = 1 - vos;
+#endif
+
     // Enable the clock on which PLL is based on
     if (((clksrc == CLKSRC_HSI) && (clock_HSI_start () != 0)) ||
         ((clksrc == CLKSRC_HSE) && (clock_HSE_start () != 0)))
         return 4;
 
+    // PLL requires the PWR peripherial to be running
+    RCC_ENABLE (_PWR);
+    RCC_ENABLE (_SYSCFG);
+    PWR->CR = (PWR->CR & ~PWR_CR_VOS_Msk) | (vos << PWR_CR_VOS_Pos);
+    while ((PWR->CSR & PWR_CSR_VOSRDY) == 0)
+        ;
+
     // Configure PLL source and multiplier
-    RCC->PLLCFGR = (RCC->CFGR & ~(RCC_PLLCFGR_PLLQ | RCC_PLLCFGR_PLLP |
-        RCC_PLLCFGR_PLLN | RCC_PLLCFGR_PLLM | RCC_PLLCFGR_PLLSRC)) |
-        ((clksrc == CLKSRC_HSE) ? RCC_PLLCFGR_PLLSRC_HSE : 0) |
-        (pllm) | (plln << 6) | ((pllp / 2 - 1) << 16) | (pllq << 24);
+    RCC->PLLCFGR =
+            ((clksrc == CLKSRC_HSE) ? RCC_PLLCFGR_PLLSRC_HSE : 0) |
+            (pllm << RCC_PLLCFGR_PLLM_Pos) |
+            (plln << RCC_PLLCFGR_PLLN_Pos) |
+            ((pllp / 2 - 1) << RCC_PLLCFGR_PLLP_Pos) |
+            (pllq << RCC_PLLCFGR_PLLQ_Pos);
 
     return 0;
 }
@@ -252,7 +281,7 @@ DYNCLKFUN uint8_t sysclk_PLL ()
         if (RCC->CR & RCC_CR_PLLRDY)
             break;
 
-        if (i > HSE_STARTUP_TIMEOUT)
+        if (i > PLL_STARTUP_TIMEOUT)
             return 1;
     }
 
@@ -287,9 +316,7 @@ DYNCLKFUN uint8_t sysclk_PLL ()
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
         ;
 
-#ifdef CLOCK_DYNAMIC
     update_HCLK_FREQ (RCC->CFGR & RCC_CFGR_HPRE);
-#endif
 
     return 0;
 }
@@ -359,7 +386,7 @@ void clock_init ()
 #elif JOIN2(CLKSRC_,SYSCLK_SOURCE) == CLKSRC_HSE
         sysclk_HSE ()
 #elif JOIN2(CLKSRC_,SYSCLK_SOURCE) == CLKSRC_PLL
-        clock_PLL_setup (JOIN2 (CLKSRC_,PLL_SOURCE), PLL_M, PLL_N, PLL_P, PLL_Q) ||
+        clock_PLL_setup (JOIN2 (CLKSRC_,PLL_SOURCE), PLL_M, PLL_N, PLL_P, PLL_Q, PLL_VOS) ||
         sysclk_PLL ()
 #endif
        )
@@ -367,8 +394,8 @@ void clock_init ()
         // failure-basilure, what do we do, oh, oh...
     }
 
-    // Enable instruction & data cache
-    FLASH->ACR = FLASH_ACR_ICEN | FLASH_ACR_DCEN;
+    // Enable instruction & data cache, if asked
+    clock_cache_setup (FLASH_ICACHE, FLASH_DCACHE);
 
     /* Configure the Vector Table location add offset address */
 #ifdef VECT_TAB_OFFSET

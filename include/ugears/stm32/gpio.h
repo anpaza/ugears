@@ -98,6 +98,11 @@
 // output a '1'
 #define _GPIO_INIT_1		0x0080
 
+// enable pull-down input
+#define _GPIO_INIT_PD		_GPIO_INIT_0
+// enable pull-up input
+#define _GPIO_INIT_PU		_GPIO_INIT_1
+
 #if defined GPIO_TYPE_1
 
 typedef uint16_t gpio_config_t;
@@ -123,11 +128,6 @@ typedef uint16_t gpio_config_t;
 #define _GPIO_CNF_FLOATING	0x0004
 /// Input with pull-up / pull-down (ODR sets 0=pulldown, 1=pullup)
 #define _GPIO_CNF_PUD		0x0008
-
-// enable pull-down input
-#define _GPIO_INIT_PD		_GPIO_INIT_0
-// enable pull-up input
-#define _GPIO_INIT_PU		_GPIO_INIT_1
 
 // In output mode (MODE[1:0] > 00)
 
