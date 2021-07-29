@@ -9,7 +9,7 @@
 #ifndef _FPMATH_H
 #define _FPMATH_H
 
-#include <useful/useful.h>
+#include "useful.h"
 
 /**
  * @file fpmath.h
@@ -231,7 +231,7 @@ INLINE_ALWAYS void update_moving_average_32 (int32_t x, int32_t *ma, uint8_t per
  * @return
  *      The sine value in signed 1.8 format
  */
-extern int fp_sin_8 (uint8_t angle);
+EXTERN_C int fp_sin_8 (uint8_t angle);
 
 /**
  * Return the cosine of the angle
@@ -254,7 +254,7 @@ INLINE_ALWAYS int fp_cos_8 (uint8_t angle)
  * @return
  *      Угол в условных единицах от 0 до 65535, 16384=90°, 32768=180°, 49152=270°, 65536=360°.
  */
-extern int32_t fp_atan2_16 (int32_t y, int32_t x);
+EXTERN_C int32_t fp_atan2_16 (int32_t y, int32_t x);
 
 /**
  * Вычисление квадратного корня из числа с фиксированной точкой.
@@ -266,7 +266,7 @@ extern int32_t fp_atan2_16 (int32_t y, int32_t x);
  * @return
  *      Квадратный корень из числа, ФТ
  */
-extern uint32_t fp_sqrt_X (uint32_t x, unsigned n);
+EXTERN_C uint32_t fp_sqrt_X (uint32_t x, unsigned n);
 
 /**
  * Возвращает арксинус от аргумента.
@@ -277,6 +277,6 @@ extern uint32_t fp_sqrt_X (uint32_t x, unsigned n);
  * @return
  *      Значение угла, 0..65535, 16384=90°, 32768=180°, 49152=270°, 65536=360°.
  */
-extern int32_t fp_asin_16 (int32_t x, unsigned n);
+EXTERN_C int32_t fp_asin_16 (int32_t x, unsigned n);
 
 #endif // _FPMATH_H

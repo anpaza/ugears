@@ -15,6 +15,9 @@
  *      peripherial of STM32. Yes, we CAN!
  */
 
+#include "cmsis.h"
+#include <useful/useful.h>
+
 /// Uniform CAN peripherial access by number
 #ifdef CAN_BASE
 #define CAN1                    ((CAN_TypeDef *) CAN1_BASE)
@@ -68,7 +71,7 @@
  *      controller to detect bus validity at the end of initialization; use can_wait_bus()
  *      if you want a separate check.
  */
-extern bool can_init (CAN_TypeDef *can, uint32_t mode);
+EXTERN_C bool can_init (CAN_TypeDef *can, uint32_t mode);
 
 /**
  * Wait for controller initialization to finish. The controller will wait for 11 consecutive
@@ -78,7 +81,7 @@ extern bool can_init (CAN_TypeDef *can, uint32_t mode);
  * @return
  *      true if bus ok, false if it is not.
  */
-extern bool can_wait_bus (CAN_TypeDef *can);
+EXTERN_C bool can_wait_bus (CAN_TypeDef *can);
 
 #ifdef CAN2
 /**
@@ -88,7 +91,7 @@ extern bool can_wait_bus (CAN_TypeDef *can);
  *      If equals to 0, all filters are assigned to CAN2.
  *      If equals to 28, all filters are assigned to CAN1.
  */
-extern void can_filter_split (uint32_t fbn);
+EXTERN_C void can_filter_split (uint32_t fbn);
 #endif
 
 /// 32-bit filter flag
@@ -139,14 +142,14 @@ extern void can_filter_split (uint32_t fbn);
 /**
  * Clear all filters at once.
  */
-extern void can_filter_reset ();
+EXTERN_C void can_filter_reset ();
 
 /**
  * Disable a filter bank (which may contain from 1 to 4 filters).
  * @arg n
  *      Filter bank number
  */
-extern void can_filter_disable (uint32_t n);
+EXTERN_C void can_filter_disable (uint32_t n);
 
 /**
  * A generic function to set a filter bank.
@@ -160,7 +163,7 @@ extern void can_filter_disable (uint32_t n);
  * @arg flags
  *      Filter mode flags (CAN_FILTER_XXX)
  */
-extern void can_filter (uint32_t n, uint32_t fr1, uint32_t fr2, uint32_t flags);
+EXTERN_C void can_filter (uint32_t n, uint32_t fr1, uint32_t fr2, uint32_t flags);
 
 /**
  * Set two 32-bit filters at once.

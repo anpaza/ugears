@@ -15,6 +15,9 @@
  *      controller (EXTI) unit.
  */
 
+#include "cmsis.h"
+#include <useful/useful.h>
+
 /// Generate a interrupt
 #define _EXTI_INT		0x0001
 /// Generate a event
@@ -82,7 +85,7 @@
  *      A combination of EXTI_XXX flags (possibly created
  *      with the EXTI_CONFX() macros)
  */
-extern void exti_config (uint32_t exti, uint32_t conf);
+EXTERN_C void exti_config (uint32_t exti, uint32_t conf);
 
 /**
  * Trigger EXTI line by software.

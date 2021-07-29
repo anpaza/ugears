@@ -16,7 +16,7 @@
  *      used to set the clock date/time.
  */
 
-#include <stdint.h>
+#include "useful.h"
 
 typedef struct
 {
@@ -36,7 +36,7 @@ typedef struct
  * @arg dt
  *      Human-readable date/time representation
  */
-extern void ut2dt (uint32_t unixtime, datetime_t *dt);
+EXTERN_C void ut2dt (uint32_t unixtime, datetime_t *dt);
 
 /**
  * Convert a y/m/d/h/m/s human-readable date/time representation
@@ -46,6 +46,6 @@ extern void ut2dt (uint32_t unixtime, datetime_t *dt);
  * @return
  *      Number of seconds since 00:00 01/01/1970
  */
-extern uint32_t dt2ut (datetime_t *dt);
+EXTERN_C uint32_t dt2ut (datetime_t *dt);
 
 #endif // __DATETIME_H__

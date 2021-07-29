@@ -23,7 +23,7 @@
  * you can use the 'break' operator as an alias to 'goto atomic block end'.
  */
 
-#include <useful/useful.h>
+#include "useful.h"
 
 /**
  * Creates a block of code that is executed atomically.

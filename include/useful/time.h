@@ -9,13 +9,13 @@
 #ifndef _TIME_H
 #define _TIME_H
 
-#include <stdint.h>
+#include "useful.h"
 
 /** System clock type */
 typedef uint32_t clock_t;
 
 /** The system clock variable */
-extern volatile clock_t clock;
+EXTERN_C volatile clock_t clock;
 
 /* CLOCKS_PER_SEC is expected to be defined in hardware.h */
 #ifndef CLOCKS_PER_SEC

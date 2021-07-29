@@ -126,6 +126,13 @@
 #endif
 #endif
 
+/// The name of the clock on the AHB bus
+#define BUS_CLOCK_AHB			HCLK
+/// The name of the clock on the APB1 bus
+#define BUS_CLOCK_APB1			PCLK1
+/// The name of the clock on the APB2 bus
+#define BUS_CLOCK_APB2			PCLK2
+
 // default values
 
 #ifndef HSI_VALUE

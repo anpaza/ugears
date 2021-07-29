@@ -4,10 +4,14 @@ ifeq ($(ARCH),arm)
 
 .SUFFIXES: .c .cpp .o .lo .a .pc .pc.in
 
+# Language standards
+C.STD ?= gnu99
+CXX.STD ?= c++11
+
 ARM-NONE-EABI-GCC.PFX ?= arm-none-eabi-
 
-ARM-NONE-EABI-GCC.CC ?= $(ARM-NONE-EABI-GCC.PFX)gcc -c
-ARM-NONE-EABI-GCC.CFLAGS ?= -pipe -Wall -Wextra -Werror -std=gnu99 -MMD \
+ARM-NONE-EABI-GCC.CC ?= $(ARM-NONE-EABI-GCC.PFX)gcc -c -std=$(C.STD)
+ARM-NONE-EABI-GCC.CFLAGS ?= -pipe -Wall -Wextra -Werror -MMD \
     -fno-common -ftrack-macro-expansion=0 \
     $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
     $(ARM-NONE-EABI-GCC.CFLAGS.$(MODE)) \
@@ -39,8 +43,9 @@ endif
 ARM-NONE-EABI-GCC.CXX.OK := $(shell which $(ARM-NONE-EABI-GCC.PFX)g++ 2>/dev/null)
 
 ifneq ($(ARM-NONE-EABI-GCC.CXX.OK),)
-ARM-NONE-EABI-GCC.CXX ?= $(ARM-NONE-EABI-GCC.PFX)g++ -c
-ARM-NONE-EABI-GCC.CXXFLAGS ?= $(ARM-NONE-EABI-GCC.CFLAGS) $(CXXFLAGS) -fno-exceptions -fno-rtti
+ARM-NONE-EABI-GCC.CXX ?= $(ARM-NONE-EABI-GCC.PFX)g++ -c -std=$(CXX.STD)
+ARM-NONE-EABI-GCC.CXXFLAGS ?= $(ARM-NONE-EABI-GCC.CFLAGS) $(CXXFLAGS) \
+    -fno-exceptions -fno-rtti
 else
 ARM-NONE-EABI-GCC.CXX ?= echo "C++ compiler is not installed"; false
 endif
@@ -52,7 +57,7 @@ ARM-NONE-EABI-GCC.LD ?= $(ARM-NONE-EABI-GCC.PFX)gcc
 ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
     -Wl,--gc-sections -mabi=aapcs -nostartfiles -nostdlib \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
-ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
+ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS) -lgcc
 
 ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g3 $(ARM-NONE-EABI-GCC.FLTO)
 ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g3

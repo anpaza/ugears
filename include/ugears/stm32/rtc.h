@@ -325,7 +325,7 @@ INLINE_ALWAYS void bkp_set_data (uint32_t idx, uint16_t val)
  * @arg size
  *      Data size in bytes
  */
-extern void bkp_save (uint32_t idx, const void *data, uint32_t size);
+EXTERN_C void bkp_save (uint32_t idx, const void *data, uint32_t size);
 
 /**
  * Load a continuous region of memory from backup registers.
@@ -336,7 +336,7 @@ extern void bkp_save (uint32_t idx, const void *data, uint32_t size);
  * @arg size
  *      Data size in bytes
  */
-extern void bkp_load (uint32_t idx, void *data, uint32_t size);
+EXTERN_C void bkp_load (uint32_t idx, void *data, uint32_t size);
 
 #elif defined RTC_TYPE_2
 
@@ -349,9 +349,9 @@ extern void bkp_load (uint32_t idx, void *data, uint32_t size);
  * Checks the RTC and if it has not been initialized yet,
  * sets it to emit RTC_TICKS_PER_SEC ticks per second.
  */
-extern void rtc_init ();
+EXTERN_C void rtc_init ();
 
 /// Reset the RTC completely
-extern void rtc_reset ();
+EXTERN_C void rtc_reset ();
 
 #endif // _STM32_RTC_H

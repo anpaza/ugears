@@ -9,7 +9,7 @@
 #ifndef __USEFUN_H__
 #define __USEFUN_H__
 
-#include <useful/useful.h>
+#include "useful.h"
 
 /**
  * @file usefun.h
@@ -28,7 +28,7 @@
  * @arg len
  *      Number of bytes to fill
  */
-extern void _memset (void *dest, char c, unsigned len);
+EXTERN_C void _memset (void *dest, char c, unsigned len);
 
 /**
  * Fill the first @a len bytes of the memory area pointed to by
@@ -38,7 +38,7 @@ extern void _memset (void *dest, char c, unsigned len);
  * @arg len
  *      Number of bytes to fill
  */
-extern void memclr (void *dest, unsigned len);
+EXTERN_C void memclr (void *dest, unsigned len);
 
 /**
  * Optimized traditional memcpy().
@@ -50,7 +50,7 @@ extern void memclr (void *dest, unsigned len);
  * @arg len
  *      Number of bytes to copy
  */
-extern void _memcpy (void *dest, const void *src, unsigned len);
+EXTERN_C void _memcpy (void *dest, const void *src, unsigned len);
 
 /**
  * Return the length of a zero-terminated string
@@ -58,7 +58,7 @@ extern void _memcpy (void *dest, const void *src, unsigned len);
  * @param str A pointer to a string
  * @return String length, bytes
  */
-extern size_t _strlen (const char *str);
+EXTERN_C size_t _strlen (const char *str);
 
 /**
  * Optimized traditional memcmp().
@@ -72,7 +72,7 @@ extern size_t _strlen (const char *str);
  *  a positive number if first different byte in s1 is greater than
  *  corresponding byte from s2.
  */
-extern int _memcmp (const void *s1, const void *s2, size_t n);
+EXTERN_C int _memcmp (const void *s1, const void *s2, size_t n);
 
 /**
  * Xorshift Random Number Generator by George Marsaglia:
@@ -89,7 +89,7 @@ typedef uint32_t xs_rng_t [5];
  * @arg xsr The Random Number Generator state
  * @arg seed Initial seed
  */
-extern void xs_init (xs_rng_t xsr, uint32_t seed);
+EXTERN_C void xs_init (xs_rng_t xsr, uint32_t seed);
 
 /**
  * Feed additional randomness into the random pool.
@@ -100,12 +100,12 @@ extern void xs_init (xs_rng_t xsr, uint32_t seed);
  * @arg xsr An initialized Random Number Generator state
  * @arg seed Additional seed to mix into the random pool
  */
-extern void xs_seed (xs_rng_t xsr, uint32_t seed);
+EXTERN_C void xs_seed (xs_rng_t xsr, uint32_t seed);
 
 /**
  * Get next random number in series
  */
-extern uint32_t xs_rand (xs_rng_t xsr);
+EXTERN_C uint32_t xs_rand (xs_rng_t xsr);
 
 /**
  * Set the starting point for rand().
@@ -113,7 +113,7 @@ extern uint32_t xs_rand (xs_rng_t xsr);
  *
  * @arg seed The number that determines the pseudo-random sequence.
  */
-extern void _srand (unsigned seed);
+EXTERN_C void _srand (unsigned seed);
 
 /**
  * Get a pseudo-random number.
@@ -121,7 +121,7 @@ extern void _srand (unsigned seed);
  *
  * @return A new random number in the range 0..MAX_UNSIGNED_INT
  */
-extern unsigned _rand ();
+EXTERN_C unsigned _rand ();
 
 /**
  * Return the sine of the angle
@@ -130,7 +130,7 @@ extern unsigned _rand ();
  * @return
  *      The sine value in signed 1.8 format
  */
-extern int sin64 (uint8_t angle);
+EXTERN_C int sin64 (uint8_t angle);
 
 /**
  * Return the cosine of the angle
@@ -150,7 +150,7 @@ INLINE_ALWAYS int cos64 (uint8_t angle)
  * @return
  *      The decoded number
  */
-extern uint32_t uleb128 (const uint8_t **data);
+EXTERN_C uint32_t uleb128 (const uint8_t **data);
 
 /**
  * Decode a number in the signed LEB128 format
@@ -160,7 +160,7 @@ extern uint32_t uleb128 (const uint8_t **data);
  * @return
  *      The decoded number
  */
-extern int32_t sleb128 (const uint8_t **data);
+EXTERN_C int32_t sleb128 (const uint8_t **data);
 
 /**
  * Skip an (unused) LEB128 value
@@ -194,7 +194,7 @@ INLINE_ALWAYS int32_t sign (int32_t x)
  * @return
  *      @a sum updated according to the contents of data block
  */
-extern uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
+EXTERN_C uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
 
 /**
  * Finalize checksum computations.
@@ -203,7 +203,7 @@ extern uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
  * @return
  *      The 16-bit checksum in network endian format
  */
-extern uint16_t ip_crc_fin (uint32_t sum);
+EXTERN_C uint16_t ip_crc_fin (uint32_t sum);
 
 /**
  * Compute and finalize the checksum of a data block.
@@ -224,7 +224,7 @@ INLINE_ALWAYS uint16_t ip_crc (void *data, unsigned len)
  * @return
  *      The memory value at given address
  */
-extern uint16_t uget16le (const void *data);
+EXTERN_C uint16_t uget16le (const void *data);
 
 /**
  * Load a 16-bit big-endian value from an unaligned address
@@ -233,7 +233,7 @@ extern uint16_t uget16le (const void *data);
  * @return
  *      The memory value at given address
  */
-extern uint16_t uget16be (const void *data);
+EXTERN_C uint16_t uget16be (const void *data);
 
 /**
  * Load a 32-bit little-endian value from an unaligned address
@@ -242,7 +242,7 @@ extern uint16_t uget16be (const void *data);
  * @return
  *      The memory value at given address
  */
-extern uint32_t uget32le (const void *data);
+EXTERN_C uint32_t uget32le (const void *data);
 
 /**
  * Load a 32-bit big-endian value from an unaligned address
@@ -251,7 +251,7 @@ extern uint32_t uget32le (const void *data);
  * @return
  *      The memory value at given address
  */
-extern uint32_t uget32be (const void *data);
+EXTERN_C uint32_t uget32be (const void *data);
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define uget16		uget16le

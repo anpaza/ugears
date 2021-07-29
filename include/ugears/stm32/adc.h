@@ -288,7 +288,7 @@ INLINE_ALWAYS void adc_jextsel (ADC_TypeDef *adc, adc_jextsel_t mode)
  * @arg adc
  *      ADC to calibrate
  */
-extern void adc_calibrate (ADC_TypeDef *adc);
+EXTERN_C void adc_calibrate (ADC_TypeDef *adc);
 
 /**
  * Constants to set ADC sampling time, in ADC cycles.
@@ -503,7 +503,7 @@ INLINE_ALWAYS void adc_irqs (ADC_TypeDef *adc, uint32_t irqs)
  * @arg chan
  *      ADC channel number (0-17)
  */
-extern void adc_regseq_chan (ADC_TypeDef *adc, uint32_t idx, uint32_t chan);
+EXTERN_C void adc_regseq_chan (ADC_TypeDef *adc, uint32_t idx, uint32_t chan);
 
 /**
  * Set regular sequence channel count

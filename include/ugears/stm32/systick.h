@@ -111,7 +111,7 @@ INLINE_ALWAYS uint32_t systick_reload ()
  * @arg clocks
  *      Number of CPU clocks to delay execution.
  */
-extern void _delay_clocks (uint32_t clocks);
+EXTERN_C void _delay_clocks (uint32_t clocks);
 
 /**
  * This smart inline function will generate a series of constant-execution-time

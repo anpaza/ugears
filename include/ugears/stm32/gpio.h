@@ -326,17 +326,17 @@ typedef uint32_t gpio_config_t;
  * @arg conf
  *      GPIO port configuration (use GPIO_CONFIG() to create a bitmask)
  */
-extern void gpio_setup (gpio_config_t conf);
+EXTERN_C void gpio_setup (gpio_config_t conf);
 
 /**
  * Query the current setup of a GPIO port.
- * @arg conf
+ * @arg pp
  *      GPIO port name and pin index. Other bits in value are ignored.
  *      You can use GPIO_CONF_PP() to encode port & pin number.
  * @return
  *      The full configuration of given GPIO port.
  */
-extern gpio_config_t gpio_get_setup (gpio_config_t conf);
+EXTERN_C gpio_config_t gpio_get_setup (gpio_config_t pp);
 
 /**
  * Setup a number of GPIO ports at once.
@@ -346,7 +346,40 @@ extern gpio_config_t gpio_get_setup (gpio_config_t conf);
  * @arg n
  *      Number of elements in the conf array
  */
-extern void gpio_setups (const gpio_config_t *conf, unsigned n);
+EXTERN_C void gpio_setups (const gpio_config_t *conf, unsigned n);
+
+/**
+ * GPIO_SET() as a function.
+ * Atomic set of a single bit in port.
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_set (gpio_config_t pp);
+
+/**
+ * GPIO_RESET() as a function.
+ * Atomic clear of a single bit in port
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_reset (gpio_config_t pp);
+
+/**
+ * GPIO_GET() as a function
+ * Get the state of the bit in port
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ * @return Pin state
+ */
+EXTERN_C uint32_t gpio_get (gpio_config_t pp);
+
+/**
+ * GPIO_TOGGLE() as a function
+ * Toggle the state of an output GPIO
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_toggle (gpio_config_t pp);
 
 #ifdef AFIO_EVCR_PIN
 

@@ -100,14 +100,14 @@ INLINE_ALWAYS uint32_t flash_page_size(uint32_t address)
  * Unlock the flash memory for writing.
  * This function will start the HSI clock, if it is not enabled.
  */
-extern void flash_begin ();
+EXTERN_C void flash_begin ();
 
 /**
  * Lock the flash memory writing.
  * This function will stop the HSI clock if it was not running
  * prior to calling flash_begin().
  */
-extern void flash_end ();
+EXTERN_C void flash_end ();
 
 /**
  * Erase a single page.
@@ -116,7 +116,7 @@ extern void flash_end ();
  * @return
  *      false if something went wrong, true if page was successfuly cleared.
  */
-extern bool flash_erase (void *addr);
+EXTERN_C bool flash_erase (void *addr);
 
 /**
  * Copy a number of bytes from source buffer to target flash memory.
@@ -129,7 +129,7 @@ extern bool flash_erase (void *addr);
  * @return
  *      false if something went wrong, true if flash memory was successfuly programmed
  */
-extern bool flash_write (void *addr, const void *src, uint32_t size);
+EXTERN_C bool flash_write (void *addr, const void *src, uint32_t size);
 
 /**
  * Write a single 16-bit data value to flash memory.
@@ -140,7 +140,7 @@ extern bool flash_write (void *addr, const void *src, uint32_t size);
  * @return
  *      false if something went wrong, true if flash memory was successfuly programmed
  */
-extern bool flash_write16 (void *addr, uint16_t data);
+EXTERN_C bool flash_write16 (void *addr, uint16_t data);
 
 /**
  * Set up flash memory storage area. By default, all unused space after
@@ -155,7 +155,7 @@ extern bool flash_write16 (void *addr, uint16_t data);
  * @arg size
  *      Flash storage size minus one. The maximum flash storage size is 64k.
  */
-extern void flash_storage (const void *start, uint16_t size);
+EXTERN_C void flash_storage (const void *start, uint16_t size);
 
 /**
  * Erase the flash storage area.
@@ -165,14 +165,14 @@ extern void flash_storage (const void *start, uint16_t size);
  * @return
  *      true if everything went fine, false if flash failed to erase.
  */
-extern bool flash_format ();
+EXTERN_C bool flash_format ();
 
 /**
  * Initialize the internal variables used to track flash storage state.
  * You must call this function before using other functions related
  * to flash storage.
  */
-extern void flash_init ();
+EXTERN_C void flash_init ();
 
 /**
  * Save a block of constants into the flash memory, using unused flash memory
@@ -201,7 +201,7 @@ extern void flash_init ();
  * @return
  *     false if something went wrong, true if constants were successfuly saved.
  */
-extern bool flash_save (uint16_t id, const void *data, uint16_t size);
+EXTERN_C bool flash_save (uint16_t id, const void *data, uint16_t size);
 
 /**
  * Read the latest version of a const block with given id and read it into
@@ -213,7 +213,7 @@ extern bool flash_save (uint16_t id, const void *data, uint16_t size);
  * @return
  *      On success returns a pointer to saved data, otherwise NULL.
  */
-extern const void *flash_get (uint16_t id, uint16_t *size);
+EXTERN_C const void *flash_get (uint16_t id, uint16_t *size);
 
 /**
  * Get Nth saved block from flash memory, counting from last one.
@@ -228,6 +228,6 @@ extern const void *flash_get (uint16_t id, uint16_t *size);
  * @return
  *      On success returns a pointer to saved data, otherwise NULL.
  */
-extern const void *flash_enum (uint32_t idx, uint16_t *id, uint16_t *size);
+EXTERN_C const void *flash_enum (uint32_t idx, uint16_t *id, uint16_t *size);
 
 #endif // _STM32_FLASH_H

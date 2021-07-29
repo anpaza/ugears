@@ -143,7 +143,7 @@ typedef enum
  * @arg mode
  *      I2C controller mode
  */
-extern void i2c_init (I2C_TypeDef *i2c, uint32_t speed, i2c_mode_t mode);
+EXTERN_C void i2c_init (I2C_TypeDef *i2c, uint32_t speed, i2c_mode_t mode);
 
 /**
  * I2C addressing mode
@@ -371,32 +371,32 @@ INLINE_ALWAYS volatile i2c_state_t *i2c_state (I2C_TypeDef *i2c)
 
 #ifdef I2C1_ENGINE
 /// Буффер команд для первого контроллера I2C
-extern volatile i2c_state_t i2cmd1;
+EXTERN_C volatile i2c_state_t i2cmd1;
 #endif
 
 #ifdef I2C2_ENGINE
 /// Буффер команд для второго контроллера I2C
-extern volatile i2c_state_t i2cmd2;
+EXTERN_C volatile i2c_state_t i2cmd2;
 #endif
 
 #define i2cmd(x)		JOIN2 (i2cmd, I2C_NUM(x))
 
 #ifdef I2C1_ENGINE
 /// @see i2c_grasp
-extern bool i2ce1_grasp (const void *cmd);
+EXTERN_C bool i2ce1_grasp (const void *cmd);
 /// @see i2c_command
-extern void i2ce1_command ();
+EXTERN_C void i2ce1_command ();
 /// @see i2c_abort
-extern void i2ce1_abort ();
+EXTERN_C void i2ce1_abort ();
 #endif
 
 #ifdef I2C2_ENGINE
 /// @see i2c_grasp
-extern bool i2ce2_grasp (const void *cmd);
+EXTERN_C bool i2ce2_grasp (const void *cmd);
 /// @see i2c_command
-extern void i2ce2_command ();
+EXTERN_C void i2ce2_command ();
 /// @see i2c_abort
-extern void i2ce2_abort ();
+EXTERN_C void i2ce2_abort ();
 #endif
 
 /**

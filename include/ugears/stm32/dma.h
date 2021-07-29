@@ -144,8 +144,8 @@ JOIN6 (DMA, DMA_NUM (x), _Channel, DMA_CHAN (x), _IRQHandler, __VA_ARGS__)
  * @arg count
  *      Number of copied elements
  */
-extern void dma_copy (DMA_TypeDef *dma, unsigned chan, uint32_t ccr,
-    volatile void *src, volatile void *dst, unsigned count);
+EXTERN_C void dma_copy (DMA_TypeDef *dma, unsigned chan, uint32_t ccr,
+                        volatile void *src, volatile void *dst, unsigned count);
 
 /**
  * This function is identical to @a dma_copy except that it works specifically with the
@@ -163,8 +163,8 @@ extern void dma_copy (DMA_TypeDef *dma, unsigned chan, uint32_t ccr,
  * @arg count
  *      Number of copied elements
  */
-extern void dma1_copy (unsigned chan, uint32_t ccr,
-    volatile void *src, volatile void *dst, unsigned count);
+EXTERN_C void dma1_copy (unsigned chan, uint32_t ccr,
+                         volatile void *src, volatile void *dst, unsigned count);
 
 /**
  * This function is identical to @a dma_copy except that it works specifically with the
@@ -183,8 +183,8 @@ extern void dma1_copy (unsigned chan, uint32_t ccr,
  * @arg count
  *      Number of copied elements
  */
-extern void dma2_copy (unsigned chan, uint32_t ccr,
-    volatile void *src, volatile void *dst, unsigned count);
+EXTERN_C void dma2_copy (unsigned chan, uint32_t ccr,
+                         volatile void *src, volatile void *dst, unsigned count);
 
 /**
  * Stop the DMA channel.
@@ -193,21 +193,21 @@ extern void dma2_copy (unsigned chan, uint32_t ccr,
  * @arg chan
  *      DMA channel number (counting from 1)
  */
-extern void dma_stop (DMA_TypeDef *dma, unsigned chan);
+EXTERN_C void dma_stop (DMA_TypeDef *dma, unsigned chan);
 
 /**
  * Stop the DMA1 channel.
  * @arg chan
  *      DMA channel number (counting from 1)
  */
-extern void dma1_stop (unsigned chan);
+EXTERN_C void dma1_stop (unsigned chan);
 
 /**
  * Stop the DMA2 channel.
  * @arg chan
  *      DMA channel number (counting from 1)
  */
-extern void dma2_stop (unsigned chan);
+EXTERN_C void dma2_stop (unsigned chan);
 
 #endif // DMA_TYPE_1
 

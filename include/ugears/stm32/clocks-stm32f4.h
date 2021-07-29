@@ -119,6 +119,13 @@
 #define PLL_STARTUP_TIMEOUT		0xA000
 #endif
 
+/// The name of the clock on the AHB bus
+#define BUS_CLOCK_AHB			HCLK
+/// The name of the clock on the APB1 bus
+#define BUS_CLOCK_APB1			PCLK1
+/// The name of the clock on the APB2 bus
+#define BUS_CLOCK_APB2			PCLK2
+
 // default values
 
 #ifndef HSI_VALUE
@@ -223,12 +230,12 @@
 
 #else // CLOCK_DYNAMIC
 
-extern uint32_t SYSCLK_FREQ, HCLK_FREQ, PCLK1_FREQ, PCLK2_FREQ, PLL48CK_FREQ;
+EXTERN_C uint32_t SYSCLK_FREQ, HCLK_FREQ, PCLK1_FREQ, PCLK2_FREQ, PLL48CK_FREQ;
 
 /**
  * Reset all clocks to default state
  */
-extern void clock_reset ();
+EXTERN_C void clock_reset ();
 
 /**
  * Setup the main system clock to use HSI.
@@ -236,7 +243,7 @@ extern void clock_reset ();
  * @return
  *   0 on success, non-zero if failed to start the oscillator
  */
-extern uint8_t sysclk_HSI ();
+EXTERN_C uint8_t sysclk_HSI ();
 
 /**
  * Setup the main system clock to use HSE.
@@ -244,14 +251,14 @@ extern uint8_t sysclk_HSI ();
  * @return
  *   0 on success, non-zero if failed to start the oscillator
  */
-extern uint8_t sysclk_HSE ();
+EXTERN_C uint8_t sysclk_HSE ();
 
 /**
  * Setup the main system clock to use main PLL.
  * You must set up the PLL before with clock_PLL_setup().
  * This does NOT stop other clocks, as they may be used independently.
  */
-extern uint8_t sysclk_PLL ();
+EXTERN_C uint8_t sysclk_PLL ();
 
 /**
  * Setup the main PLL.
@@ -280,8 +287,8 @@ extern uint8_t sysclk_PLL ();
  * @return
  *   0 if PLL has been set up, non-zero on failure
  */
-extern uint8_t clock_PLL_setup (uint8_t clksrc, uint32_t pllm, uint32_t plln,
-                                uint32_t pllp, uint32_t pllq, uint32_t vos);
+EXTERN_C uint8_t clock_PLL_setup (uint8_t clksrc, uint32_t pllm, uint32_t plln,
+                                  uint32_t pllp, uint32_t pllq, uint32_t vos);
 
 /**
  * Set the AHB bus clock. When using Ethernet, AHB clock must
@@ -292,7 +299,7 @@ extern uint8_t clock_PLL_setup (uint8_t clksrc, uint32_t pllm, uint32_t plln,
  * @return
  *   0 on success, non-zero on failure
  */
-extern uint8_t clock_AHB (uint32_t hclk_div_flags);
+EXTERN_C uint8_t clock_AHB (uint32_t hclk_div_flags);
 
 /**
  * Set the APB1 clock. Make sure APB1 clock does not exceed 42MHz.
@@ -302,7 +309,7 @@ extern uint8_t clock_AHB (uint32_t hclk_div_flags);
  * @return
  *   0 on success, non-zero on failure
  */
-extern uint8_t clock_APB1 (uint32_t pclk1_div_flags);
+EXTERN_C uint8_t clock_APB1 (uint32_t pclk1_div_flags);
 
 /**
  * Set the APB2 clock. Make sure APB2 clock does not exceed 84MHz.
@@ -312,7 +319,7 @@ extern uint8_t clock_APB1 (uint32_t pclk1_div_flags);
  * @return
  *   0 on success, non-zero on failure
  */
-extern uint8_t clock_APB2 (uint32_t pclk2_div_flags);
+EXTERN_C uint8_t clock_APB2 (uint32_t pclk2_div_flags);
 
 /**
  * Stop the HSE generator.
@@ -324,12 +331,12 @@ INLINE_ALWAYS void clock_HSE_stop ()
  * Stop the main PLL.
  * Make sure PLL is not the source of the system clock.
  */
-extern void clock_PLL_stop ();
+EXTERN_C void clock_PLL_stop ();
 
 /**
  * Stop the PLLs for SAI controller (PLLI2S and, if available, PLLSAI).
  */
-extern void clock_PLLI2S_stop ();
+EXTERN_C void clock_PLLI2S_stop ();
 
 #endif // CLOCK_DYNAMIC
 
@@ -344,7 +351,7 @@ INLINE_ALWAYS bool clock_HSI_enabled ()
 /**
  * Start the HSI clock. This is used by flash interface, which needs HSI.
  */
-extern uint8_t clock_HSI_start ();
+EXTERN_C uint8_t clock_HSI_start ();
 
 /**
  * Stop the HSI clock unconditionally. Take care not to stop the system clock!
@@ -363,13 +370,13 @@ INLINE_ALWAYS void clock_HSI_stop ()
  * @arg prefetch
  *      True to enable prefetch buffer (if VCC > 2.1V), false to disable.
  */
-extern void clock_flash_setup (uint8_t ws, bool prefetch);
+EXTERN_C void clock_flash_setup (uint8_t ws, bool prefetch);
 
 /**
  * Set instruction and data cache states
  * @param icache true to enable instruction cache
  * @param dcache true to enable data cache
  */
-extern void clock_cache_setup (bool icache, bool dcache);
+EXTERN_C void clock_cache_setup (bool icache, bool dcache);
 
 #endif // _STM32_CLOCKS_STM32F4_H

@@ -116,6 +116,13 @@
 #  define DEBUG_BREAK_IF(c)
 #endif
 
+// Make headers compatible with both C and C++
+#ifdef __cplusplus
+#  define EXTERN_C extern "C"
+#else
+#  define EXTERN_C extern
+#endif
+
 // Arch-dependent useful inline functions
 #if defined ARCH_X86 && defined __GNUC__
 #  include "useful-x86.h"

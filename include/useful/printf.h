@@ -9,7 +9,7 @@
 #ifndef _PRINTF_H
 #define _PRINTF_H
 
-#include <useful/useful.h>
+#include "useful.h"
 #include <stdarg.h>
 
 /**
@@ -111,7 +111,7 @@ typedef struct _printf_backend_t
     void (*flush) (struct _printf_backend_t *self);
 } printf_backend_t;
 
-extern printf_backend_t *printf_stdout;
+EXTERN_C printf_backend_t *printf_stdout;
 
 /*
  * Unfortunately, we can't use __attribute__ ((format (printf, 1, 2)))
@@ -133,7 +133,7 @@ INLINE_ALWAYS void init_printf (printf_backend_t *stdout)
  *
  * @param fmt The C-style format string
  */
-extern void _vgprintf (printf_backend_t *backend,
+EXTERN_C void _vgprintf (printf_backend_t *backend,
                        const char *fmt, va_list va);
 
 /**
@@ -141,7 +141,7 @@ extern void _vgprintf (printf_backend_t *backend,
  *
  * @param fmt The C-style format string
  */
-extern void _gprintf (printf_backend_t *backend, const char *fmt, ...);
+EXTERN_C void _gprintf (printf_backend_t *backend, const char *fmt, ...);
 
 /**
  * This is a snprintf () using same format strings as printf ().
@@ -153,7 +153,7 @@ extern void _gprintf (printf_backend_t *backend, const char *fmt, ...);
  * @param fmt The C-style format string
  * @return The size of resulting string in buf, without zero terminator
  */
-extern size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
+EXTERN_C size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
 
 /**
  * A variant of snprintf using va_list instead of varargs.
@@ -164,30 +164,30 @@ extern size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
  * @param va A pointer to variable arguments list
  * @return The size of resulting string in buf, without zero terminator
  */
-extern size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va);
+EXTERN_C size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va);
 
 /**
  * The usual printf (), outputs via printf_stdout.
  *
  * @param fmt The C-style format string
  */
-extern void _printf (const char *fmt, ...);
+EXTERN_C void _printf (const char *fmt, ...);
 
 /**
  * Output a single character via the stdout backend.
  */
-extern void _putchar (char c);
+EXTERN_C void _putchar (char c);
 
 /**
  * Output a string followed by \n.
  * @arg str The string.
  */
-extern void _puts (const char *str);
+EXTERN_C void _puts (const char *str);
 
 /**
  * Flush the stdout buffer, if any
  */
-extern void _fflush (void);
+EXTERN_C void _fflush (void);
 
 #ifndef USING_LIBC
 #  define printf    _printf

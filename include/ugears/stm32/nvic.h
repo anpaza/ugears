@@ -44,7 +44,7 @@
  *      priorities differs from one core to another. Only __NVIC_PRIO_BITS
  *      top bits of the priority are used (usually 4 or 2).
  */
-extern void nvic_setup (int irq, uint8_t priority);
+EXTERN_C void nvic_setup (int irq, uint8_t priority);
 
 /**
  * Set IRQ priority.
@@ -130,6 +130,6 @@ INLINE_ALWAYS void nvic_irq_trigger (unsigned irq)
 /**
  * Reset the CPU
  */
-extern void nvic_system_reset ();
+EXTERN_C void nvic_system_reset ();
 
 #endif // _STM32_NVIC_H

@@ -72,16 +72,16 @@ void gpio_setups (const gpio_config_t *conf, unsigned n)
         gpio_setup (*conf++);
 }
 
-gpio_config_t gpio_get_setup (gpio_config_t conf)
+gpio_config_t gpio_get_setup (gpio_config_t pp)
 {
     // Port number (0-A, 1-B ...)
-    unsigned p = GPIO_CONF_PORT (conf);
+    unsigned p = GPIO_CONF_PORT (pp);
     GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
 
     // GPIO bit number (0-15)
-    unsigned b = GPIO_CONF_PIN (conf);
+    unsigned b = GPIO_CONF_PIN (pp);
 
-    conf &= _GPIO_PORT_MASK | _GPIO_PIN_MASK;
+    pp &= _GPIO_PORT_MASK | _GPIO_PIN_MASK;
 
 #if defined GPIO_TYPE_1
     uint32_t s = (b & 7) * 4;
@@ -92,14 +92,66 @@ gpio_config_t gpio_get_setup (gpio_config_t conf)
         conf |= (gpio->CRH & m) >> s;
 
 #elif defined GPIO_TYPE_2 || defined GPIO_TYPE_3
-    conf |= (gpio->MODER >> (b * 2)) & _GPIO_MODE_MASK;
+    pp |= (gpio->MODER >> (b * 2)) & _GPIO_MODE_MASK;
     if (gpio->OTYPER & (1 << b))
-        conf |= _GPIO_OTYPE_MASK;
-    conf |= ((gpio->PUPDR >> (b * 2)) << _GPIO_PUD_SHIFT) & _GPIO_PUD_MASK;
-    conf |= ((gpio->OSPEEDR >> (b * 2)) << _GPIO_SPEED_SHIFT) & _GPIO_SPEED_MASK;
-    if (conf & _GPIO_MODE_AF)
-        conf |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << _GPIO_AF_SHIFT) & _GPIO_AF_MASK;
+        pp |= _GPIO_OTYPE_MASK;
+    pp |= ((gpio->PUPDR >> (b * 2)) << _GPIO_PUD_SHIFT) & _GPIO_PUD_MASK;
+    pp |= ((gpio->OSPEEDR >> (b * 2)) << _GPIO_SPEED_SHIFT) & _GPIO_SPEED_MASK;
+    if (pp & _GPIO_MODE_AF)
+        pp |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << _GPIO_AF_SHIFT) & _GPIO_AF_MASK;
 #endif
 
-    return conf;
+    return pp;
+}
+
+void gpio_set (gpio_config_t pp)
+{
+    // Port number (0-A, 1-B ...)
+    unsigned p = GPIO_CONF_PORT (pp);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
+
+    // GPIO pin mask (1 << (0-15))
+    uint32_t m = 1 << GPIO_CONF_PIN (pp);
+
+    gpio->BSRR = m;
+}
+
+void gpio_reset (gpio_config_t pp)
+{
+    // Port number (0-A, 1-B ...)
+    unsigned p = GPIO_CONF_PORT (pp);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
+
+    // GPIO pin mask (1 << (0-15))
+    uint32_t m = 1 << GPIO_CONF_PIN (pp);
+
+#if defined GPIO_TYPE_3
+    gpio->BSRR = m << 16;
+#else
+    gpio->BRR = m;
+#endif
+}
+
+uint32_t gpio_get (gpio_config_t pp)
+{
+    // Port number (0-A, 1-B ...)
+    unsigned p = GPIO_CONF_PORT (pp);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
+
+    // GPIO pin mask (1 << (0-15))
+    uint32_t m = 1 << GPIO_CONF_PIN (pp);
+
+    return (gpio->IDR & m);
+}
+
+void gpio_toggle (gpio_config_t pp)
+{
+    // Port number (0-A, 1-B ...)
+    unsigned p = GPIO_CONF_PORT (pp);
+    GPIO_TypeDef *gpio = (GPIO_TypeDef *)(GPIOA_BASE + (GPIOB_BASE - GPIOA_BASE) * p);
+
+    // GPIO pin mask (1 << (0-15))
+    uint32_t m = 1 << GPIO_CONF_PIN (pp);
+
+    gpio->ODR ^= m;
 }

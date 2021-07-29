@@ -69,7 +69,7 @@ INLINE_ALWAYS uint32_t fls32 (uint32_t bits)
 #ifndef __USEFUL_UDIV_64_32
 #define __USEFUL_UDIV_64_32
 /// Деление 64-битного числа на 32-битное, возвращает 0xffffffff в случае переполнения
-extern uint32_t udiv64_32 (uint64_t u, uint32_t v);
+EXTERN_C uint32_t udiv64_32 (uint64_t u, uint32_t v);
 #endif
 
 #endif // __USEFUL_GENERIC_H__

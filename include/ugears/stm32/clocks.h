@@ -21,4 +21,22 @@
 #include "clocks-stm32f4.h"
 #endif
 
+#include <useful/useful.h>
+
+/**
+ * This macro tries to guess the frequency of the bus where a specific
+ * peripherial is connected. This in the end expands to one of the
+ * {HCLK,PCLK1,PCLK2,...)_FREQ variables.
+ *
+ * Note this does not work on USB peripherials as those use a separate
+ * fixed 48MHz clock.
+ *
+ * @param x The name of the peripherial device with a underscore prepended
+ *      (e.g. _SPI1, _USART4 etc). Underscore is required so that preprocessor
+ *      won't expand SPI1, USART1 macros which are defined in cmsis headers.
+ */
+#define CLOCK_FREQ(x) \
+    JOIN3 (JOIN2 (BUS_CLOCK_, JOIN2 (RCC_REG, x)), _FREQ, )
+// using JOIN3 here just because CPP has problems with too many embedded JOIN2s
+
 #endif // _STM32_CLOCKS_H
