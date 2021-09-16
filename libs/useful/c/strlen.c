@@ -8,6 +8,8 @@
 
 #include <useful/usefun.h>
 
+#define LONG_MASK (__SIZEOF_LONG__ - 1)
+
 size_t _strlen (const char *str)
 {
     const char *orig = str;
@@ -22,7 +24,7 @@ size_t _strlen (const char *str)
 #else
 
     /* Optimize by speed */
-    while ((((uintptr_t)str) & (sizeof (unsigned long) - 1)))
+    while ((((uintptr_t)str) & LONG_MASK))
     {
         if (!*str)
             return str - orig;
@@ -61,7 +63,7 @@ size_t _strlen (const char *str)
             return ret;
         }
 
-        str += sizeof (unsigned long);
+        str += __SIZEOF_LONG__;
     }
 
 #endif

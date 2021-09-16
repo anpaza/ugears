@@ -21,36 +21,37 @@
 /**
  * Fill the first @a len bytes of the memory area pointed to by
  * @a dest with the constant byte @a c.
- * @arg dest
- *      A pointer of memory to fill
- * @arg c
- *      The value to fill with
- * @arg len
- *      Number of bytes to fill
+ * @arg dest A pointer of memory to fill
+ * @arg c The value to fill with
+ * @arg len Number of bytes to fill
  */
 EXTERN_C void _memset (void *dest, char c, unsigned len);
 
 /**
  * Fill the first @a len bytes of the memory area pointed to by
  * @a dest with the zero constant.
- * @arg dest
- *      A pointer of memory to fill
- * @arg len
- *      Number of bytes to fill
+ * @arg dest A pointer of memory to fill
+ * @arg len Number of bytes to fill
  */
 EXTERN_C void memclr (void *dest, unsigned len);
 
 /**
  * Optimized traditional memcpy().
  *
- * @arg dest
- *      The destination pointer
- * @arg src
- *      Source pointer
- * @arg len
- *      Number of bytes to copy
+ * @arg dest The destination pointer
+ * @arg src Source pointer
+ * @arg len Number of bytes to copy
  */
 EXTERN_C void _memcpy (void *dest, const void *src, unsigned len);
+
+/**
+ * Optimized traditional memchr().
+ *
+ * @arg data Starting address of memory to search for @a c
+ * @arg c The character to search for
+ * @arg len Maximum number of bytes starting at @a src to search
+ */
+EXTERN_C const void *_memchr (const void *data, char c, unsigned len);
 
 /**
  * Return the length of a zero-terminated string
@@ -125,131 +126,102 @@ EXTERN_C unsigned _rand ();
 
 /**
  * Return the sine of the angle
- * @arg angle
- *      Angle, 90° = 64, 180° = 128, 270° = 192 etc.
- * @return
- *      The sine value in signed 1.8 format
+ * @arg angle Angle, 90° = 64, 180° = 128, 270° = 192 etc.
+ * @return The sine value in signed 1.8 format
  */
 EXTERN_C int sin64 (uint8_t angle);
 
 /**
  * Return the cosine of the angle
- * @arg angle
- *      Angle, 90° = 64, 180° = 128, 270° = 192 etc.
- * @return
- *      The cosine value in signed 1.8 format
+ * @arg angle Angle, 90° = 64, 180° = 128, 270° = 192 etc.
+ * @return The cosine value in signed 1.8 format
  */
 INLINE_ALWAYS int cos64 (uint8_t angle)
 { return sin64 (angle + 64); }
 
 /**
  * Decode a number in the unsigned LEB128 format
- * @arg data
- *      A pointer to encoded data. On return this pointer
+ * @arg data A pointer to encoded data. On return this pointer
  *      is updated to point past the encoded data.
- * @return
- *      The decoded number
+ * @return The decoded number
  */
 EXTERN_C uint32_t uleb128 (const uint8_t **data);
 
 /**
  * Decode a number in the signed LEB128 format
- * @arg data
- *      A pointer to encoded data. On return this pointer
+ * @arg data A pointer to encoded data. On return this pointer
  *      is updated to point past the encoded data.
- * @return
- *      The decoded number
+ * @return The decoded number
  */
 EXTERN_C int32_t sleb128 (const uint8_t **data);
 
 /**
  * Skip an (unused) LEB128 value
- * @arg data
- *      A pointer to encoded data
- * @return
- *      A pointer past the encoded LEB128 value
+ * @arg data A pointer to encoded data
+ * @return A pointer past the encoded LEB128 value
  */
 INLINE_ALWAYS const uint8_t *skip_leb128 (const uint8_t *data)
 { while (*data & 0x80) data++; return data + 1; }
 
 /**
  * Return the sign of the argument
- * @arg x
- *      The number to extract the sign from
- * @return
- *      -1 if @a x is negative, +1 if @a x is positive and 0 if @a x is 0.
+ * @arg x The number to extract the sign from
+ * @return -1 if @a x is negative, +1 if @a x is positive and 0 if @a x is 0.
  */
 INLINE_ALWAYS int32_t sign (int32_t x)
 { return (x >> 31) + (x > 0); }
 
 /**
  * Update checksum with the next block of data.
- * @arg sum
- *      The starting value of checksum. For first block this should be 0,
+ * @arg sum The starting value of checksum. For first block this should be 0,
  *      for next blocks use the return value of previous ip_crc_block invocation.
- * @arg data
- *      A pointer to data
- * @uint len
- *      Data length in bytes
- * @return
- *      @a sum updated according to the contents of data block
+ * @arg data A pointer to data
+ * @uint len Data length in bytes
+ * @return @a sum updated according to the contents of data block
  */
 EXTERN_C uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
 
 /**
  * Finalize checksum computations.
- * @arg sum
- *      The value returned by ip_crc_block().
- * @return
- *      The 16-bit checksum in network endian format
+ * @arg sum The value returned by ip_crc_block().
+ * @return The 16-bit checksum in network endian format
  */
 EXTERN_C uint16_t ip_crc_fin (uint32_t sum);
 
 /**
  * Compute and finalize the checksum of a data block.
- * @arg data
- *      A pointer to data
- * @uint len
- *      Data length in bytes
- * @return
- *      The 16-bit checksum in network endian format
+ * @arg data A pointer to data
+ * @uint len Data length in bytes
+ * @return The 16-bit checksum in network endian format
  */
 INLINE_ALWAYS uint16_t ip_crc (void *data, unsigned len)
 { return ip_crc_fin (ip_crc_block (0, data, len)); }
 
 /**
  * Load a 16-bit little-endian value from an unaligned address
- * @arg data
- *      The unaligned address
- * @return
- *      The memory value at given address
+ * @arg data The unaligned address
+ * @return The memory value at given address
  */
 EXTERN_C uint16_t uget16le (const void *data);
 
 /**
  * Load a 16-bit big-endian value from an unaligned address
- * @arg data
- *      The unaligned address
- * @return
- *      The memory value at given address
+ * @arg data The unaligned address
+ * @return The memory value at given address
  */
 EXTERN_C uint16_t uget16be (const void *data);
 
 /**
  * Load a 32-bit little-endian value from an unaligned address
- * @arg data
- *      The unaligned address
- * @return
- *      The memory value at given address
+ * @arg data The unaligned address
+ * @return The memory value at given address
  */
 EXTERN_C uint32_t uget32le (const void *data);
 
 /**
  * Load a 32-bit big-endian value from an unaligned address
- * @arg data
- *      The unaligned address
- * @return
- *      The memory value at given address
+ * @arg data The unaligned address
+ * @return The memory value at given address
  */
 EXTERN_C uint32_t uget32be (const void *data);
 
@@ -265,6 +237,7 @@ EXTERN_C uint32_t uget32be (const void *data);
 #  define memset        _memset
 #  define memcpy        _memcpy
 #  define memcmp        _memcmp
+#  define memchr        _memchr
 #  define strlen(s)     (__builtin_constant_p (*s) ? __builtin_strlen (s) : _strlen (s))
 #  define srand         _srand
 #  define rand          _rand

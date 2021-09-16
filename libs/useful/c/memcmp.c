@@ -16,6 +16,8 @@ int _memcmp (const void *s1, const void *s2, size_t n)
     register const uint8_t *b = (const uint8_t *)s2;
     register int res;
 
+#if USEFUL_OPTIMIZE == 1
+
     for (;;)
     {
         if (n == 0)
@@ -45,6 +47,8 @@ int _memcmp (const void *s1, const void *s2, size_t n)
             b += __SIZEOF_LONG__;
             n -= __SIZEOF_LONG__;
         }
+
+#endif
 
     // Compare the remaining bytes by one
     for (;;)
