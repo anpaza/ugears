@@ -7,9 +7,6 @@
 */
 
 #include <ugears/ugears.h>
-#include <useful/useful.h>
-
-#if defined DMA_TYPE_1
 
 #ifdef DMA1_BASE
 #include "dmafun.h"
@@ -20,6 +17,4 @@
 #ifdef DMA2_BASE
 #define _DMA_NUM 2
 #include "dmafun.h"
-#endif
-
 #endif

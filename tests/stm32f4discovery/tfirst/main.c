@@ -33,7 +33,7 @@ int main ()
     // 16 interrupts per second
     systick_config (sysclk_t2c (1.0/16.0));
 
-    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
+    usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), SERIAL_SETUP);
 
     __enable_irq ();
 

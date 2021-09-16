@@ -23,6 +23,7 @@
 
 #include <usb/usb-cdc-acm.h>
 #include "ringbuff.h"
+#include <useful/atomic.h>
 
 // SysTick IRQ priority
 #define SYSTICK_IRQ_PRIO 0
@@ -219,10 +220,10 @@ void uca_event (unsigned flags)
 
 void DMA_IRQ_HANDLER (SERIAL_TX) ()
 {
-    if (DMA (SERIAL_TX)->ISR & DMA_ISR (SERIAL_TX, GIF))
+    if (DMA (SERIAL_TX)->ISR & DMA_ISR_IF (G, SERIAL_TX))
     {
         // Acknowledge the interrupt
-        DMA (SERIAL_TX)->IFCR = DMA_IFCR (SERIAL_TX, CGIF);
+        DMA (SERIAL_TX)->IFCR = DMA_IFCR_IF (G, SERIAL_TX);
 
         // Disable USART -> DMA transmission
         usart_dma_tx (USART (SERIAL), false);
@@ -241,10 +242,10 @@ void DMA_IRQ_HANDLER (SERIAL_RX) ()
     uint32_t isr = DMA (SERIAL_RX)->ISR;
 
     // Transfer complete or error?
-    if (isr & (DMA_ISR (SERIAL_RX, TEIF) | DMA_ISR (SERIAL_RX, GIF)))
+    if (isr & (DMA_ISR_IF (TE, SERIAL_RX) | DMA_ISR_IF (G, SERIAL_RX)))
     {
         // Acknowledge the interrupt
-        DMA (SERIAL_RX)->IFCR = DMA_IFCR (SERIAL_RX, CTEIF) | DMA_IFCR (SERIAL_RX, CGIF);
+        DMA (SERIAL_RX)->IFCR = DMA_IFCR_IF (TE, SERIAL_RX) | DMA_IFCR_IF (G, SERIAL_RX);
 
         // Disable USART -> DMA transmission
         usart_dma_rx (USART (SERIAL), false);
@@ -279,7 +280,7 @@ static void serial_rx ()
         if (ser_rx_buff.inflight)
         {
             // Determine how many bytes were actually received
-            unsigned remaining = DMAC (SERIAL_RX)->CNDTR;
+            unsigned remaining = DMAS (SERIAL_RX)->CNDTR;
             unsigned gone = (ser_rx_buff.inflight > remaining) ?
                 ser_rx_buff.inflight - remaining : 0;
             ser_rx_buff.inflight -= gone;
@@ -341,7 +342,7 @@ static void serial_setup ()
     // because 48000000/1200 > 2^16.
     // So we'll change APB2 clock when baud rate is too low
     unsigned baud = ((ser_fmt & USART_BAUD_MASK) << 2);
-    unsigned usart_div = CLOCK_USART (SERIAL) / baud;
+    unsigned usart_div = USART_CLOCK_FREQ (SERIAL) / baud;
     uint32_t pclk2_flags = PCLK2_DIV_FLAGS (1);
     if (usart_div > 0xffff)
     {
@@ -355,7 +356,7 @@ static void serial_setup ()
     }
     clock_APB2 (pclk2_flags);
 
-    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), ser_fmt);
+    usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), ser_fmt);
 }
 
 static void serial_init ()

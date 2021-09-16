@@ -27,7 +27,7 @@
 /// Detect falling edge
 #define _EXTI_FALLING		0x0008
 /// Select port to use for this EXTI line (A, B, C, ...)
-#define EXTI_PORT(p)		JOIN2 (GPIO_PORT_,p)
+#define EXTI_PORT(p)		JOIN2 (_GPIO_PORT_,p)
 
 /**
  * A shorter way to create a EXTI_XXX bitmask.
@@ -72,6 +72,52 @@
  */
 #define EXTI_CONF4(p, a1, a2, a3, a4) \
     EXTI_PORT (p) | \
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2) | \
+    JOIN2 (_EXTI_, a3) | JOIN2 (_EXTI_, a4)
+
+/**
+ * Similar to EXTI_CONF1, but uses a port number instead of letter constant.
+ * @arg p
+ *      Port number to use on this line (A=0, B=1, C=2, ...)
+ * @arg a1
+ *      One of INT, EVENT, RISING, FALLING keywords
+ */
+#define EXTI_CONFN1(p, a1) \
+    (p << _GPIO_PORT_SHIFT) | \
+    JOIN2 (_EXTI_, a1)
+
+/**
+ * Similar to EXTI_CONF2, but uses a port number instead of letter constant.
+ * @arg p
+ *      Port number to use on this line (A=0, B=1, C=2, ...)
+ * @arg a1, a2
+ *      One of INT, EVENT, RISING, FALLING keywords
+ */
+#define EXTI_CONFN2(p, a1, a2) \
+    (p << _GPIO_PORT_SHIFT) | \
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2)
+
+/**
+ * Similar to EXTI_CONF3, but uses a port number instead of letter constant.
+ * @arg p
+ *      Port number to use on this line (A=0, B=1, C=2, ...)
+ * @arg a1, a2, a3
+ *      One of INT, EVENT, RISING, FALLING keywords
+ */
+#define EXTI_CONFN3(p, a1, a2, a3) \
+    (p << _GPIO_PORT_SHIFT) | \
+    JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2) | \
+    JOIN2 (_EXTI_, a3)
+
+/**
+ * Similar to EXTI_CONF4, but uses a port number instead of letter constant.
+ * @arg p
+ *      Port number to use on this line (A=0, B=1, C=2, ...)
+ * @arg a1, a2, a3, a4
+ *      One of INT, EVENT, RISING, FALLING keywords
+ */
+#define EXTI_CONFN4(p, a1, a2, a3, a4) \
+    (p << _GPIO_PORT_SHIFT) | \
     JOIN2 (_EXTI_, a1) | JOIN2 (_EXTI_, a2) | \
     JOIN2 (_EXTI_, a3) | JOIN2 (_EXTI_, a4)
 

@@ -38,7 +38,7 @@ static __inline void __set_primask (uint32_t *val)
 // fool atomic.h
 #define HARDWARE_H <stdint.h>
 #define __set_primask __set_primask_
-#include "ugears/stm32/atomic.h"
+#include "useful/atomic.h"
 #undef __set_primask
 
 int main ()

@@ -6,7 +6,6 @@
     you may not use this file except in compliance with the License.
 */
 
-#include HARDWARE_H
 #include <ugears/ugears.h>
 
 #ifdef CLOCK_DYNAMIC
@@ -254,7 +253,6 @@ DYNCLKFUN uint8_t clock_PLL_setup (uint8_t clksrc,
 
     // PLL requires the PWR peripherial to be running
     RCC_ENABLE (_PWR);
-    RCC_ENABLE (_SYSCFG);
     PWR->CR = (PWR->CR & ~PWR_CR_VOS_Msk) | (vos << PWR_CR_VOS_Pos);
     while ((PWR->CSR & PWR_CSR_VOSRDY) == 0)
         ;

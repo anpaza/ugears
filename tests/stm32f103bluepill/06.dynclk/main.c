@@ -110,7 +110,7 @@ void RTC_IRQHandler ()
         saved_clocks = rtc_counter ();
 
         // Reinitialize USART after frequency change
-        usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
+        usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), SERIAL_SETUP);
 
         printf ("Clock source %s, CPU %uHz, HCLK %uHz, PCLK %uHz, PCLK2 %uHz\r\n",
                 clksrc, SYSCLK_FREQ, HCLK_FREQ, PCLK1_FREQ, PCLK2_FREQ);

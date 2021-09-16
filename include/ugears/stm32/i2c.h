@@ -68,6 +68,8 @@
 #define I2C_NUM(x)		JOIN2 (x, _I2C_NUM)
 /// Get a pointer to TIM peripherial associated with given hw feature
 #define I2C(x)			JOIN2 (I2C, I2C_NUM(x))
+/// Guess I2C clock frequency by hardware feature name
+#define I2C_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_I2C, I2C_NUM (x)))
 
 /**
  * Преобразовать 7-битный адрес устройства в байт адреса на шине
@@ -134,7 +136,7 @@ typedef enum
  * Initialize I2C interface according to parameters defined in hardware.h.
  * If you need the DMA-based i2c API, you must define the following macros in hardware.h:
  *  - I2C{1,2}_{TX,RX}_DMA_NUM - defines the DMA number for I2C TX/RX channels
- *  - I2C{1,2}_{TX,RX}_DMA_CHAN - defines the DMA channel for I2C TX/RX channels
+ *  - I2C{1,2}_{TX,RX}_DMA_STRM - defines the DMA stream for I2C TX/RX channels
  *  - I2C{1,2}_{TX,RX}_DMA_IRQ_PRIO - defines the DMA IRQ priority for I2C TX/RX channels
  * @arg i2c
  *      A pointer to I2C controller
@@ -201,14 +203,14 @@ INLINE_ALWAYS void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
 #  if defined STM32F1
 #    ifndef I2C1_TX_DMA_NUM
 #      define I2C1_TX_DMA_NUM	1
-#      define I2C1_TX_DMA_CHAN	6
+#      define I2C1_TX_DMA_STRM	6
 #    endif
 #    ifndef I2C1_RX_DMA_NUM
 #      define I2C1_RX_DMA_NUM	1
-#      define I2C1_RX_DMA_CHAN	7
+#      define I2C1_RX_DMA_STRM	7
 #    endif
 #  else
-#    error "Unknown I2C1 DMA channel assignments for your platform!"
+#    error "Unknown I2C1 DMA stream assignments for your platform!"
 #  endif
 #endif
 
@@ -218,14 +220,14 @@ INLINE_ALWAYS void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
 #  if defined STM32F1
 #    ifndef I2C2_TX_DMA_NUM
 #      define I2C2_TX_DMA_NUM	1
-#      define I2C2_TX_DMA_CHAN	4
+#      define I2C2_TX_DMA_STRM	4
 #    endif
 #    ifndef I2C2_RX_DMA_NUM
 #      define I2C2_RX_DMA_NUM	1
-#      define I2C2_RX_DMA_CHAN	5
+#      define I2C2_RX_DMA_STRM	5
 #    endif
 #  else
-#    error "Unknown I2C DMA channel assignments for your platform!"
+#    error "Unknown I2C DMA stream assignments for your platform!"
 #  endif
 #endif
 

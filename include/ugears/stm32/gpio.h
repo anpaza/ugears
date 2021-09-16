@@ -54,6 +54,8 @@
 #define GPIO_PIN(x)		JOIN2 (x, _PIN)
 /// Return the pin mask by hardware feature name
 #define GPIO_PINM(x)		BV (GPIO_PIN (x))
+/// Guess GPIO clock frequency by hardware feature name
+#define GPIO_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_GPIO, GPIO_PORT (x)))
 
 // Auxiliary macros (not meant to be directly used by user)
 #define _GPIO_PORT_MASK		0xf000
@@ -286,14 +288,17 @@ typedef uint32_t gpio_config_t;
 #define __GPIO_CONFIG(p,...)	GPIO_CONFIG(p, __VA_ARGS__)
 
 /**
- * A shorter version of GPIO_CONFIG which relays on X_GPIO_CONFIG
+ * A shorter version of GPIO_CONFIG which relays on {x}_GPIO_CONFIG
  * user-defined macro (usually in hardware*.h) to define all the
  * port config details
  */
-#define GPIO_CONF(p)		__GPIO_CONFIG (p, JOIN2 (p, _GPIO_CONFIG))
+#define GPIO_CONF(x)		__GPIO_CONFIG (x, JOIN2 (x, _GPIO_CONFIG))
 
 /// Similar to GPIO_CONF(), but encodes only port name & pin number
-#define GPIO_CONF_PP(p)		__GPIO_CONFIG (p)
+#define GPIO_CONF_PP(x) (\
+	JOIN2 (_GPIO_PORT_, GPIO_PORT(x)) | \
+	(GPIO_PIN (x) << _GPIO_PIN_SHIFT) \
+)
 
 #if defined GPIO_TYPE_3
 

@@ -27,6 +27,8 @@
 #define TIM_NUM(x)		JOIN2 (x, _TIM_NUM)
 /// Get a pointer to TIM peripherial associated with given hw feature
 #define TIM(x)			JOIN2 (TIM, TIM_NUM(x))
+/// Guess timer clock frequency by hardware feature name
+#define TIM_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_TIM, TIM_NUM (x)))
 
 /**
  * Start the timer counting.

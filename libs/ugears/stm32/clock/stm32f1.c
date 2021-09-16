@@ -6,7 +6,6 @@
     you may not use this file except in compliance with the License.
 */
 
-#include HARDWARE_H
 #include <ugears/ugears.h>
 
 #define _8MHZ			        8000000

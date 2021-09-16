@@ -236,18 +236,18 @@ void DMA_IRQ_HANDLER (I2C_TX, I2C_TX_DMA_SUFX) ()
     uint32_t isr = DMA (I2C_TX)->ISR;
 
     // Transfer error?
-    if (isr & DMA_ISR (I2C_TX, TEIF))
+    if (isr & DMA_ISR_IF (I2C_TX, TE))
     {
         // Acknowledge the interrupt
-        DMA (I2C_TX)->IFCR = DMA_IFCR (I2C_TX, CTEIF);
+        DMA (I2C_TX)->IFCR = DMA_IFCR_IF (I2C_TX, TE);
 
         // Notify user callback of error
         JOIN3 (i2ce, I2C_IDX, _abort) ();
     }
-    else if (isr & DMA_ISR (I2C_TX, GIF))
+    else if (isr & DMA_ISR_IF (I2C_TX, G))
     {
         // Acknowledge the interrupt
-        DMA (I2C_TX)->IFCR = DMA_IFCR (I2C_TX, CGIF);
+        DMA (I2C_TX)->IFCR = DMA_IFCR_IF (I2C_TX, G);
         // Next command will be proceeded in EV_IRQHandler
     }
 }
@@ -257,18 +257,18 @@ void DMA_IRQ_HANDLER (I2C_RX, I2C_RX_DMA_SUFX) ()
     uint32_t isr = DMA (I2C_RX)->ISR;
 
     // Transfer error?
-    if (isr & DMA_ISR (I2C_RX, TEIF))
+    if (isr & DMA_ISR_IF (I2C_RX, TE))
     {
         // Acknowledge the interrupt
-        DMA (I2C_RX)->IFCR = DMA_IFCR (I2C_RX, CTEIF);
+        DMA (I2C_RX)->IFCR = DMA_IFCR_IF (I2C_RX, TE);
 
         // Notify user callback of error
         JOIN3 (i2ce, I2C_IDX, _abort) ();
     }
-    else if (isr & DMA_ISR (I2C_RX, GIF))
+    else if (isr & DMA_ISR_IF (I2C_RX, G))
     {
         // Acknowledge the interrupt
-        DMA (I2C_RX)->IFCR = DMA_IFCR (I2C_RX, CGIF);
+        DMA (I2C_RX)->IFCR = DMA_IFCR_IF (I2C_RX, G);
         if (i2cmd.state == i2cesRecvDMA)
             // Go on with the next command
             JOIN3 (i2ce, I2C_IDX, _command) ();

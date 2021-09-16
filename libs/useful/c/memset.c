@@ -1,5 +1,5 @@
 /*
-    Optimized C implementation for memchr()
+    Optimized C implementation for memset()
     Copyright (C) 2021 Andrey Zabolotnyi
 
     Licensed under the Apache License, Version 2.0 (the "License");

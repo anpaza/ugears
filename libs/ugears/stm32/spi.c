@@ -8,7 +8,8 @@
 
 #include <ugears/ugears.h>
 
-bool spi_configure (SPI_TypeDef *spi, uint32_t cr1, uint32_t bus_freq, uint32_t freq)
+bool spi_configure (SPI_TypeDef *spi, uint32_t cr1, uint32_t cr2,
+                    uint32_t bus_freq, uint32_t freq)
 {
     // Available clock divisors from 2 to 256 in powers of two
     uint32_t cd, bf;
@@ -20,7 +21,7 @@ bool spi_configure (SPI_TypeDef *spi, uint32_t cr1, uint32_t bus_freq, uint32_t 
         return false;
 
     spi->CR1 = (cr1 & ~(SPI_CR1_BR_Msk | SPI_CR1_SPE_Msk | SPI_CR1_MSTR_Msk)) | cd;
-    spi->CR2 = 0;
+    spi->CR2 = cr2;
 
     return true;
 }

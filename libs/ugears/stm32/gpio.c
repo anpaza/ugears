@@ -87,9 +87,9 @@ gpio_config_t gpio_get_setup (gpio_config_t pp)
     uint32_t s = (b & 7) * 4;
     uint32_t m = (_GPIO_MODE_MASK | _GPIO_CNF_MASK) << s;
     if (b < 8)
-        conf |= (gpio->CRL & m) >> s;
+        pp |= (gpio->CRL & m) >> s;
     else
-        conf |= (gpio->CRH & m) >> s;
+        pp |= (gpio->CRH & m) >> s;
 
 #elif defined GPIO_TYPE_2 || defined GPIO_TYPE_3
     pp |= (gpio->MODER >> (b * 2)) & _GPIO_MODE_MASK;

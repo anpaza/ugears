@@ -51,10 +51,10 @@
 
 // USART1 DMA channels
 #define SERIAL_TX_DMA_NUM	1
-#define SERIAL_TX_DMA_CHAN	4
+#define SERIAL_TX_DMA_STRM	4
 #define SERIAL_TX_DMA_IRQ_PRIO	16
 #define SERIAL_RX_DMA_NUM	1
-#define SERIAL_RX_DMA_CHAN	5
+#define SERIAL_RX_DMA_STRM	5
 #define SERIAL_RX_DMA_IRQ_PRIO	16
 
 // Also we have USB connected to USB_DP and USB_DM

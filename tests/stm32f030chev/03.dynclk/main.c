@@ -84,7 +84,7 @@ void SysTick_Handler ()
         }
 
         // Re-initialize USART after clock change
-        usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
+        usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), SERIAL_SETUP);
 
         printf ("CPU clocked from %s at %uHz, HCLK %uHz, PCLK %uHz\r\n",
                 clksrc, SYSCLK_FREQ, HCLK_FREQ, PCLK_FREQ);
@@ -110,7 +110,7 @@ void serial_init ()
     GPIO_SETUP (SERIAL_RX);
 
     // Initialize SERIAL
-    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
+    usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), SERIAL_SETUP);
 
     // Route printf() via SERIAL
     usart_printf (USART (SERIAL));

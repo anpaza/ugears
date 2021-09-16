@@ -46,6 +46,8 @@
 #define ADC_NUM(x)		JOIN2 (x, _ADC_NUM)
 /// Return the ADC channel number (0-17) given hardware feature name
 #define ADC_CHAN(x)		JOIN2 (x, _ADC_CHAN)
+/// Guess ADC clock frequency by hardware feature name
+#define ADC_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_ADC, ADC_NUM (x)))
 
 /**
  * Reset given ADC.

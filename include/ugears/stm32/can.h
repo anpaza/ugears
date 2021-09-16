@@ -38,6 +38,8 @@
 #define CAN_NUM(x)		JOIN2 (x, _CAN_NUM)
 /// Return the CAN channel number (0-17) given hardware feature name
 #define CAN_CHAN(x)		JOIN2 (x, _CAN_CHAN)
+/// Guess CAN clock frequency by hardware feature name
+#define CAN_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_CAN, CAN_NUM (x)))
 
 /// Declare the bus baud rate
 #define CAN_BITRATE(x)		(x & 0xfffff)

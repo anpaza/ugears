@@ -1,5 +1,5 @@
 /*
-    A library of generally useful functions
+    Optimized C implementation for memcmp()
     Copyright (C) 2020 Andrey Zabolotnyi
 
     Licensed under the Apache License, Version 2.0 (the "License");

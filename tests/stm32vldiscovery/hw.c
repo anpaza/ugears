@@ -19,7 +19,7 @@ void serial_init ()
     GPIO_SETUP (SERIAL_RX);
 
     // Initialize serial port
-    usart_init (USART (SERIAL), CLOCK_USART (SERIAL), SERIAL_SETUP);
+    usart_init (USART (SERIAL), USART_CLOCK_FREQ (SERIAL), SERIAL_SETUP);
 
     // Redirect printf() over serial port
     usart_printf (USART (SERIAL));
