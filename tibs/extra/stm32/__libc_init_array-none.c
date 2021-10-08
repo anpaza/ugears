@@ -5,4 +5,10 @@
  * Keep in mind that static C++ objects will not be constructed at startup time.
  */
 
-void __libc_init_array () {}
+extern void _init () __attribute__((weak));
+
+void __libc_init_array ()
+{
+    if (&_init)
+        _init ();
+}

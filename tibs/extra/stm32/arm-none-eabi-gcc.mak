@@ -8,6 +8,11 @@ ifeq ($(ARCH),arm)
 C.STD ?= gnu99
 CXX.STD ?= c++11
 
+# Choose the kind of support for static global object initialization/finalization:
+# * __libc_init_array-none if no support is desired
+# * __libc_init_array-cons if support for constructors is enough
+ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY ?= __libc_init_array-none
+
 ARM-NONE-EABI-GCC.PFX ?= arm-none-eabi-
 
 ARM-NONE-EABI-GCC.CC ?= $(ARM-NONE-EABI-GCC.PFX)gcc -c -std=$(C.STD)
@@ -88,7 +93,7 @@ XFNAME.ARM-NONE-EABI-GCC = $(addprefix $$(OUT),\
 
 MKDEPS.ARM-NONE-EABI-GCC = \
 	$(call MKDEPS.DEFAULT,\
-	__libc_init_array.o \
+	$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).o \
 	$(patsubst %.c,%.o,\
 	$(patsubst %.cpp,%.o,\
 	$(patsubst %.asm,%.o,\
@@ -204,7 +209,7 @@ $(ARM-NONE-EABI-GCC.LDSCRIPT): $(DIR.TIBS)/extra/stm32/flash.ld.in
 	$(if $V,,@echo ARM-NONE-EABI-GCC.CPP $@ &&)$(ARM-NONE-EABI-GCC.CPP) \
 		$(ARM-NONE-EABI-GCC.CPPFLAGS) -P -o $@ $<
 
-$(OUT)__libc_init_array.o: $(DIR.TIBS)/extra/stm32/__libc_init_array.c
+$(OUT)$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).o: $(DIR.TIBS)/extra/stm32/$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).c
 	$(if $V,,@echo COMPILE.ARM-NONE-EABI-GCC.CC $< &&)$(call COMPILE.ARM-NONE-EABI-GCC.CC)
 
 endif # ifeq ($(ARCH),arm)
