@@ -219,6 +219,22 @@
 #define DMA_SxCR_DIR_M2P	DMA_SxCR_DIR_0			/*!< Memory-to-peripheral */
 #define DMA_SxCR_DIR_M2M	DMA_SxCR_DIR_1			/*!< Memory-to-memory */
 
+// FIFO status
+
+#define DMA_SxFCR_FS_E_14	0				/*!< 0 < fifo_level < 1/4 */
+#define DMA_SxFCR_FS_14_12	DMA_SxFCR_FS_0			/*!< 1/4 ≤ fifo_level < 1/2 */
+#define DMA_SxFCR_FS_12_34	DMA_SxFCR_FS_1			/*!< 1/2 ≤ fifo_level < 3/4 */
+#define DMA_SxFCR_FS_34_F	(DMA_SxFCR_FS_0|DMA_SxFCR_FS_1)	/*!< 3/4 ≤ fifo_level < full */
+#define DMA_SxFCR_FS_E		DMA_SxFCR_FS_2			/*!< FIFO is empty */
+#define DMA_SxFCR_FS_F		(DMA_SxFCR_FS_0|DMA_SxFCR_FS_2)	/*!< FIFO is full */
+
+// FIFO threshold
+
+#define DMA_SxFCR_FTH_14	0				/*!< 1/4 full FIFO */
+#define DMA_SxFCR_FTH_12	DMA_SxFCR_FTH_0			/*!< 1/2 full FIFO */
+#define DMA_SxFCR_FTH_34	DMA_SxFCR_FTH_1			/*!< 3/4 full FIFO */
+#define DMA_SxFCR_FTH_F		(DMA_SxFCR_FTH_0|DMA_SxFCR_FTH_1)/*!< full FIFO */
+
 #undef DMA_SxCR_CHSEL
 /**
  * Return channel selector for a DMA stream.
@@ -314,7 +330,8 @@ INLINE_ALWAYS __IO uint32_t *dma_ifcr (DMA_TypeDef *dma, uint32_t strm)
  * @li DIR (transfer direction, memory->device, device->memory or
  *      memory->memory) will be computed based on src and dst address range.
  * @li MINC (memory address increment) will be always set
- * @li PINC (peripherial address increment) will be set for mem->mem transfers.
+ * @li PINC (peripherial address increment) will be set for mem->mem transfers
+ *      and reset otherwise.
  *
  * @arg dma
  *      The DMA controller to use (DMA1, DMA2, ...)
