@@ -225,20 +225,18 @@ INLINE_ALWAYS void update_moving_average_32 (int32_t x, int32_t *ma, uint8_t per
 }
 
 /**
- * Return the sine of the angle
- * @arg angle
- *      Angle, 90° = 64, 180° = 128, 270° = 192 etc.
- * @return
- *      The sine value in signed 1.8 format
+ * Return the sine of the angle using a low-precision lookup table
+ * as a signed fixed-point value.
+ * @arg angle Angle, 90° = 64, 180° = 128, 270° = 192 etc.
+ * @return The sine value in signed .8 format
  */
 extern int fp_sin_8 (uint8_t angle);
 
 /**
- * Return the cosine of the angle
- * @arg angle
- *      Angle, 90° = 64, 180° = 128, 270° = 192 etc.
- * @return
- *      The cosine value in signed 1.8 format
+ * Return the cosine of the angle using a low-precision lookup table
+ * as a signed fixed-point value.
+ * @arg angle Angle, 90° = 64, 180° = 128, 270° = 192 etc.
+ * @return The cosine value in signed .8 format
  */
 INLINE_ALWAYS int fp_cos_8 (uint8_t angle)
 { return fp_sin_8 (angle + 64); }

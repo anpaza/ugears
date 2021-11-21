@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <limits.h>
 
 // Optimize by speed (1) or size (0) where appropiate
 #define USEFUL_OPTIMIZE			1

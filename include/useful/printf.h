@@ -189,12 +189,4 @@ extern void _puts (const char *str);
  */
 extern void _fflush (void);
 
-#ifndef USING_LIBC
-#  define printf    _printf
-#  define snprintf  _snprintf
-#  define putchar   _putchar
-#  define puts      _puts
-#  define fflush    _fflush
-#endif
-
 #endif // _PRINTF_H

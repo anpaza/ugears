@@ -27,6 +27,7 @@ DEFINES += STM32_STACK_ADDRESS=0x20005000
 DEFINES += STM32_MIN_HEAP_SIZE=0 STM32_MIN_STACK_SIZE=0x200
 DEFINES += STM32_FLASH_ORIGIN=0x08000000 STM32_FLASH_SIZE=0x10000
 DEFINES += STM32_RAM_ORIGIN=0x20000000 STM32_RAM_SIZE=0x5000
+DEFINES += CONF_VER_H=0 CONF_VER_L=0 CONF_VER_R=0 __DEBUG__ USING_LIBC
 INCLUDEPATH += include
 INCLUDEPATH += include/hardware
 INCLUDEPATH += include/cmsis
@@ -65,6 +66,7 @@ SOURCES += \
     libs/usb/cdc-acm/cdcacm.c \
     libs/useful/arm/semihosting.c \
     libs/useful/atan2_16.c \
+    libs/useful/bitstream.c \
     libs/useful/clock.c \
     libs/useful/datetime.c \
     libs/useful/ip_crc.c \
@@ -77,6 +79,7 @@ SOURCES += \
     libs/useful/sqrt_X.c \
     libs/useful/strlen.c \
     libs/useful/udiv64_32.c \
+    libs/useful/ulz_compress.c \
     libs/useful/unaligned.c \
     tests/atomic/atomic.c \
     tests/stm32f030chev/01.led/main.c \
@@ -100,6 +103,7 @@ SOURCES += \
     tests/stm32vldiscovery/07.libfun/main.c \
     tests/stm32vldiscovery/hw.c \
     tests/tsh/main.c \
+    tests/ulz/ulz.c \
     tibs/extra/stm32/__libc_init_array.c
 
 DISTFILES += \
@@ -243,6 +247,7 @@ DISTFILES += \
     tests/stm32vldiscovery/hw.mak \
     tests/stm32vldiscovery/stm32vldiscovery.mak \
     tests/tsh/tsh.mak \
+    tests/ulz/ulz.mak \
     tibs/README.md \
     tibs/compiler/data.mak \
     tibs/compiler/doxygen.mak \
@@ -414,12 +419,15 @@ HEADERS += \
     include/usb/usb-cdc-acm.h \
     include/usb/usb-cdc.h \
     include/usb/usb.h \
+    include/useful/bitstream.h \
+    include/useful/clike.h \
     include/useful/datetime.h \
     include/useful/fpmath.h \
     include/useful/ost.h \
     include/useful/printf.h \
     include/useful/semihosting.h \
     include/useful/time.h \
+    include/useful/ulz.h \
     include/useful/useful-arm.h \
     include/useful/useful-generic.h \
     include/useful/useful-x86.h \
