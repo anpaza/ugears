@@ -9,7 +9,7 @@
 #ifndef _STM32_USART_H
 #define _STM32_USART_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 
 /**
  * @file usart.h
@@ -24,10 +24,6 @@
  * @li HWFN_USART_IRQ_PRIO - defines the IRQ priority for USART IRQ used
  *      for hardware feature HWFN (0..255).
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // F0 and F3 series uses a little different USART from F1, F2, F4
 #if defined STM32F1 || defined STM32F2 || defined STM32F4
@@ -63,6 +59,8 @@ extern "C" {
 #define USART_IRQ_PRIO(x)	JOIN2 (x, _USART_IRQ_PRIO)
 /// Compose the USART IRQ handler name
 #define USART_IRQ_HANDLER(x)	JOIN3 (USART, USART_NUM (x), _IRQHandler)
+/// Guess USART clock frequency by hardware feature name
+#define USART_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_USART, USART_NUM (x)))
 
 #ifdef USART_TYPE_2
 /// 7 bit characters
@@ -133,7 +131,11 @@ extern "C" {
  * @param fmt A combination of USART_XXX bits defined above to define
  *      the baud rate and data format.
  */
-extern void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
+EXTERN_C void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
+
+/// Wrapper macro for usart_init() with just hw feature name
+#define USART_INIT(x) \
+    usart_init (USART (x), USART_CLOCK_FREQ (x), JOIN2 (x, _SETUP))
 
 /**
  * Redirect printf, putc, puts through the serial port.
@@ -141,14 +143,14 @@ extern void usart_init (USART_TypeDef *usart, uint32_t bus_freq, uint32_t fmt);
  * Very useful for debugging.
  * @param usart The USART to redirect stdio through
  */
-extern void usart_printf (USART_TypeDef *usart);
+EXTERN_C void usart_printf (USART_TypeDef *usart);
 
 /**
  * Send a single byte through the serial port.
  * @param usart The USART to send the character through
  * @param c The character to send
  */
-extern void usart_putc (USART_TypeDef *usart, uint8_t c);
+EXTERN_C void usart_putc (USART_TypeDef *usart, uint8_t c);
 
 /**
  * Receive a single byte through the serial port.
@@ -156,7 +158,7 @@ extern void usart_putc (USART_TypeDef *usart, uint8_t c);
  * @param usart The USART to read the character from
  * @return The character read from the USART
  */
-extern uint8_t usart_getc (USART_TypeDef *usart);
+EXTERN_C uint8_t usart_getc (USART_TypeDef *usart);
 
 /**
  * Check if input is ready to be read from the port.
@@ -273,10 +275,6 @@ INLINE_ALWAYS void usart_dma_rx (USART_TypeDef *usart, bool state)
  */
 INLINE_ALWAYS bool usart_dma_rx_enabled (USART_TypeDef *usart)
 { return (usart->CR3 & USART_CR3_DMAR) != 0; }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // USART_TYPE_NONE
 

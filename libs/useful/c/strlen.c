@@ -1,5 +1,5 @@
 /*
-    A library of generally useful functions
+    Optimized C implementation for strlen()
     Copyright (C) 2020 Andrey Zabolotnyi
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -7,6 +7,8 @@
 */
 
 #include <useful/usefun.h>
+
+#define LONG_MASK (__SIZEOF_LONG__ - 1)
 
 size_t _strlen (const char *str)
 {
@@ -22,7 +24,7 @@ size_t _strlen (const char *str)
 #else
 
     /* Optimize by speed */
-    while ((((uintptr_t)str) & (sizeof (unsigned long) - 1)))
+    while ((((uintptr_t)str) & LONG_MASK))
     {
         if (!*str)
             return str - orig;
@@ -61,7 +63,7 @@ size_t _strlen (const char *str)
             return ret;
         }
 
-        str += sizeof (unsigned long);
+        str += __SIZEOF_LONG__;
     }
 
 #endif

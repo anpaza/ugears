@@ -68,12 +68,6 @@
 #define RCC_REG_TIM17			APB2
 #define RCC_REG_DBGMCU			APB2
 
-// Bus clock frequencies
-#define AHB_CLOCK			HCLK_FREQ
-#define APB_CLOCK			PCLK_FREQ
-#define APB1_CLOCK			PCLK_FREQ
-#define APB2_CLOCK			PCLK_FREQ
-
 // Group reset/enable/disable helper macros
 #define _RCC_REGS \
     AHBENR  = 0, APB1ENR  = 0, APB2ENR  = 0, \
@@ -224,11 +218,6 @@
 #define RCC_REG_TIM13			APB1
 #define RCC_REG_TIM14			APB1
 #endif
-
-// Bus clock frequencies
-#define AHB_CLOCK			HCLK_FREQ
-#define APB1_CLOCK			PCLK1_FREQ
-#define APB2_CLOCK			PCLK2_FREQ
 
 // Group reset/enable/disable helper macros
 #define _RCC_REGS \
@@ -416,11 +405,6 @@
 #define RCC_REG_SAI1LP                  APB2LP
 #define RCC_REG_LTDCLP                  APB2LP
 
-// Bus clock frequencies
-#define AHB_CLOCK			HCLK_FREQ
-#define APB1_CLOCK			PCLK1_FREQ
-#define APB2_CLOCK			PCLK2_FREQ
-
 // Group reset/enable/disable helper macros
 #define _RCC_REGS \
     AHB1ENR = 0, AHB2ENR = 0, AHB3ENR = 0, APB1ENR = 0, APB2ENR = 0, \
@@ -480,6 +464,8 @@
 #define RCC_GPIO(x)			JOIN2 (_GPIO, GPIO_PORT (x))
 /// RCC USART peripherial name by hw feature: SERIAL -> _USART1
 #define RCC_USART(x)			JOIN2 (_USART, USART_NUM (x))
+/// RCC UART peripherial name by hw feature: SERIAL -> _UART1
+#define RCC_UART(x)			JOIN2 (_UART, USART_NUM (x))
 /// RCC ADC peripherial name by hw feature: TEMP_INT -> _ADC1
 #define RCC_ADC(x)			JOIN2 (_ADC, ADC_NUM (x))
 /// RCC DMA peripherial name by hw feature: ADC -> _DMA1
@@ -492,23 +478,6 @@
 #define RCC_TIM(x)			JOIN2 (_TIM, TIM_NUM (x))
 /// RCC CAN peripherial name by hw feature: BUS -> _CAN1
 #define RCC_CAN(x)			JOIN2 (_CAN, CAN_NUM (x))
-
-/// Clock frequency for GPIO hw feature: CLOCK_GPIO (LED) -> AHB_CLOCK
-#define CLOCK_GPIO(x)			JOIN2 (JOIN2 (RCC_REG, RCC_GPIO (x)),_CLOCK)
-/// Clock frequency for USART hw feature: CLOCK_USART (SERIAL) -> APB2_CLOCK
-#define CLOCK_USART(x)			JOIN2 (JOIN2 (RCC_REG, RCC_USART (x)),_CLOCK)
-/// Clock frequency for ADC hw feature: CLOCK_ADC (TEMP_INT) -> APB2_CLOCK
-#define CLOCK_ADC(x)			JOIN2 (JOIN2 (RCC_REG, RCC_ADC (x)),_CLOCK)
-/// Clock frequency for DMA hw feature: CLOCK_DMA (ADC) -> AHB_CLOCK
-#define CLOCK_DMA(x)			JOIN2 (JOIN2 (RCC_REG, RCC_DMA (x)),_CLOCK)
-/// Clock frequency for I2C hw feature: CLOCK_I2C (INA220) -> APB1_CLOCK
-#define CLOCK_I2C(x)			JOIN2 (JOIN2 (RCC_REG, RCC_I2C (x)),_CLOCK)
-/// Clock frequency for SPI hw feature: CLOCK_SPI (DISPLAY) -> APB2_CLOCK
-#define CLOCK_SPI(x)			JOIN2 (JOIN2 (RCC_REG, RCC_SPI (x)),_CLOCK)
-/// Clock frequency for timer hw feature: CLOCK_TIM (PWM) -> APB1_CLOCK
-#define CLOCK_TIM(x)			JOIN2 (JOIN2 (RCC_REG, RCC_TIM (x)),_CLOCK)
-/// Clock frequency for CAN hw feature: CLOCK_CAN (BUS) -> APB1_CLOCK
-#define CLOCK_CAN(x)			JOIN2 (JOIN2 (RCC_REG, RCC_CAN (x)),_CLOCK)
 
 /**
  * Reset a specific MCU peripherial
@@ -697,6 +666,8 @@
 #define RCC_ENA_GPIO(x)			RCC_ENA (RCC_GPIO (x))
 /// Same as RCC_ENA (RCC_USART (x))
 #define RCC_ENA_USART(x)		RCC_ENA (RCC_USART (x))
+/// Same as RCC_ENA (RCC_UART (x))
+#define RCC_ENA_UART(x)			RCC_ENA (RCC_UART (x))
 /// Same as RCC_ENA (RCC_ADC (x))
 #define RCC_ENA_ADC(x)			RCC_ENA (RCC_ADC (x))
 /// Same as RCC_ENA (RCC_DMA (x))

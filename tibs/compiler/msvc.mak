@@ -6,7 +6,7 @@ MSVC.CC ?= cl.exe -c
 MSVC.CFLAGS = -nologo -W2 -Gs -MD -EHsc -D_M_IX86=1 -D_X86_=1 \
     $(MSVC.CFLAGS.$(MODE)) $(MSVC.CFLAGS.DEF) $(MSVC.CFLAGS.INC) $(CFLAGS)
 # -D_M_AMD64=1 -D_AMD64_=1
-MSVC.CFLAGS.DEF = $(CFLAGS.DEF)
+MSVC.CFLAGS.DEF = $(CFLAGS.DEF) $(addprefix -D,$(DEFINES))
 MSVC.CFLAGS.INC = $(addprefix -I,$(DIR.INCLUDE.C))
 
 MSVC.CFLAGS.release = -Oxys

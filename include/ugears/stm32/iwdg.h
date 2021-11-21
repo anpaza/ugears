@@ -9,13 +9,14 @@
 #ifndef _STM32_IWDG_H
 #define _STM32_IWDG_H
 
-#include <useful/useful.h>
-
 /**
  * @file iwdg.h
  *      This library is a thin shim between the hardware and application,
  *      providing a easier way to perform the most frequent tasks.
  */
+
+#include "cmsis.h"
+#include <useful/useful.h>
 
 #if defined STM32F0 || defined STM32F3
 #  define IWDG_HAS_WINDOW
@@ -56,7 +57,7 @@
  *      parameters failed sanity check, or that reload_ms is larger than maximal
  *      time period allowed, which is around 32000ms).
  */
-extern bool iwdg_init (uint32_t reload_ms
+EXTERN_C bool iwdg_init (uint32_t reload_ms
 #ifdef IWDG_HAS_WINDOW
     , uint32_t window_ms
 #endif

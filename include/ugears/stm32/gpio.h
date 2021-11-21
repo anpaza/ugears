@@ -54,6 +54,8 @@
 #define GPIO_PIN(x)		JOIN2 (x, _PIN)
 /// Return the pin mask by hardware feature name
 #define GPIO_PINM(x)		BV (GPIO_PIN (x))
+/// Guess GPIO clock frequency by hardware feature name
+#define GPIO_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_GPIO, GPIO_PORT (x)))
 
 // Auxiliary macros (not meant to be directly used by user)
 #define _GPIO_PORT_MASK		0xf000
@@ -98,6 +100,11 @@
 // output a '1'
 #define _GPIO_INIT_1		0x0080
 
+// enable pull-down input
+#define _GPIO_INIT_PD		_GPIO_INIT_0
+// enable pull-up input
+#define _GPIO_INIT_PU		_GPIO_INIT_1
+
 #if defined GPIO_TYPE_1
 
 typedef uint16_t gpio_config_t;
@@ -123,11 +130,6 @@ typedef uint16_t gpio_config_t;
 #define _GPIO_CNF_FLOATING	0x0004
 /// Input with pull-up / pull-down (ODR sets 0=pulldown, 1=pullup)
 #define _GPIO_CNF_PUD		0x0008
-
-// enable pull-down input
-#define _GPIO_INIT_PD		_GPIO_INIT_0
-// enable pull-up input
-#define _GPIO_INIT_PU		_GPIO_INIT_1
 
 // In output mode (MODE[1:0] > 00)
 
@@ -286,14 +288,17 @@ typedef uint32_t gpio_config_t;
 #define __GPIO_CONFIG(p,...)	GPIO_CONFIG(p, __VA_ARGS__)
 
 /**
- * A shorter version of GPIO_CONFIG which relays on X_GPIO_CONFIG
+ * A shorter version of GPIO_CONFIG which relays on {x}_GPIO_CONFIG
  * user-defined macro (usually in hardware*.h) to define all the
  * port config details
  */
-#define GPIO_CONF(p)		__GPIO_CONFIG (p, JOIN2 (p, _GPIO_CONFIG))
+#define GPIO_CONF(x)		__GPIO_CONFIG (x, JOIN2 (x, _GPIO_CONFIG))
 
 /// Similar to GPIO_CONF(), but encodes only port name & pin number
-#define GPIO_CONF_PP(p)		__GPIO_CONFIG (p)
+#define GPIO_CONF_PP(x) (\
+	JOIN2 (_GPIO_PORT_, GPIO_PORT(x)) | \
+	(GPIO_PIN (x) << _GPIO_PIN_SHIFT) \
+)
 
 #if defined GPIO_TYPE_3
 
@@ -326,17 +331,17 @@ typedef uint32_t gpio_config_t;
  * @arg conf
  *      GPIO port configuration (use GPIO_CONFIG() to create a bitmask)
  */
-extern void gpio_setup (gpio_config_t conf);
+EXTERN_C void gpio_setup (gpio_config_t conf);
 
 /**
  * Query the current setup of a GPIO port.
- * @arg conf
+ * @arg pp
  *      GPIO port name and pin index. Other bits in value are ignored.
  *      You can use GPIO_CONF_PP() to encode port & pin number.
  * @return
  *      The full configuration of given GPIO port.
  */
-extern gpio_config_t gpio_get_setup (gpio_config_t conf);
+EXTERN_C gpio_config_t gpio_get_setup (gpio_config_t pp);
 
 /**
  * Setup a number of GPIO ports at once.
@@ -346,7 +351,40 @@ extern gpio_config_t gpio_get_setup (gpio_config_t conf);
  * @arg n
  *      Number of elements in the conf array
  */
-extern void gpio_setups (const gpio_config_t *conf, unsigned n);
+EXTERN_C void gpio_setups (const gpio_config_t *conf, unsigned n);
+
+/**
+ * GPIO_SET() as a function.
+ * Atomic set of a single bit in port.
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_set (gpio_config_t pp);
+
+/**
+ * GPIO_RESET() as a function.
+ * Atomic clear of a single bit in port
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_reset (gpio_config_t pp);
+
+/**
+ * GPIO_GET() as a function
+ * Get the state of the bit in port
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ * @return Pin state
+ */
+EXTERN_C uint32_t gpio_get (gpio_config_t pp);
+
+/**
+ * GPIO_TOGGLE() as a function
+ * Toggle the state of an output GPIO
+ *
+ * @param pp Port-and-Pin encoded with GPIO_CONF_PP(hw-feature).
+ */
+EXTERN_C void gpio_toggle (gpio_config_t pp);
 
 #ifdef AFIO_EVCR_PIN
 

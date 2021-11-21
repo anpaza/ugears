@@ -1,5 +1,5 @@
 /*
-    A library of generally useful functions
+    Optimized C implementation for memcmp()
     Copyright (C) 2020 Andrey Zabolotnyi
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,8 @@ int _memcmp (const void *s1, const void *s2, size_t n)
     register const uint8_t *a = (const uint8_t *)s1;
     register const uint8_t *b = (const uint8_t *)s2;
     register int res;
+
+#if USEFUL_OPTIMIZE == 1
 
     for (;;)
     {
@@ -45,6 +47,8 @@ int _memcmp (const void *s1, const void *s2, size_t n)
             b += __SIZEOF_LONG__;
             n -= __SIZEOF_LONG__;
         }
+
+#endif
 
     // Compare the remaining bytes by one
     for (;;)

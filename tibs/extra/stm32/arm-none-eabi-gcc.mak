@@ -4,10 +4,19 @@ ifeq ($(ARCH),arm)
 
 .SUFFIXES: .c .cpp .o .lo .a .pc .pc.in
 
+# Language standards
+C.STD ?= gnu99
+CXX.STD ?= c++11
+
+# Choose the kind of support for static global object initialization/finalization:
+# * __libc_init_array-none if no support is desired
+# * __libc_init_array-cons if support for constructors is enough
+ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY ?= __libc_init_array-none
+
 ARM-NONE-EABI-GCC.PFX ?= arm-none-eabi-
 
-ARM-NONE-EABI-GCC.CC ?= $(ARM-NONE-EABI-GCC.PFX)gcc -c
-ARM-NONE-EABI-GCC.CFLAGS ?= -pipe -Wall -Wextra -Werror -std=gnu99 -MMD \
+ARM-NONE-EABI-GCC.CC ?= $(ARM-NONE-EABI-GCC.PFX)gcc -c -std=$(C.STD)
+ARM-NONE-EABI-GCC.CFLAGS ?= -pipe -Wall -Wextra -Werror -MMD \
     -fno-common -ftrack-macro-expansion=0 \
     $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
     $(ARM-NONE-EABI-GCC.CFLAGS.$(MODE)) \
@@ -20,17 +29,17 @@ ARM-NONE-EABI-GCC.CFLAGS.DEF = $(CFLAGS.DEF) $(addprefix -D,$(DEFINES))
 ARM-NONE-EABI-GCC.CFLAGS.INC = $(addprefix -I,$(DIR.INCLUDE.C))
 
 # You might want to use -Os instead of -O2, depending on your priorities
-ARM-NONE-EABI-GCC.CFLAGS.release ?= -g -O2 -mabi=aapcs -fomit-frame-pointer \
+ARM-NONE-EABI-GCC.CFLAGS.release ?= -g3 -O2 -mabi=aapcs -fomit-frame-pointer \
     -fno-builtin -ffunction-sections -fdata-sections \
-    -fpeel-loops -ffast-math
-ARM-NONE-EABI-GCC.CFLAGS.debug ?= -g -Og -D__DEBUG__ -mabi=aapcs \
+    -fpeel-loops -ffast-math $(ARM-NONE-EABI-GCC.FLTO)
+ARM-NONE-EABI-GCC.CFLAGS.debug ?= -g3 -Og -D__DEBUG__ -mabi=aapcs \
     -fno-builtin -ffunction-sections -fdata-sections \
     -ffast-math
 
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m0 = -mcpu=cortex-m0 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m3 = -mcpu=cortex-m3 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m4 = -mcpu=cortex-m4 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
-ARM-NONE-EABI-GCC.CFLAGS.cortex-m7 = -mcpu=cortex-m7 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=softfp)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m0 = -mcpu=cortex-m0 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m3 = -mcpu=cortex-m3 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m4 = -mcpu=cortex-m4 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
+ARM-NONE-EABI-GCC.CFLAGS.cortex-m7 = -mcpu=cortex-m7 -mthumb $(if $(MCU.FPU),-mfpu=$(MCU.FPU) -mfloat-abi=hard)
 
 ifeq ($(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)),)
 $(error "Unknown MCU core $(MCU.CORE), cannot set -mcpu= C compiler flag")
@@ -39,8 +48,9 @@ endif
 ARM-NONE-EABI-GCC.CXX.OK := $(shell which $(ARM-NONE-EABI-GCC.PFX)g++ 2>/dev/null)
 
 ifneq ($(ARM-NONE-EABI-GCC.CXX.OK),)
-ARM-NONE-EABI-GCC.CXX ?= $(ARM-NONE-EABI-GCC.PFX)g++ -c
-ARM-NONE-EABI-GCC.CXXFLAGS ?= $(ARM-NONE-EABI-GCC.CFLAGS) $(CXXFLAGS) -fno-exceptions -fno-rtti
+ARM-NONE-EABI-GCC.CXX ?= $(ARM-NONE-EABI-GCC.PFX)g++ -c -std=$(CXX.STD)
+ARM-NONE-EABI-GCC.CXXFLAGS ?= $(ARM-NONE-EABI-GCC.CFLAGS) $(CXXFLAGS) \
+    -fno-exceptions -fno-rtti
 else
 ARM-NONE-EABI-GCC.CXX ?= echo "C++ compiler is not installed"; false
 endif
@@ -50,12 +60,12 @@ ARM-NONE-EABI-GCC.CPPFLAGS ?= -pipe -x c-header $(ARM-NONE-EABI-GCC.CFLAGS.DEF) 
 
 ARM-NONE-EABI-GCC.LD ?= $(ARM-NONE-EABI-GCC.PFX)gcc
 ARM-NONE-EABI-GCC.LDFLAGS ?= -pipe $(ARM-NONE-EABI-GCC.CFLAGS.$(MCU.CORE)) \
-    -Wl,--gc-sections -mabi=aapcs -nostartfiles \
+    -Wl,--gc-sections -mabi=aapcs -nostartfiles -nostdlib \
     $(ARM-NONE-EABI-GCC.LDFLAGS.$(MODE))
-ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS)
+ARM-NONE-EABI-GCC.LDFLAGS.LIBS ?= $(LDLIBS) -lgcc
 
-ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g
-ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g
+ARM-NONE-EABI-GCC.LDFLAGS.release ?= -g3 $(ARM-NONE-EABI-GCC.FLTO)
+ARM-NONE-EABI-GCC.LDFLAGS.debug ?= -g3
 
 ARM-NONE-EABI-GCC.LINKLIB = $(if $(findstring $L,$1),,$(if $(findstring /,$1),$1,-l$1))
 
@@ -83,7 +93,7 @@ XFNAME.ARM-NONE-EABI-GCC = $(addprefix $$(OUT),\
 
 MKDEPS.ARM-NONE-EABI-GCC = \
 	$(call MKDEPS.DEFAULT,\
-	__libc_init_array.o \
+	$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).o \
 	$(patsubst %.c,%.o,\
 	$(patsubst %.cpp,%.o,\
 	$(patsubst %.asm,%.o,\
@@ -199,7 +209,7 @@ $(ARM-NONE-EABI-GCC.LDSCRIPT): $(DIR.TIBS)/extra/stm32/flash.ld.in
 	$(if $V,,@echo ARM-NONE-EABI-GCC.CPP $@ &&)$(ARM-NONE-EABI-GCC.CPP) \
 		$(ARM-NONE-EABI-GCC.CPPFLAGS) -P -o $@ $<
 
-$(OUT)__libc_init_array.o: $(DIR.TIBS)/extra/stm32/__libc_init_array.c
+$(OUT)$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).o: $(DIR.TIBS)/extra/stm32/$(ARM-NONE-EABI-GCC.LIBC_INIT_ARRAY).c
 	$(if $V,,@echo COMPILE.ARM-NONE-EABI-GCC.CC $< &&)$(call COMPILE.ARM-NONE-EABI-GCC.CC)
 
 endif # ifeq ($(ARCH),arm)

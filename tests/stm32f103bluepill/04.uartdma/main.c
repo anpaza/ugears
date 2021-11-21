@@ -6,10 +6,10 @@ static volatile bool dma_tx_flag, dma_rx_flag;
 
 void DMA_IRQ_HANDLER (SERIAL_TX) ()
 {
-    if (DMA (SERIAL_TX)->ISR & DMA_ISR (SERIAL_TX, GIF))
+    if (DMA (SERIAL_TX)->ISR & DMA_ISR_IF (G, SERIAL_TX))
     {
         // Acknowledge the interrupt
-        DMA (SERIAL_TX)->IFCR = DMA_IFCR (SERIAL_TX, CGIF);
+        DMA (SERIAL_TX)->IFCR = DMA_IFCR_IF (G, SERIAL_TX);
 
         // Disable USART -> DMA transmission
         usart_dma_tx (USART (SERIAL), false);
@@ -43,10 +43,10 @@ static void do_test_send ()
 
 void DMA_IRQ_HANDLER (SERIAL_RX) ()
 {
-    if (DMA (SERIAL_RX)->ISR & DMA_ISR (SERIAL_RX, GIF))
+    if (DMA (SERIAL_RX)->ISR & DMA_ISR_IF (G, SERIAL_RX))
     {
         // Acknowledge the interrupt
-        DMA (SERIAL_RX)->IFCR = DMA_IFCR (SERIAL_RX, CGIF);
+        DMA (SERIAL_RX)->IFCR = DMA_IFCR_IF (G, SERIAL_RX);
 
         // Disable USART -> DMA transmission
         usart_dma_rx (USART (SERIAL), false);

@@ -27,16 +27,16 @@
  *      or an '\r' or '\n' is encountered. If you need char-by-char
  *      output, pass false here. Note this is MUCH slower.
  */
-extern void sh_printf (bool buffered);
+EXTERN_C void sh_printf (bool buffered);
 
 /**
  * Output a single character via the semihosting interface.
  */
-extern void sh_putc (char c);
+EXTERN_C void sh_putc (char c);
 
 /**
  * Read a single character from debugging terminal.
  */
-extern char sh_getc ();
+EXTERN_C char sh_getc ();
 
 #endif // __SEMIHOSTING_H__

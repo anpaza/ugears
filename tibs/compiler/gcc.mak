@@ -5,7 +5,7 @@
 GCC.CC ?= $(GCC.PREFIX)gcc -c
 GCC.CFLAGS += -pipe -MMD -Wall \
     $(GCC.CFLAGS.$(MODE)) $(GCC.CFLAGS.DEF) $(GCC.CFLAGS.INC) $(CFLAGS)
-GCC.CFLAGS.DEF = $(CFLAGS.DEF)
+GCC.CFLAGS.DEF = $(CFLAGS.DEF) $(addprefix -D,$(DEFINES))
 GCC.CFLAGS.INC = $(addprefix -I,$(DIR.INCLUDE.C))
 
 ifneq ($(TARGET),windows)

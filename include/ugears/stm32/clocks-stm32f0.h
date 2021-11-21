@@ -9,7 +9,7 @@
 #ifndef _STM32_CLOCKS_STM32F0_H
 #define _STM32_CLOCKS_STM32F0_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /**
@@ -17,8 +17,6 @@
  *      This file contains the definitions and functions for setting up
  *      initial MCU clock setup and, optionally, providing functions
  *      for clock manipulations at runtime.
- *
- *      This file is typically included from HARDWARE_H.
  *
  * The following macros may be defined prior to including this file.
  * Most of them have reasonable defaults, so you may get started by
@@ -110,6 +108,13 @@
 #define PLL_STARTUP_TIMEOUT		0x14000
 #endif
 
+/// The name of the clock on the AHB bus
+#define BUS_CLOCK_AHB			HCLK
+/// The name of the clock on the APB1 bus
+#define BUS_CLOCK_APB1			PCLK
+/// The name of the clock on the APB2 bus
+#define BUS_CLOCK_APB2			PCLK
+
 // default values
 
 #ifndef HSI_VALUE
@@ -183,26 +188,26 @@
 
 #else // CLOCK_DYNAMIC
 
-extern uint32_t SYSCLK_FREQ, HCLK_FREQ, PCLK_FREQ;
+EXTERN_C uint32_t SYSCLK_FREQ, HCLK_FREQ, PCLK_FREQ;
 
 /**
  * Reset all clocks to default state
  */
-extern void clock_reset ();
+EXTERN_C void clock_reset ();
 
 /**
  * Setup the main system clock to use HSI
  * @return
  *   0 on success, non-zero if failed to start the oscillator
  */
-extern uint8_t sysclk_HSI ();
+EXTERN_C uint8_t sysclk_HSI ();
 
 /**
  * Setup the main system clock to use HSE
  * @return
  *   0 on success, non-zero if failed to start the oscillator
  */
-extern uint8_t sysclk_HSE ();
+EXTERN_C uint8_t sysclk_HSE ();
 
 /**
  * Setup the main system clock to use HSE
@@ -215,7 +220,7 @@ extern uint8_t sysclk_HSE ();
  * @return
  *   0 if PLL has been set up, non-zero on failure
  */
-extern uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul);
+EXTERN_C uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul);
 
 /**
  * @arg hclk_div_flags
@@ -223,7 +228,7 @@ extern uint8_t sysclk_PLL (uint8_t clksrc, uint32_t plldiv, uint32_t pllmul);
  * @return
  *   0 on success, non-zero on failure
  */
-extern uint8_t clock_AHB (uint32_t hclk_div_flags);
+EXTERN_C uint8_t clock_AHB (uint32_t hclk_div_flags);
 
 /**
  * @arg pclk_div_flags
@@ -231,7 +236,7 @@ extern uint8_t clock_AHB (uint32_t hclk_div_flags);
  * @return
  *   0 on success, non-zero on failure
  */
-extern uint8_t clock_APB (uint32_t pclk_div_flags);
+EXTERN_C uint8_t clock_APB (uint32_t pclk_div_flags);
 
 #endif // CLOCK_DYNAMIC
 
@@ -241,13 +246,13 @@ extern uint8_t clock_APB (uint32_t pclk_div_flags);
 /**
  * Start the HSI clock. This is used by flash interface, which needs HSI.
  */
-extern uint8_t clock_HSI_start ();
+EXTERN_C uint8_t clock_HSI_start ();
 
 /**
  * Stop the HSI clock unconditionally. Take care not to stop the system clock!
  * The best practice is to save HSI clock state before starting modifying it.
  */
-extern void clock_HSI_stop ();
+EXTERN_C void clock_HSI_stop ();
 
 /**
  * Query HSI clock state

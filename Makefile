@@ -56,6 +56,7 @@ CFLAGS += -Wno-builtin-declaration-mismatch
 # Additional compiler defines
 DEFINES += \
 	ARCH_$(call ASCIIUP,$(ARCH)) \
+	TARGET_$(subst -,_,$(call ASCIIUP,$(TARGET))) \
 	CONF_VER_H=$(CONF_VER_H) \
 	CONF_VER_L=$(CONF_VER_L) \
 	CONF_VER_R=$(CONF_VER_R) \
@@ -65,14 +66,24 @@ DEFINES += \
 # Additiona files (except sources) to include in distribution
 DISTEXTRA += include/ libs/ tibs/ config.mak local-config-sample.mak
 
+ifeq ($(ARCH),arm)
+
 # Default toolkit
 TOOLKIT ?= ARM-NONE-EABI-GCC
 
 # Include the arm-none-eabi toolkit from rules.mak
 SUBMAKEFILES += $(DIR.TIBS)/extra/stm32/arm-none-eabi-gcc.mak
 
+else
+
+TOOLKIT ?= GCC
+
+endif
+
 # The black magic that generates build rules
 include $(DIR.TIBS)/rules.mak
+
+ifeq ($(ARCH),arm)
 
 # Additional build rules. These must always come last
 include \
@@ -83,3 +94,5 @@ include \
 showhelp::
 	$(call SAY,Target hardware: $(HARDWARE)$(COMMA) mcu: $(MCU.TYPE)$(COMMA) core: $(MCU.CORE))
 	$(call SAY,$-)
+
+endif

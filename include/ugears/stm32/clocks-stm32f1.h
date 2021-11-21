@@ -9,7 +9,7 @@
 #ifndef _STM32_CLOCKS_STM32F1_H
 #define _STM32_CLOCKS_STM32F1_H
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /**
@@ -17,8 +17,6 @@
  *      This file contains the definitions and functions for setting up
  *      initial MCU clock setup and, optionally, providing functions
  *      for clock manipulations at runtime.
- *
- *      This file is typically included from HARDWARE_H.
  *
  * The following macros may be defined prior to including this file.
  * Most of them have reasonable defaults, so you may get started by
@@ -127,6 +125,13 @@
 #  define RCC_CFGR_USBPRE_1		RCC_CFGR_USBPRE
 #endif
 #endif
+
+/// The name of the clock on the AHB bus
+#define BUS_CLOCK_AHB			HCLK
+/// The name of the clock on the APB1 bus
+#define BUS_CLOCK_APB1			PCLK1
+/// The name of the clock on the APB2 bus
+#define BUS_CLOCK_APB2			PCLK2
 
 // default values
 

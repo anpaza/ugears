@@ -52,7 +52,7 @@
  * but will transmit next n bytes from txbuff.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 // There are at least two different types of I2C peripherial
@@ -68,6 +68,8 @@
 #define I2C_NUM(x)		JOIN2 (x, _I2C_NUM)
 /// Get a pointer to TIM peripherial associated with given hw feature
 #define I2C(x)			JOIN2 (I2C, I2C_NUM(x))
+/// Guess I2C clock frequency by hardware feature name
+#define I2C_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_I2C, I2C_NUM (x)))
 
 /**
  * Преобразовать 7-битный адрес устройства в байт адреса на шине
@@ -134,7 +136,7 @@ typedef enum
  * Initialize I2C interface according to parameters defined in hardware.h.
  * If you need the DMA-based i2c API, you must define the following macros in hardware.h:
  *  - I2C{1,2}_{TX,RX}_DMA_NUM - defines the DMA number for I2C TX/RX channels
- *  - I2C{1,2}_{TX,RX}_DMA_CHAN - defines the DMA channel for I2C TX/RX channels
+ *  - I2C{1,2}_{TX,RX}_DMA_STRM - defines the DMA stream for I2C TX/RX channels
  *  - I2C{1,2}_{TX,RX}_DMA_IRQ_PRIO - defines the DMA IRQ priority for I2C TX/RX channels
  * @arg i2c
  *      A pointer to I2C controller
@@ -143,7 +145,7 @@ typedef enum
  * @arg mode
  *      I2C controller mode
  */
-extern void i2c_init (I2C_TypeDef *i2c, uint32_t speed, i2c_mode_t mode);
+EXTERN_C void i2c_init (I2C_TypeDef *i2c, uint32_t speed, i2c_mode_t mode);
 
 /**
  * I2C addressing mode
@@ -201,14 +203,14 @@ INLINE_ALWAYS void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
 #  if defined STM32F1
 #    ifndef I2C1_TX_DMA_NUM
 #      define I2C1_TX_DMA_NUM	1
-#      define I2C1_TX_DMA_CHAN	6
+#      define I2C1_TX_DMA_STRM	6
 #    endif
 #    ifndef I2C1_RX_DMA_NUM
 #      define I2C1_RX_DMA_NUM	1
-#      define I2C1_RX_DMA_CHAN	7
+#      define I2C1_RX_DMA_STRM	7
 #    endif
 #  else
-#    error "Unknown I2C1 DMA channel assignments for your platform!"
+#    error "Unknown I2C1 DMA stream assignments for your platform!"
 #  endif
 #endif
 
@@ -218,14 +220,14 @@ INLINE_ALWAYS void i2c_address2_set (I2C_TypeDef *i2c, uint32_t addr)
 #  if defined STM32F1
 #    ifndef I2C2_TX_DMA_NUM
 #      define I2C2_TX_DMA_NUM	1
-#      define I2C2_TX_DMA_CHAN	4
+#      define I2C2_TX_DMA_STRM	4
 #    endif
 #    ifndef I2C2_RX_DMA_NUM
 #      define I2C2_RX_DMA_NUM	1
-#      define I2C2_RX_DMA_CHAN	5
+#      define I2C2_RX_DMA_STRM	5
 #    endif
 #  else
-#    error "Unknown I2C DMA channel assignments for your platform!"
+#    error "Unknown I2C DMA stream assignments for your platform!"
 #  endif
 #endif
 
@@ -371,32 +373,32 @@ INLINE_ALWAYS volatile i2c_state_t *i2c_state (I2C_TypeDef *i2c)
 
 #ifdef I2C1_ENGINE
 /// Буффер команд для первого контроллера I2C
-extern volatile i2c_state_t i2cmd1;
+EXTERN_C volatile i2c_state_t i2cmd1;
 #endif
 
 #ifdef I2C2_ENGINE
 /// Буффер команд для второго контроллера I2C
-extern volatile i2c_state_t i2cmd2;
+EXTERN_C volatile i2c_state_t i2cmd2;
 #endif
 
 #define i2cmd(x)		JOIN2 (i2cmd, I2C_NUM(x))
 
 #ifdef I2C1_ENGINE
 /// @see i2c_grasp
-extern bool i2ce1_grasp (const void *cmd);
+EXTERN_C bool i2ce1_grasp (const void *cmd);
 /// @see i2c_command
-extern void i2ce1_command ();
+EXTERN_C void i2ce1_command ();
 /// @see i2c_abort
-extern void i2ce1_abort ();
+EXTERN_C void i2ce1_abort ();
 #endif
 
 #ifdef I2C2_ENGINE
 /// @see i2c_grasp
-extern bool i2ce2_grasp (const void *cmd);
+EXTERN_C bool i2ce2_grasp (const void *cmd);
 /// @see i2c_command
-extern void i2ce2_command ();
+EXTERN_C void i2ce2_command ();
 /// @see i2c_abort
-extern void i2ce2_abort ();
+EXTERN_C void i2ce2_abort ();
 #endif
 
 /**

@@ -17,15 +17,23 @@
  * The following macros can be defined in your HARDWARE_H
  * to make your code more portable:
  *
+ * @li HWFN_IRQ_NAME defines the base name for IRQ related
+ *      to hardware feature. IRQ number is derived by appending
+ *      _IRQn (see IRQ_NUM()), and IRQ handler name is derived
+ *      by appending _IRQHandler (see IRQ_HANDLER()).
  * @li HWFN_IRQ_PRIO defines the IRQ priority corresponding to
  *      this hardware feature. Used by IRQ_PRIO(HWFN) macro.
  */
 
-#include HARDWARE_H
+#include "cmsis.h"
 #include <useful/useful.h>
 
 /// Return the IRQ priority corresponding to this hardware feature
 #define IRQ_PRIO(x)		JOIN2 (x, _IRQ_PRIO)
+/// Get the IRQ number associated with hardware feature
+#define IRQ_NUM(x)		JOIN2 (JOIN2 (x, _IRQ_NAME), _IRQn)
+/// Get the IRQ handler function name associated with hardware feature
+#define IRQ_HANDLER(x)		JOIN2 (JOIN2 (x, _IRQ_NAME), _IRQHandler)
 
 #if defined CORTEX_M0 || defined CORTEX_M1 || defined CORTEX_M0PLUS
 #  define NVIC_TYPE_1
@@ -44,7 +52,7 @@
  *      priorities differs from one core to another. Only __NVIC_PRIO_BITS
  *      top bits of the priority are used (usually 4 or 2).
  */
-extern void nvic_setup (int irq, uint8_t priority);
+EXTERN_C void nvic_setup (int irq, uint8_t priority);
 
 /**
  * Set IRQ priority.
@@ -130,6 +138,6 @@ INLINE_ALWAYS void nvic_irq_trigger (unsigned irq)
 /**
  * Reset the CPU
  */
-extern void nvic_system_reset ();
+EXTERN_C void nvic_system_reset ();
 
 #endif // _STM32_NVIC_H

@@ -8,10 +8,14 @@
 # A list of supported MCUs is in tibs/extra/stm32-mcu.csv
 #MCU.TYPE = STM32F103C8Tx
 
-# Default build mode
+# Default build mode (debug, release)
 MODE = debug
 
 # If needed, you may override the minimum heap size (checked at link time)
 #STM32.HEAP.MIN_SIZE ?= 0
 # If needed, you may override the minimum stack size (checked at link time)
 #STM32.STACK.MIN_SIZE ?= 0x200
+
+# Uncomment if your compiler supports -flto code optimization, which
+# results in MUCH smaller code when compiled in release mode
+#ARM-NONE-EABI-GCC.FLTO = -flto

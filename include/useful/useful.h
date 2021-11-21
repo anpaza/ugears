@@ -103,14 +103,25 @@
 /// Join six tokens together and interpret the result as a new token
 #define JOIN6(a,b,c,d,e,f)	_JOIN6(a,b,c,d,e,f)
 
-#if defined __DEBUG__ && (defined MCU_CORE_CORTEX_M3 || defined MCU_CORE_CORTEX_M4)
+#if defined __DEBUG__
+#  if defined ARCH_ARM && (defined CORTEX_M3 || defined CORTEX_M4)
 /// Break into debugger
-#  define DEBUG_BREAK		__asm__ __volatile__ ("bkpt #0")
+#    define DEBUG_BREAK		__asm__ __volatile__ ("bkpt #0")
 /// Break into debugger if condition @a c is true
-#  define DEBUG_BREAK_IF(c)	if (c) DEBUG_BREAK
-#else
+#    define DEBUG_BREAK_IF(c)	if (c) DEBUG_BREAK
+#  endif
+#endif
+
+#if !defined DEBUG_BREAK
 #  define DEBUG_BREAK
 #  define DEBUG_BREAK_IF(c)
+#endif
+
+// Make headers compatible with both C and C++
+#ifdef __cplusplus
+#  define EXTERN_C extern "C"
+#else
+#  define EXTERN_C extern
 #endif
 
 // Arch-dependent useful inline functions

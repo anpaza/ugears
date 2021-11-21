@@ -34,7 +34,7 @@ typedef uint16_t ost16_t;
  * @arg clocks
  *      Число щелчков, через которые должен сработать таймер
  */
-extern void ost32_arm (volatile ost32_t *timer, clock_t clocks);
+EXTERN_C void ost32_arm (volatile ost32_t *timer, clock_t clocks);
 
 /**
  * Аналогично ost32_arm, но работает с 16-разрядными таймерами.
@@ -43,7 +43,7 @@ extern void ost32_arm (volatile ost32_t *timer, clock_t clocks);
  * @arg clocks
  *      Число щелчков, через которые должен сработать таймер
  */
-extern void ost16_arm (volatile ost16_t *timer, clock_t clocks);
+EXTERN_C void ost16_arm (volatile ost16_t *timer, clock_t clocks);
 
 /**
  * Проверить, не истёк ли одноразовый таймер,
@@ -53,7 +53,7 @@ extern void ost16_arm (volatile ost16_t *timer, clock_t clocks);
  * @return
  *      true если таймер истёк либо выключен
  */
-extern bool ost32_expired (volatile ost32_t *timer);
+EXTERN_C bool ost32_expired (volatile ost32_t *timer);
 
 /**
  * Аналогично ost32_expired, но работает с 16-разрядными таймерами.
@@ -62,7 +62,7 @@ extern bool ost32_expired (volatile ost32_t *timer);
  * @return
  *      true если таймер истёк либо выключен
  */
-extern bool ost16_expired (volatile ost16_t *timer);
+EXTERN_C bool ost16_expired (volatile ost16_t *timer);
 
 /**
  * Проверить, включён ли таймер

@@ -16,6 +16,7 @@
  *      a different API.
  */
 
+#include "cmsis.h"
 #include <useful/useful.h>
 #include <useful/fpmath.h>
 #include "rcc.h"
@@ -45,6 +46,8 @@
 #define ADC_NUM(x)		JOIN2 (x, _ADC_NUM)
 /// Return the ADC channel number (0-17) given hardware feature name
 #define ADC_CHAN(x)		JOIN2 (x, _ADC_CHAN)
+/// Guess ADC clock frequency by hardware feature name
+#define ADC_CLOCK_FREQ(x)	CLOCK_FREQ (JOIN2 (_ADC, ADC_NUM (x)))
 
 /**
  * Reset given ADC.
@@ -287,7 +290,7 @@ INLINE_ALWAYS void adc_jextsel (ADC_TypeDef *adc, adc_jextsel_t mode)
  * @arg adc
  *      ADC to calibrate
  */
-extern void adc_calibrate (ADC_TypeDef *adc);
+EXTERN_C void adc_calibrate (ADC_TypeDef *adc);
 
 /**
  * Constants to set ADC sampling time, in ADC cycles.
@@ -502,7 +505,7 @@ INLINE_ALWAYS void adc_irqs (ADC_TypeDef *adc, uint32_t irqs)
  * @arg chan
  *      ADC channel number (0-17)
  */
-extern void adc_regseq_chan (ADC_TypeDef *adc, uint32_t idx, uint32_t chan);
+EXTERN_C void adc_regseq_chan (ADC_TypeDef *adc, uint32_t idx, uint32_t chan);
 
 /**
  * Set regular sequence channel count
