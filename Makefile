@@ -63,6 +63,16 @@ DEFINES += \
 	RTC_INITTIME="$(RTC_INITTIME)-RTC_BASETIME" \
 	BDATE="\"$(subst $(SPACE),;,$(BDATE))\""
 
+ifeq ($(MODE),release)
+# Disable asserts
+DEFINES += NDEBUG
+endif
+
+ifneq ($(TARGET),posix)
+# Uncomment these to use system libc on non-embedded systems
+#DEFINES += USE_LIBC _GNU_SOURCE
+endif
+
 # Additiona files (except sources) to include in distribution
 DISTEXTRA += include/ libs/ tibs/ config.mak local-config-sample.mak
 

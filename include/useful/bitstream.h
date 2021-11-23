@@ -12,7 +12,21 @@
 #include "useful.h"
 
 /**
- * A bitstream used for reading.
+ * @file bitstream.h
+ *      A bitstream is a object that can be used to store strings of bits
+ *      and strings of bytes. The current implementation limits the length
+ *      of bit strings to 32 because there was no need for more, and it
+ *      results in a cleaner & more effective interface.
+ *
+ *      Bytes and bits are stored separately, bytes fill the bistream buffer
+ *      from start, and bits are stored in the buffer from end in reverse
+ *      direction. A final compaction operation will remove the gap between
+ *      bytes and bits storage and return the final size of the bitstream
+ *      object.
+ */
+
+/**
+ * Bitstream state.
  *
  * Despite there's a difference between bistreams used for reading and
  * bitstreams used for writing, we'll use one type for both reading and
@@ -49,6 +63,8 @@ typedef struct
  * @param size Source data or destination buffer size
  */
 extern void bs_init (bitstream_t *bs, void *buff, unsigned size);
+
+// -------------------------------------------------------------------------- //
 
 /**
  * Read whole bytes of data from bitstream (from the byte substream).

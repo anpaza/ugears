@@ -6,47 +6,13 @@
     you may not use this file except in compliance with the License.
 */
 
-#include "useful/ulz.h"
 #include "useful/clike.h"
+#include "useful/ulz.h"
 #include "useful/bitstream.h"
+#include "ulz_priv.h"
 
-/* uLZ is a variant of Lempel-Ziv packer, optimized for low memory footprint,
- * low unpacker size and lack of computing power for decoding.
- *
- * The stream consists of literals (pieces of unmodified original data)
- * followed by backward references (an 'offset, length' pair which is a
- * reference back into the already unpacked data). Even if there are several
- * consecutive backward references, they are interleaved with a zero-length
- * literal, e.g. literals and references always toggle.
- *
- * Literals are encoded as (length, data...). Every quantity is encoded
- * using the ulz16u encoding (see below).
- *
- * References are encoded as (length-2, offset-1) pairs.
- *
- * Offsets and lengths are encoded using the following encoding, which
- * we'll call ulz16u (uLZ 16-bit unsigned).
- *
- * Code                 Bits    Low     High
- * 0XX                  3       0       3
- * 10XXXX               6       4       19
- * 110XXXXXXXX          11      20      275
- * 111XXXXXXXXXXXXXXXX  19      276     65811
- */
-
-#define ULZ16U_0_LOW        0
-#define ULZ16U_0_BITS       3
-#define ULZ16U_0_PREFIX     0b000
-#define ULZ16U_10_LOW       4
-#define ULZ16U_10_BITS      6
-#define ULZ16U_10_PREFIX    0b100000
-#define ULZ16U_110_LOW      20
-#define ULZ16U_110_BITS     11
-#define ULZ16U_110_PREFIX   0b11000000000
-#define ULZ16U_111_LOW      276
-#define ULZ16U_111_BITS     19
-#define ULZ16U_111_PREFIX   0b1110000000000000000
-#define ULZ16U_MAX          65811
+// Uncomment for noisy compressor debugging
+//#define NOISY
 
 /// Return number of bits used to encode specified value
 INLINE_ALWAYS unsigned ulz16u_bits (unsigned value)
@@ -59,7 +25,8 @@ INLINE_ALWAYS unsigned ulz16u_bits (unsigned value)
         return ULZ16U_110_BITS;
     if (value <= ULZ16U_MAX)
         return ULZ16U_111_BITS;
-    return 0;
+    // full 32-bit length
+    return ULZ16U_111_BITS + 32;
 }
 
 static bool ulz16u_write (bitstream_t *bs, unsigned value)
@@ -67,52 +34,73 @@ static bool ulz16u_write (bitstream_t *bs, unsigned value)
     unsigned bits;
     if (value < ULZ16U_10_LOW)
     {
-        value = (value - ULZ16U_0_LOW) | ULZ16U_0_PREFIX;
+        value = ((value - ULZ16U_0_LOW) << 1) | ULZ16U_0_PREFIX;
         bits = ULZ16U_0_BITS;
     }
     else if (value < ULZ16U_110_LOW)
     {
-        value = (value - ULZ16U_10_LOW) | ULZ16U_10_PREFIX;
+        value = ((value - ULZ16U_10_LOW) << 2) | ULZ16U_10_PREFIX;
         bits = ULZ16U_10_BITS;
     }
     else if (value < ULZ16U_111_LOW)
     {
-        value = (value - ULZ16U_110_LOW) | ULZ16U_110_PREFIX;
+        value = ((value - ULZ16U_110_LOW) << 3) | ULZ16U_110_PREFIX;
         bits = ULZ16U_110_BITS;
     }
     else if (value <= ULZ16U_MAX)
     {
-        value = (value - ULZ16U_111_LOW) | ULZ16U_111_PREFIX;
+        value = ((value - ULZ16U_111_LOW) << 3) | ULZ16U_111_PREFIX;
         bits = ULZ16U_111_BITS;
     }
     else
-        return false;
+    {
+        uint32_t val32 = UINT32_LE (value);
+        value = ((ULZ16U_RAW32 - ULZ16U_111_LOW) << 3) | ULZ16U_111_PREFIX;
+        bits = ULZ16U_111_BITS;
+        return bs_write_bits (bs, bits, value) &&
+                bs_write_bytes (bs, &val32, sizeof (val32));
+    }
 
     return bs_write_bits (bs, bits, value);
 }
 
-static void ulz_write_uleb128 (bitstream_t *bs, unsigned value)
+static bool ulz_write_uleb128 (bitstream_t *bs, unsigned value)
 {
+    uint8_t chips [5];
+    uint8_t *cur = chips;
     for (;;)
     {
         uint8_t chip = value & 0x7F;
         value >>= 7;
         if (value)
             chip |= 0x80;
-        bs_write_bytes (bs, &chip, 1);
-        if (!(chip & 0x80))
-            return;
+        *cur++ = chip;
+        if (value == 0)
+            break;
     }
+
+    return bs_write_bytes (bs, chips, cur - chips);
+}
+
+static bool ulz_write_literal (bitstream_t *bs, uint8_t *lit, unsigned len)
+{
+    if (!ulz16u_write (bs, len) ||
+        !bs_write_bytes (bs, lit, len))
+        return false;
+
+    return true;
 }
 
 bool ulz_compress (const void *idata, unsigned isize,
                    void *odata, unsigned *osize)
 {
+
     bitstream_t obs;
     bs_init (&obs, odata, *osize);
 
     // write uncompressed data size to output stream first
-    ulz_write_uleb128 (&obs, isize);
+    if (!ulz_write_uleb128 (&obs, isize))
+        return false;
 
     uint8_t *start = (uint8_t *)idata;
     uint8_t *end = start + isize;
@@ -122,20 +110,29 @@ bool ulz_compress (const void *idata, unsigned isize,
     // Start of literal
     uint8_t *lit_start = cur;
 
+#ifdef NOISY
+    unsigned count_dec = 0;
+    unsigned count_enc = (obs.ptr - (uint8_t *)odata) * 8;
+#endif
+
     while (cur < end)
     {
-        unsigned ref_ofs;
+        unsigned ref_ofs = 0;
         unsigned ref_len = 0;
-        int ref_rating = 0;
+
+        // The following code is a pretty dumb attempt to find references
+        // to preceeding data. This certainly can be done much faster,
+        // but this code is very simple and easy to understand.
 
         // Look back for data at 'cur'
         uint8_t *low = cur - (ULZ16U_MAX + 1);
         if (low < start)
             low = start;
         uint8_t *high = cur;
+        int ref_rating = 0;
         while (low < high)
         {
-            uint8_t *ptr = (uint8_t *)memrchr (low, *cur, high - low);
+            uint8_t *ptr = (uint8_t *)_memrchr (low, *cur, high - low);
             if (!ptr)
                 break;
 
@@ -150,13 +147,7 @@ bool ulz_compress (const void *idata, unsigned isize,
                 unsigned ofs_bits = ulz16u_bits (ofs - 1);
                 unsigned len_bits = ulz16u_bits (len - 2);
 
-                assert (ofs_bits != 0);
-                assert (len_bits != 0);
-
                 int gain = len * 8 - len_bits - ofs_bits;
-                // Take into account if we spend bits to encode zero-length literal
-                if (cur == lit_start)
-                    gain -= ULZ16U_0_BITS;
                 if (gain > ref_rating)
                 {
                     ref_rating = gain;
@@ -172,26 +163,59 @@ bool ulz_compress (const void *idata, unsigned isize,
             cur++;
         else
         {
-            // Put the literal into output bitstream
             unsigned lit_len = cur - lit_start;
-            if (!ulz16u_write (&obs, lit_len) ||
-                !bs_write_bytes (&obs, lit_start, lit_len))
+
+            // Cut our loses if literal gets way too long.
+            // If we don't, a long literal trail may stop us from
+            // seeing small gains, like text insertions in a big
+            // uncompressible blob.
+            if (lit_len < ULZ16U_MAX / 2)
+            {
+                // Check the overall compression rate
+                unsigned enc_len = ulz16u_bits (lit_len) + lit_len * 8 +
+                        ulz16u_bits (ref_len - 2) + ulz16u_bits (ref_ofs - 1);
+                unsigned dec_len = ulz16u_bits (lit_len + ref_len) -
+                        (lit_len ? ulz16u_bits (lit_len) : 0) +
+                        (lit_len + ref_len) * 8;
+
+                // Sometimes it's better to just put everything as literal
+                if (enc_len >= dec_len)
+                {
+                    cur += 1;
+                    continue;
+                }
+            }
+
+            // Put the literal into output bitstream
+            if (!ulz_write_literal (&obs, lit_start, lit_len))
                 // BANG! no space for compressed data
                 return false;
 
-            //printf ("LIT: [%.*s]\n", lit_len, lit_start);
+#ifdef NOISY
+            printf ("LIT: [%.*s]\n", lit_len, lit_start);
+            count_enc += ulz16u_bits (lit_len) + lit_len * 8;
+#endif
 
             // Put the reference into output stream
-            if (!ulz16u_write (&obs, ref_len) ||
-                !ulz16u_write (&obs, ref_ofs))
+            if (!ulz16u_write (&obs, ref_len - 2) ||
+                !ulz16u_write (&obs, ref_ofs - 1))
                 return false;
 
-            //printf ("REF: [%.*s] <- %u\n", ref_len, cur - ref_ofs, ref_ofs);
+#ifdef NOISY
+            printf ("REF: [%.*s] <- %u\n", ref_len, cur - ref_ofs, ref_ofs);
+            count_enc += ulz16u_bits (ref_len - 2) + ulz16u_bits (ref_ofs - 1);
+            count_dec += (cur + ref_len - lit_start) * 8;
+            printf ("GAIN: %d bits of total %u\n", count_dec - count_enc, count_dec);
+#endif
 
             cur += ref_len;
             lit_start = cur;
         }
     }
+
+    // Put the last literal into the output stream
+    if (!ulz_write_literal (&obs, lit_start, cur - lit_start))
+        return false;
 
     *osize = bs_write_finish (&obs, odata, *osize);
     return *osize != 0;

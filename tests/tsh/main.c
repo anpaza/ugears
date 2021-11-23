@@ -12,8 +12,8 @@
  * debuger as usual and run the application.
  */
 
-#include "useful/semihosting.h"
-#include "useful/printf.h"
+#include <useful/semihosting.h>
+#include <useful/clike.h>
 
 int main ()
 {

@@ -27,7 +27,7 @@ DEFINES += STM32_STACK_ADDRESS=0x20005000
 DEFINES += STM32_MIN_HEAP_SIZE=0 STM32_MIN_STACK_SIZE=0x200
 DEFINES += STM32_FLASH_ORIGIN=0x08000000 STM32_FLASH_SIZE=0x10000
 DEFINES += STM32_RAM_ORIGIN=0x20000000 STM32_RAM_SIZE=0x5000
-DEFINES += CONF_VER_H=0 CONF_VER_L=0 CONF_VER_R=0 __DEBUG__ USING_LIBC
+DEFINES += CONF_VER_H=0 CONF_VER_L=0 CONF_VER_R=0
 INCLUDEPATH += include
 INCLUDEPATH += include/hardware
 INCLUDEPATH += include/cmsis
@@ -67,6 +67,13 @@ SOURCES += \
     libs/useful/arm/semihosting.c \
     libs/useful/atan2_16.c \
     libs/useful/bitstream.c \
+    libs/useful/c/assert_abort.c \
+    libs/useful/c/memchr.c \
+    libs/useful/c/memcmp.c \
+    libs/useful/c/memcpy.c \
+    libs/useful/c/memrchr.c \
+    libs/useful/c/memset.c \
+    libs/useful/c/strlen.c \
     libs/useful/clock.c \
     libs/useful/datetime.c \
     libs/useful/ip_crc.c \
@@ -80,6 +87,7 @@ SOURCES += \
     libs/useful/strlen.c \
     libs/useful/udiv64_32.c \
     libs/useful/ulz_compress.c \
+    libs/useful/ulz_decompress.c \
     libs/useful/unaligned.c \
     tests/atomic/atomic.c \
     tests/stm32f030chev/01.led/main.c \
@@ -102,6 +110,8 @@ SOURCES += \
     tests/stm32vldiscovery/06.dynclk/main.c \
     tests/stm32vldiscovery/07.libfun/main.c \
     tests/stm32vldiscovery/hw.c \
+    tests/tmemchr/tmemchr.c \
+    tests/tmemset/tmemset.c \
     tests/tsh/main.c \
     tests/ulz/ulz.c \
     tibs/extra/stm32/__libc_init_array.c
@@ -246,6 +256,8 @@ DISTFILES += \
     tests/stm32vldiscovery/07.libfun/libfun.mak \
     tests/stm32vldiscovery/hw.mak \
     tests/stm32vldiscovery/stm32vldiscovery.mak \
+    tests/tmemchr/tmemchr.mak \
+    tests/tmemset/tmemset.mak \
     tests/tsh/tsh.mak \
     tests/ulz/ulz.mak \
     tibs/README.md \
@@ -438,5 +450,6 @@ HEADERS += \
     libs/usb/cdc-acm/cdcacm-priv.h \
     libs/usb/cdcacm-priv.h \
     libs/usb/cdcacm-str.h \
+    libs/useful/ulz_priv.h \
     tests/stm32f103bluepill/hw.h \
     tests/stm32vldiscovery/hw.h

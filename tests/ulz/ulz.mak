@@ -1,6 +1,6 @@
 # This is meant to be executed/debugged under Linux or Windows.
 #
-# Build it like this: make ARCH=x86_64 TARGET=posix TOOLKIT=GCC USING_LIBC=1 ulz
+# Build it like this: make ARCH=x86_64 TARGET=posix TOOLKIT=GCC ulz
 
 ifeq ($(TOOLKIT)-$(filter none-eabi,$(TARGET)),GCC-)
 TESTS += ulz

@@ -78,14 +78,27 @@ static bool process (const char *fn)
             if (g_verbose)
                 printf ("incompressible\n");
             else
-                fprintf (stderr, "%s: File '%s' does not compress\n", g_program, fn);
+                fprintf (stderr, "%s: File '%s' does not compress\n",
+                         g_program, fn);
             return false;
         }
     }
     else
     {
-        snprintf (ofn, sizeof (ofn), "%.*s", (int)(dot - fn), fn);
-
+        snprintf (ofn, sizeof (ofn), "%.*s_", (int)(dot - fn), fn);
+        outf_size = ulz_decompress_size (inf_buf, inf_size);
+        outf_buf = malloc (outf_size);
+        if (!ulz_decompress (inf_buf, inf_size, outf_buf, &outf_size))
+        {
+            free (inf_buf);
+            free (outf_buf);
+            if (g_verbose)
+                printf ("broken\n");
+            else
+                fprintf (stderr, "%s: Packed file '%s' cannot be uncompressed\n",
+                         g_program, fn);
+            return false;
+        }
     }
 
     free (inf_buf);
@@ -116,7 +129,7 @@ static bool process (const char *fn)
 }
 
 #if 0
-static void test ()
+static void test_bitstreams ()
 {
     static const char *test_data = "\nerawdrah ruoy tceleS #";
     bitstream_t ibs;
@@ -165,7 +178,7 @@ static void test ()
 
 int main (int argc, char *const *argv)
 {
-    //test (); return 0;
+    //test_bitstreams (); return 0;
 
     static struct option long_options [] =
     {

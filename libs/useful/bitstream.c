@@ -7,7 +7,7 @@
 */
 
 #include "useful/bitstream.h"
-#include "useful/usefun.h"
+#include "useful/clike.h"
 
 #define MASK(bits)   ((1 << bits) - 1)
 
