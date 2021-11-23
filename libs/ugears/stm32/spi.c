@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 
 bool spi_configure (SPI_TypeDef *spi, uint32_t cr1, uint32_t cr2,
                     uint32_t bus_freq, uint32_t freq)

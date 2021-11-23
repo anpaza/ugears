@@ -6,8 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 #include <useful/usefun.h>
+#include <useful/clike.h>
 
 /**
     @file flash-storage.c

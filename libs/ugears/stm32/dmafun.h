@@ -7,7 +7,7 @@
         which accepts a pointer to DMA controller as 1st parameter.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 #include <useful/useful.h>
 
 void

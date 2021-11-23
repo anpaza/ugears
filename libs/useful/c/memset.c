@@ -6,9 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/clike.h"
 
-#define LONG_MASK (__SIZEOF_LONG__ - 1)
+#define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
 void _memset (void *dest, char c, unsigned len)
 {
@@ -21,7 +21,7 @@ void _memset (void *dest, char c, unsigned len)
         if (len == 0)
             return;
 
-        if ((((uintptr_t)d) & LONG_MASK) == 0)
+        if ((((uintptr_t)d) & LONG_ALIGN_MASK) == 0)
             break;
 
         *d = c;

@@ -6,9 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/clike.h"
 
-#define LONG_MASK (__SIZEOF_LONG__ - 1)
+#define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
 void _memcpy (void *dest, const void *src, unsigned len)
 {
@@ -23,7 +23,7 @@ void _memcpy (void *dest, const void *src, unsigned len)
         if (len == 0)
             return;
 
-        if ((((uintptr_t)d) & LONG_MASK) == 0)
+        if ((((uintptr_t)d) & LONG_ALIGN_MASK) == 0)
             break;
 
         *d++ = *s++;
@@ -32,7 +32,7 @@ void _memcpy (void *dest, const void *src, unsigned len)
     // now d is guaranteed to be aligned, len is guaranteed to be >0
 
     // if s is aligned too, compare by words
-    if ((((uintptr_t)s) & LONG_MASK) == 0)
+    if ((((uintptr_t)s) & LONG_ALIGN_MASK) == 0)
         while (len >= __SIZEOF_LONG__)
         {
             *(long *)d = *(const long *)s;

@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 #include <useful/fpmath.h>
 
 extern bool iwdg_init (uint32_t reload_ms

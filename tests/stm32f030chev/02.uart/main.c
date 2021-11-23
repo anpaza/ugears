@@ -3,7 +3,7 @@
  */
 
 #include <ugears/ugears.h>
-#include <useful/printf.h>
+#include <useful/clike.h>
 
 uint8_t led_override = 0;
 

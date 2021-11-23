@@ -6,44 +6,42 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/clike.h"
 
-#define LONG_MASK (__SIZEOF_LONG__ - 1)
+#define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
-const void *_memchr (const void *data, char c, unsigned len)
+void *_memchr (const void *mem, uint8_t val, size_t size)
 {
-    register const char *src = (const char *)data;
+    register const uint8_t *src = (const uint8_t *)mem;
+    register const uint8_t *end;
 
 #if USEFUL_OPTIMIZE == 1
 
-    for (;;)
+    end = (const uint8_t *)(((uintptr_t)mem + LONG_ALIGN_MASK) & ~LONG_ALIGN_MASK);
+    if (end <= src + size)
     {
-        if (len == 0)
-            return NULL;
+        while (src < end)
+        {
+            if (*src == val)
+                return (void *)src;
 
-        if ((((uintptr_t)src) & LONG_MASK) == 0)
-            break;
+            src++;
+        }
+        // now src is guaranteed to be aligned
 
-        if (*src == c)
-            return src;
-
-        src++;
-        len--;
-    }
-    // now a is guaranteed to be aligned, len is guaranteed to be >0
-
-    unsigned long cccc = (unsigned long)(unsigned char)c;
-    cccc |= cccc << 8;
+        unsigned long cccc = (unsigned long)val;
+        cccc |= cccc << 8;
 #if __SIZEOF_LONG__ > 2
-    cccc |= cccc << 16;
+        cccc |= cccc << 16;
 #endif
 #if __SIZEOF_LONG__ > 4
-    cccc |= cccc << 32;
+        cccc |= cccc << 32;
 #endif
 
-    while (len >= __SIZEOF_LONG__)
-    {
-        unsigned long test = *(unsigned long *)src ^ cccc;
+        end = (const uint8_t *)(((uintptr_t)mem + size) & ~LONG_ALIGN_MASK);
+        while (src < end)
+        {
+            unsigned long test = *(unsigned long *)src ^ cccc;
 
 #if __SIZEOF_LONG__ == 8
 #  define ONES  0x0101010101010101UL
@@ -55,37 +53,41 @@ const void *_memchr (const void *data, char c, unsigned len)
 #  error "WTF?!"
 #endif
 
-        // ~x & (x - 1) will have 7th bit set only for x == 0
-        test = ~test & (test - ONES);
-        // now test contains 1 in 7th bit of every byte that is zero
-        if (test & TOPS)
-        {
+            // ~x & (x - 1) will have 7th bit set only for x == 0
+            // This is not quite SMD since we have carry between components,
+            // but this will influence only higher bytes, e.g.:
+            // ~0x0100 & (0x0100 - 0x0101) = 0xfeff due to carry flag
+            // but we don't care as we'll detect the lower ff first.
+            test = ~test & (test - ONES);
+            // now test contains 1 in 7th bit of every byte that is zero
+            if (test & TOPS)
+            {
 #if __SIZEOF_LONG__ == 8
-            if (!(test & 0x80808080))
-                src += 4, test >>= 32;
+                if (!(test & 0x80808080))
+                    src += 4, test >>= 32;
 #endif
-            if (!(test & 0x8080))
-                src += 2, test >>= 16;
-            if (!(test & 0x80))
-                src += 1/*, test >>= 8*/;
+                if (!(test & 0x8080))
+                    src += 2, test >>= 16;
+                if (!(test & 0x80))
+                    src += 1/*, test >>= 8*/;
 
-            return src;
+                return (void *)src;
+            }
+
+            src += __SIZEOF_LONG__;
         }
-
-        src += __SIZEOF_LONG__;
-        len -= __SIZEOF_LONG__;
     }
 
 #endif
 
     /* Check byte by byte */
-    while (len != 0)
+    end = (const uint8_t *)mem + size;
+    while (src < end)
     {
-        if (*src == c)
-            return src;
+        if (*src == val)
+            return (void *)src;
 
         src++;
-        len--;
     }
 
     return NULL;

@@ -9,7 +9,7 @@
 #ifndef _CLIKE_H
 #define _CLIKE_H
 
-#include <useful/useful.h>
+#include "useful.h"
 
 /**
  * @file clike.h
@@ -24,30 +24,28 @@
  * There are a few macros that influence this behavior:
  *
  * * CLIKE_ORIG - declare only original function names (e.g. underscored).
- *      Use this if macros interfere with something else you're using
+ *      Use this if macros interfers with something else you're using
  *      (perhaps a real libc or whatever).
- * * USING_LIBC (implies CLIKE_ORIG) - include the standard libc header
+ * * USE_LIBC (implies CLIKE_ORIG) - include the standard libc header
  *      files implementing functions declared here. This way, you can use
  *      libc when compiling for a "real" OS, and use these simplified
- *      implementations when compiling for embedded systems.
+ *      implementations when compiling for embedded systems by just
+ *      including "useful/clike.h".
  */
 
-#if USING_LIBC
-#   if !CLIKE_ORIG
-#       define CLIKE_ORIG 1
-#   endif
-#   define _GNU_SOURCE
+#ifdef USE_LIBC
+#   define CLIKE_ORIG
 #endif
 
 // -------------------------------------------------------------------------- //
 
-#if USING_LIBC
+#ifdef USE_LIBC
 #   include <stdio.h>
 #endif
 
 #include "printf.h"
 
-#if !CLIKE_ORIG
+#ifndef CLIKE_ORIG
 #  define printf    _printf
 #  define snprintf  _snprintf
 #  define putchar   _putchar
@@ -57,7 +55,7 @@
 
 // -------------------------------------------------------------------------- //
 
-#if USING_LIBC
+#ifdef USE_LIBC
 #   include <stdlib.h>
 #endif
 
@@ -77,14 +75,16 @@ extern void _srand (unsigned seed);
  */
 extern unsigned _rand ();
 
-#if !CLIKE_ORIG
+#ifndef CLIKE_ORIG
 #  define srand         _srand
 #  define rand          _rand
 #endif
 
 // -------------------------------------------------------------------------- //
 
-#if USING_LIBC
+#ifdef USE_LIBC
+// Don't forget to define _GNU_SOURCE on compiler command line
+// if you need memrchr()! This is not a standard function.
 #   include <string.h>
 #endif
 
@@ -157,7 +157,7 @@ extern void *_memchr (const void *mem, uint8_t val, size_t size);
  */
 extern void *_memrchr (const void *mem, uint8_t val, size_t size);
 
-#if !CLIKE_ORIG
+#ifndef CLIKE_ORIG
 #  define strlen(s)     (__builtin_constant_p (*s) ? __builtin_strlen (s) : _strlen (s))
 #  define memset        _memset
 #  define memcpy        _memcpy
@@ -168,7 +168,7 @@ extern void *_memrchr (const void *mem, uint8_t val, size_t size);
 
 // -------------------------------------------------------------------------- //
 
-#if USING_LIBC
+#ifdef USE_LIBC
 #   include <assert.h>
 #endif
 
@@ -182,7 +182,7 @@ extern void *_memrchr (const void *mem, uint8_t val, size_t size);
  */
 extern void _assert_abort (const char *msg) __attribute__((noreturn));
 
-#if !CLIKE_ORIG
+#ifndef CLIKE_ORIG
 #   define assert(c)    _assert(c)
 #endif
 

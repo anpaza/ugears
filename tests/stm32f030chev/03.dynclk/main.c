@@ -3,7 +3,7 @@
  */
 
 #include <ugears/ugears.h>
-#include <useful/printf.h>
+#include <useful/clike.h>
 
 uint32_t clk_errors;
 

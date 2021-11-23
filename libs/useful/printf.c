@@ -6,10 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <stdint.h>
-#include <useful/useful.h>
-#include <useful/usefun.h>
-#include <useful/printf.h>
+#include "useful/clike.h"
+#include "useful/printf.h"
 
 printf_backend_t *printf_stdout;
 
@@ -146,6 +144,9 @@ static void format_out (printf_backend_t *backend,
 
 void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
 {
+    if (!backend)
+        return;
+
     // buffer for numeric conversions, sign + max digits for base 10
     char buff [1 + ((__SIZEOF_INT_T__ == 2) ? 5 :
                     (__SIZEOF_INT_T__ == 4) ? 10 : 20)];

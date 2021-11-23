@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 
 #define _8MHZ			        8000000
 #define _24MHZ			        24000000

@@ -12,7 +12,7 @@
 #include <usb/usb.h>
 #include <usb/usb-cdc.h>
 #include <usb/usb-cdc-acm.h>
-#include <useful/usefun.h>
+#include <useful/clike.h>
 #include <useful/atomic.h>
 
 /* Number of endpoints */

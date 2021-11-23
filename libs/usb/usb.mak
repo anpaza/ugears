@@ -3,7 +3,7 @@
 DESCRIPTION.usb = USB library
 TARGETS.usb = usb$L
 
-LIBS.usb$L += cmsis$L useful$L ugears$L
+LIBS.usb$L := cmsis$L useful$L ugears$L
 
 include $(wildcard libs/usb/*/*.mak)
 

@@ -8,7 +8,7 @@ SRC.useful$L := $(wildcard libs/useful/*.c)
 
 # Choose from alternative implementations the one that fits best current target
 useful.ALTDIR = c $(ARCH)
-useful.ALTFUN = semihosting memcpy memcmp memset memchr strlen
+useful.ALTFUN = semihosting memcpy memcmp memset memchr memrchr strlen assert_abort
 
 ifeq ($(MCU.BRAND),stm32)
 useful.ALTDIR += thumb

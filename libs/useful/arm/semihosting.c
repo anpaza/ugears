@@ -14,10 +14,8 @@
     semihosting without the JTAG debugger connected.
 */
 
-#include <stddef.h>
 #include "useful/useful.h"
 #include "useful/printf.h"
-#undef putc
 
 #define SYS_OPEN		0x01
 #define SYS_CLOSE		0x02

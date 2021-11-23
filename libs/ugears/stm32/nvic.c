@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <ugears/ugears.h>
+#include "ugears/ugears.h"
 
 void nvic_setup (int irq, uint8_t priority)
 {

@@ -6,7 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/usefun.h"
+#include "useful/clike.h"
 
 /*
  * Xorshift RNG by George Marsaglia.

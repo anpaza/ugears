@@ -3,7 +3,7 @@
  */
 
 #include <ugears/ugears.h>
-#include <useful/printf.h>
+#include <useful/clike.h>
 
 static const uint32_t first_gpio_config [] =
 {

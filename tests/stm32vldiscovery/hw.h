@@ -7,7 +7,7 @@
 #define _HW_H
 
 #include <ugears/ugears.h>
-#include <useful/printf.h>
+#include <useful/clike.h>
 
 extern void serial_init ();
 

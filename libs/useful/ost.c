@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/ost.h>
+#include "useful/ost.h"
 
 void ost32_arm (volatile ost32_t *timer, clock_t clocks)
 {

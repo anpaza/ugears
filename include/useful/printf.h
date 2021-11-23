@@ -40,10 +40,6 @@
  * or can be left undefined to use standard settings (all enabled by default),
  * can be used to enable or disable specific functionality:
  *
- * USING_LIBC - define this to avoid definition of non-underscored macros
- *      for printf and other standard C functions. Define this to avoid
- *      conflicts with libc stdio.h, if you use it. You still can access
- *      this variant of printf by using respective underscored identifiers.
  * PRINTF_LONG_SUPPORT - enable support for the 'l' modifiers.
  *      'l' interprets next arg as (unsigned) long.
  * PRINTF_SHORT_SUPPORT - enable support for the 'h' and 'hh' modifiers.

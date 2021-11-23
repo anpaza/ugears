@@ -6,9 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/clike.h"
 
-#define LONG_MASK (__SIZEOF_LONG__ - 1)
+#define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
 int _memcmp (const void *s1, const void *s2, size_t n)
 {
@@ -23,7 +23,7 @@ int _memcmp (const void *s1, const void *s2, size_t n)
         if (n == 0)
             return 0;
 
-        if ((((uintptr_t)a) & LONG_MASK) == 0)
+        if ((((uintptr_t)a) & LONG_ALIGN_MASK) == 0)
             break;
 
         res = (int)*a - (int)*b;
@@ -37,7 +37,7 @@ int _memcmp (const void *s1, const void *s2, size_t n)
     // now a is guaranteed to be aligned, n is guaranteed to be >0
 
     // if b is aligned too, compare by words
-    if ((((uintptr_t)b) & LONG_MASK) == 0)
+    if ((((uintptr_t)b) & LONG_ALIGN_MASK) == 0)
         while (n >= __SIZEOF_LONG__)
         {
             if (*(const long *)a != *(const long *)b)

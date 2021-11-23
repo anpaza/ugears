@@ -6,9 +6,9 @@
     you may not use this file except in compliance with the License.
 */
 
-#include <useful/usefun.h>
+#include "useful/clike.h"
 
-#define LONG_MASK (__SIZEOF_LONG__ - 1)
+#define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
 size_t _strlen (const char *str)
 {
@@ -24,7 +24,7 @@ size_t _strlen (const char *str)
 #else
 
     /* Optimize by speed */
-    while ((((uintptr_t)str) & LONG_MASK))
+    while ((((uintptr_t)str) & LONG_ALIGN_MASK))
     {
         if (!*str)
             return str - orig;

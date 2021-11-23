@@ -3,8 +3,7 @@
 DESCRIPTION.cmsis = CMSIS library
 TARGETS.cmsis = cmsis$L
 
-
-SRC.cmsis$L =
+SRC.cmsis$L :=
 CFLAGS.cmsis$L += -Iinclude/cmsis
 
 ifeq ($(MCU.BRAND),stm32)
