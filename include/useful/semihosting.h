@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __SEMIHOSTING_H__
-#define __SEMIHOSTING_H__
+#ifndef _SEMIHOSTING_H
+#define _SEMIHOSTING_H
 
 /*
     Some simple functions using semi-hosting interface.
@@ -39,4 +39,4 @@ EXTERN_C void sh_putc (char c);
  */
 EXTERN_C char sh_getc ();
 
-#endif // __SEMIHOSTING_H__
+#endif // _SEMIHOSTING_H

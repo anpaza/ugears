@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __USEFUL_H__
-#define __USEFUL_H__
+#ifndef _USEFUL_H
+#define _USEFUL_H
 
 /**
  * @file useful.h
@@ -41,7 +41,8 @@
 #define PACKED			__attribute__ ((packed))
 
 /// Use for inline functions in header files
-#define INLINE_ALWAYS           inline __attribute__((always_inline))
+#define INLINE_ALWAYS           static inline __attribute__((always_inline))
+#pragma GCC diagnostic ignored "-Wunused-function"
 
 /// Get the offset of member m in compound type t
 #define OFFSETOF(t, m)		__builtin_offsetof (t, m)
@@ -179,4 +180,4 @@ typedef union
 #  define UINT16_BE(x)			(x)
 #endif
 
-#endif // __USEFUL_H__
+#endif // _USEFUL_H

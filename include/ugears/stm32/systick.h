@@ -176,8 +176,39 @@ void _delay_few_const_clocks (uint32_t clocks)
  * Delay execution for given amount of time in seconds.
  * You can use exponential notation to conveniently declare
  * time delays in microseconds, e.g. 4.7E-6 for 4.7us.
+ *
+ * NEVER EVER USE VARIABLES AS ARGUMENTS. CONSTANTS ONLY.
  */
 #define delay(secs) \
     delay_clocks (sysclk_t2c (secs))
+
+/**
+ * This macro will create a for() loop that will timeout after specified
+ * number of seconds (given as floating-point constant). This is useful
+ * for wait-while-hardware-busy loops and such.
+ *
+ * Example usage:
+ * @code
+ * SYSTICK_TIMEOUT_LOOP (10E-6)
+ * {
+ *     if ((StatusRegister & BUSY) == 0)
+ *         break;
+ * }
+ *
+ * if ((StatusRegister & BUSY) != 0)
+ *     return ERROR;
+ * @endcode
+ */
+#define SYSTICK_TIMEOUT_LOOP(t) \
+    for (int32_t __t = sysclk_t2c (t), __c = systick_counter (); \
+         __t > 0; \
+         ({ \
+            int32_t __nc = systick_counter (); \
+            int32_t __d = __c - __nc; \
+            if (__d < 0) { __d += systick_reload (); } \
+            __t -= __d; \
+            __c = __nc; \
+         }) \
+        )
 
 #endif // _STM32_SYSTICK_H

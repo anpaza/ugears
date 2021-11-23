@@ -32,18 +32,15 @@
 
 /**
  * Start the timer counting.
- * @arg tim
- *      The timer to start
+ * @arg tim The timer to start
  */
 INLINE_ALWAYS void tim_start (TIM_TypeDef *tim)
 { tim->CR1 |= TIM_CR1_CEN; }
 
 /**
  * Set timer prescaler
- * @arg tim
- *      The timer to modify
- * @arg prescaler
- *      The prescaler to divide timer source clock with. The actual prescaler
+ * @arg tim The timer to modify
+ * @arg prescaler The prescaler to divide timer source clock with. The actual prescaler
  *      will be (prescaler+1).
  */
 INLINE_ALWAYS void tim_prescaler (TIM_TypeDef *tim, uint16_t prescaler)
@@ -51,24 +48,32 @@ INLINE_ALWAYS void tim_prescaler (TIM_TypeDef *tim, uint16_t prescaler)
 
 /**
  * Set timer period
- * @arg tim
- *      The timer to modify
- * @arg period
- *      Timer period. The actual period will be (period+1).
+ * @arg tim The timer to modify
+ * @arg period Timer period. The actual period will be (period+1).
  */
 INLINE_ALWAYS void tim_period (TIM_TypeDef *tim, uint16_t period)
 { tim->ARR = period; }
 
 /**
- * Настроить режим однократного срабатывания таймера.
- * @arg tim
- *      Таймер, который нужно настроить
+ * Set up the timer for one shot. At end of countdown IRQ is triggered.
+ * @arg tim The timer to set up
  */
-INLINE_ALWAYS void tim_oneshot (TIM_TypeDef *tim)
+INLINE_ALWAYS void tim_irq_oneshot (TIM_TypeDef *tim)
 {
-    tim->CR1 = TIM_CR1_OPM;             // режим однократного срабатывания
-    tim->SR = 0;                        // сбрасываем флаги прерываний
-    tim->DIER = TIM_DIER_UIE;           // включаем прерывание при обновлении счётчика
+    tim->CR1 |= TIM_CR1_OPM;
+    tim->SR = 0;
+    tim->DIER |= TIM_DIER_UIE;
+}
+
+/**
+ * Set up the timer for repeated IRQ triggering.
+ * @arg tim The timer to set up
+ */
+INLINE_ALWAYS void tim_irq_repeated (TIM_TypeDef *tim)
+{
+    tim->CR1 = (tim->CR1 & ~TIM_CR1_OPM) | TIM_CR1_ARPE;
+    tim->SR = 0;
+    tim->DIER |= TIM_DIER_UIE;
 }
 
 #endif // _STM32_TIM_H

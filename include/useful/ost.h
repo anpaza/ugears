@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __OST_H__
-#define __OST_H__
+#ifndef _OST_H
+#define _OST_H
 
 /**
  * @file ost.h
@@ -84,4 +84,4 @@ EXTERN_C bool ost16_expired (volatile ost16_t *timer);
 /// Check if a simple timeout timer expired
 #define stt_expired(t)          ((int32_t)(t - clock) < 0)
 
-#endif // __RTC_H__
+#endif // _OST_H

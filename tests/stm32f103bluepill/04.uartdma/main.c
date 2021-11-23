@@ -88,8 +88,8 @@ int main (void)
     printf ("DMA demo started\r\n");
 
     // Set up and enable interrupts
-    nvic_setup (DMA_IRQ (SERIAL_TX), DMA_IRQ_PRIO (SERIAL_TX));
-    nvic_setup (DMA_IRQ (SERIAL_RX), DMA_IRQ_PRIO (SERIAL_RX));
+    nvic_setup (DMA_IRQ_NUM (SERIAL_TX), DMA_IRQ_PRIO (SERIAL_TX));
+    nvic_setup (DMA_IRQ_NUM (SERIAL_RX), DMA_IRQ_PRIO (SERIAL_RX));
     __enable_irq ();
 
     for (;;)

@@ -6,8 +6,8 @@
     you may not use this file except in compliance with the License.
 */
 
-#ifndef __USEFUN_H__
-#define __USEFUN_H__
+#ifndef _USEFUN_H
+#define _USEFUN_H
 
 #include <useful/useful.h>
 
@@ -143,4 +143,4 @@ extern uint32_t uget32be (const void *data);
 #define uget32		uget32be
 #endif
 
-#endif // __USEFUN_H__
+#endif // _USEFUN_H

@@ -23,6 +23,7 @@
  *      hardware feature HWFN (1, 2, ...).
  * @li HWFN_USART_IRQ_PRIO - defines the IRQ priority for USART IRQ used
  *      for hardware feature HWFN (0..255).
+ *      Used by USART_IRQ_PRIO(HWFN) macro.
  */
 
 // F0 and F3 series uses a little different USART from F1, F2, F4
@@ -54,7 +55,7 @@
 /// Check if the USART of a hw feature has a specific number (p = 1, 2 etc)
 #define USART_CMP(x,p)		(JOIN2 (__CMP_USART, USART_NUM (x)) == JOIN2 (__CMP_USART, p))
 /// Return the IRQ number corresponding to USART
-#define USART_IRQ(x)		JOIN3 (USART, USART_NUM (x), _IRQn)
+#define USART_IRQ_NUM(x)	JOIN3 (USART, USART_NUM (x), _IRQn)
 /// Get the IRQ priority corresponding to a specific USART hardware feature
 #define USART_IRQ_PRIO(x)	JOIN2 (x, _USART_IRQ_PRIO)
 /// Compose the USART IRQ handler name

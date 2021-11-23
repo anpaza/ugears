@@ -209,9 +209,14 @@ typedef uint32_t gpio_config_t;
 /// Output medium-speed (10MHz) mode
 #define _GPIO_SPEED_MEDIUM	0x00000020
 #define _GPIO_SPEED_10MHz	0x00000020
-/// Output high-speed (50MHz) mode
+#if defined STM32F4 || defined STM32F2
+/// Output fast-speed (50MHz) mode, not available on F0,F3
+#define _GPIO_SPEED_FAST	0x00000040
+#define _GPIO_SPEED_50MHz	0x00000040
+#endif
+/// Output high-speed (100MHz) mode
 #define _GPIO_SPEED_HIGH	0x00000060
-#define _GPIO_SPEED_50MHz	0x00000060
+#define _GPIO_SPEED_100MHz	0x00000060
 /// The mask for output speed bits
 #define _GPIO_SPEED_MASK	0x00000060
 /// Amount to shift speed bits to right to get the value for OSPEEDR

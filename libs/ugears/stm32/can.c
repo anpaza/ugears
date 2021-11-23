@@ -12,7 +12,7 @@
 
 #define INAK_TIMEOUT		0x0000ffff
 
-bool can_init (CAN_TypeDef *can, uint32_t mode)
+bool can_init (CAN_TypeDef *can, uint32_t mode, uint32_t bus_freq)
 {
     uint32_t timeout;
 
@@ -37,29 +37,34 @@ bool can_init (CAN_TypeDef *can, uint32_t mode)
     uint32_t mcr = can->MCR & ~(CAN_MCR_TTCM | CAN_MCR_ABOM | CAN_MCR_AWUM |
         CAN_MCR_NART | CAN_MCR_RFLM | CAN_MCR_TXFP);
 
-    if (mode & CAN_TIMESTAMPS)
+    if (mode & CAN_MODE_TIMESTAMPS)
         mcr |= CAN_MCR_TTCM;
 
-    if (mode & CAN_BUSOFF_RECOVERY)
+    if (mode & CAN_MODE_BUSOFF_RECOV)
         mcr |= CAN_MCR_ABOM;
 
-    if (mode & CAN_WAKEUP_ON_RECEIVE)
+    if (mode & CAN_MODE_WAKEUP_ON_RECV)
         mcr |= CAN_MCR_AWUM;
 
-    if (mode & CAN_NO_RETRANSMIT)
+    if (mode & CAN_MODE_NO_RETRANSMIT)
         mcr |= CAN_MCR_NART;
 
-    if (mode & CAN_RXFIFO_LOCKED)
+    if (mode & CAN_MODE_RXFIFO_LOCKED)
         mcr |= CAN_MCR_RFLM;
 
-    if (mode & CAN_TX_SEQUENTIALLY)
+    if (mode & CAN_MODE_TX_SEQ)
         mcr |= CAN_MCR_TXFP;
+
+#ifdef __DEBUG__
+    // Makes debugging easier
+    mcr |= CAN_MCR_DBF;
+#endif
 
     can->MCR = mcr;
 
-    uint32_t speed = CAN_BITRATE (mode);
+    uint32_t speed = (mode & CAN_MODE_BITRATE_MASK) >> CAN_MODE_BITRATE_SHIFT;
 
-    // Вычислим самый точный tq (в тактах APB1), исходя из
+    // Вычислим самый точный tq (в тактах шины), исходя из
     // желаемой длины Nominal Bit Time примерно в (8..20)*tq
     int tq_delta = INT32_MAX;
     uint32_t bs1 = 0;
@@ -67,8 +72,8 @@ bool can_init (CAN_TypeDef *can, uint32_t mode)
     for (uint32_t nbt_tq = 8; nbt_tq < 21; nbt_tq++)
     {
         uint32_t nbt_tq_speed = nbt_tq * speed;
-        uint32_t tq = (PCLK1_FREQ + nbt_tq_speed / 2) / nbt_tq_speed;
-        int delta = ABS ((int)(PCLK1_FREQ - tq * nbt_tq * speed));
+        uint32_t tq = (bus_freq + nbt_tq_speed / 2) / nbt_tq_speed;
+        int delta = ABS ((int)(bus_freq - tq * nbt_tq * speed));
         if (delta < tq_delta)
         {
             bs1 = nbt_tq;

@@ -23,35 +23,41 @@
     up to the point when we find that previous block header is damaged.
 */
 
-// flash support for stm32f2 and stm32f4 not implemented yet
-#if !defined FLASH_TYPE_2
-
 // the header of a flash const block as it is stored in flash mem
 typedef struct
 {
     // const block marker
     uint16_t marker;
 #define MARKER 0xB10B
-    // offset to prev block or 0xffff if this is first block in chain
-    uint16_t prev;
     // const block checksum, size+6 bytes starting from next field
     uint16_t csum;
+
+    // ... following fields are protected by csum ...
+#define CSUM_HEADER_SIZE    (sizeof (flash_block_header_t) - OFFSETOF (flash_block_header_t, seqno))
+
     // sequential block number
     uint16_t seqno;
     // block id
     uint16_t id;
+    // offset to prev block or FLASH_OFF_MAX if this is first block in chain
+    flash_off_t prev;
     // block size
-    uint16_t size;
+    flash_off_t size;
     // const block data follows the header
     uint8_t data [0];
 } flash_block_header_t;
 
-// the last used address in flash memory
-extern const void __fini_array_end;
+// start of const data initializers in flash memory
+extern const void _sidata;
+// start of initialized data in RAM
+extern const void _sdata;
+// end of initialized data in RAM
+extern const void _edata;
+
 // the address of the start of flash storage area
-static uint32_t storage_start = (uint32_t)&__fini_array_end;
-// the address of the end of flash storage area
-static uint32_t storage_end = STM32_FLASH_ORIGIN + STM32_FLASH_SIZE;
+static uintptr_t storage_start = 0;
+// next address after last used flash page
+static uintptr_t storage_end;
 
 typedef struct
 {
@@ -61,40 +67,64 @@ typedef struct
     uint16_t seqno;
 } flash_storage_state_t;
 
-static flash_storage_state_t fss;
+static flash_storage_state_t g_fss;
 
-// align data size to nearest even value
-#define aligned_size(x)		(((x) + 1) & ~1)
+// align data size up to nearest even value
+#define align_size_up2(x)	(((x) + 1) & ~1)
 
-void flash_storage (const void *start, uint16_t size)
+bool flash_storage (uintptr_t start, unsigned size)
 {
-    storage_start = (uint32_t)start;
-    storage_end = storage_start + 1 + size;
+    storage_start = start;
+    storage_end = storage_start + size;
+
+    uintptr_t code_end = (uintptr_t)&_sidata + (uintptr_t)&_edata - (uintptr_t)&_sdata;
+    if ((storage_start < code_end) && (storage_end >= code_end))
+        storage_start = code_end;
+
+    // align flash storage end down to nearest flash page boundary
+    uintptr_t ps = flash_page_size (storage_end - 1);
+    storage_end = ((storage_end - ps) & ~(ps - 1)) + ps;
+
+    // align flash storage start up to nearest flash page boundary
+    ps = flash_page_size (storage_start);
+    storage_start = (storage_start + ps - 1) & ~(ps - 1);
+
+    // need at least two flash memory pages to function properly
+    if (storage_start + flash_page_size (storage_start) >= storage_end)
+        return false;
+
+    return true;
 }
 
-static void flash_init_prepare ()
+static bool flash_init_prepare ()
 {
-    // round storage start up to nearest page boundary
-    unsigned fps = flash_page_size (storage_start);
-    storage_start = (storage_start + (fps - 1)) & ~(fps - 1);
-    // round storage end down to nearest page boundary plus page size
-    storage_end = ((storage_end - fps) & ~(fps - 1)) + fps;
-    // limit storage size to 64k
-    if (storage_end - storage_start > 0x10000)
-        storage_end = storage_end - 0x10000;
+    if (storage_start == 0)
+    {
+        // if user did not set flash storage area, use all free flash memory pages
+        if (!flash_storage (STM32_FLASH_ORIGIN, STM32_FLASH_SIZE))
+            return false;
+    }
 
-    memclr (&fss, sizeof (fss));
+    // need at least two flash memory pages to function properly
+    if (storage_start + flash_page_size (storage_start) >= storage_end)
+        return false;
+
+    memclr (&g_fss, sizeof (g_fss));
+    return true;
 }
 
 bool flash_format ()
 {
-    flash_init_prepare ();
+    if (!flash_init_prepare ())
+        return false;
 
     // erase the marker of the first header,
     // to prevent flash_init() from finding anything
-    flash_write16 ((void *)storage_start, 0);
+    flash_begin (FLASH_CR_PSIZE_x16);
+    bool rc = flash_write16 ((void *)storage_start, 0);
+    flash_end ();
 
-    return true;
+    return rc;
 }
 
 static bool check_header (flash_block_header_t *fbh)
@@ -102,19 +132,20 @@ static bool check_header (flash_block_header_t *fbh)
     if (fbh->marker != MARKER)
         return false;
 
-    if (fbh->size > storage_end - (uint32_t)(fbh + 1))
+    if (fbh->size > storage_end - (uintptr_t)(fbh + 1))
         return false;
 
-    if ((fbh->prev != 0xffff) &&
+    if ((fbh->prev != FLASH_OFF_MAX) &&
         (fbh->prev >= storage_end - storage_start))
         return false;
 
     return true;
 }
 
-void flash_init ()
+bool flash_init (bool format)
 {
-    flash_init_prepare ();
+    if (!flash_init_prepare ())
+        return false;
 
     // scan all const blocks in storage area, and find the one with the head & tail
     flash_block_header_t *fbh = (flash_block_header_t *)storage_start;
@@ -123,8 +154,8 @@ void flash_init ()
         // scan forward till we find the last written block
         for (;;)
         {
-            flash_block_header_t *next = (flash_block_header_t *)((uint32_t)(fbh + 1) +
-                aligned_size (fbh->size));
+            flash_block_header_t *next = (flash_block_header_t *)((uintptr_t)(fbh + 1) +
+                align_size_up2 (fbh->size));
             if (!check_header (next))
                 break;
             if (next->seqno != ((fbh->seqno + 1) & 0xffff))
@@ -133,73 +164,91 @@ void flash_init ()
             fbh = next;
         }
 
-        fss.last = fbh;
-        fss.seqno = fbh->seqno;
+        g_fss.last = fbh;
+        g_fss.seqno = fbh->seqno;
     }
+    // if asked to format if not formatted, do it
+    else if (format && (fbh->marker != 0))
+        return flash_format ();
+
+    return true;
 }
 
-bool flash_save (uint16_t id, const void *data, uint16_t size)
+bool flash_save (uint16_t id, const void *data, flash_off_t size)
 {
     flash_block_header_t *fbh;
+    uintptr_t end;
 
-    if (!fss.last)
+    if (!g_fss.last)
         goto fromstart;
 
-    fbh = (flash_block_header_t *)((uint32_t)(fss.last + 1) + aligned_size (fss.last->size));
+    fbh = (flash_block_header_t *)((uintptr_t)(g_fss.last + 1) + align_size_up2 (g_fss.last->size));
+    end = (uintptr_t)fbh + sizeof (flash_block_header_t) + size;
 
-    uint32_t end = (uint32_t)fbh + sizeof (flash_block_header_t) + size;
     if (end > storage_end)
     {
 fromstart:
-        end = storage_start + sizeof (flash_block_header_t) + size;
         fbh = (flash_block_header_t *)storage_start;
+        end = storage_start + sizeof (flash_block_header_t) + size;
     }
 
+    // We're making sure all writes are aligned by 2
+    flash_begin (FLASH_CR_PSIZE_x16);
+
     // Check how many pages we're going to erase
-    uint32_t addr = (uint32_t)fbh;
+    uintptr_t addr = (uintptr_t)fbh;
     while (addr < end)
     {
-        if ((addr & (flash_page_size (addr) - 1)) == 0)
+        uint32_t fps = flash_page_size (addr);
+
+        if ((addr & (fps - 1)) == 0)
         {
             // erase the page
             if (!flash_erase ((void *)addr))
+            {
+                flash_end ();
                 // flash is weared out?
                 return false;
+            }
         }
 
         // move to next page
-        addr = (addr & ~(flash_page_size (addr) - 1)) + flash_page_size (addr);
+        addr = (addr & ~(fps - 1)) + fps;
     }
 
     // now, fill the header
     static flash_block_header_t newfbh;
     newfbh.marker = MARKER;
-    newfbh.prev = fss.last ? (uint32_t)fss.last - storage_start : 0xffff;
-    newfbh.seqno = ++fss.seqno;
+    newfbh.prev = g_fss.last ? (uintptr_t)g_fss.last - storage_start : FLASH_OFF_MAX;
+    newfbh.seqno = ++g_fss.seqno;
     newfbh.id = id;
     newfbh.size = size;
     newfbh.csum = 
         ip_crc_fin (ip_crc_block (ip_crc_block (0,
-            &newfbh.seqno, sizeof (uint16_t) * 3),
+            &newfbh.seqno, CSUM_HEADER_SIZE),
             data, size));
 
-    if (!flash_write (fbh, &newfbh, sizeof (newfbh)) ||
-        !flash_write (fbh + 1, data, aligned_size (size)))
-        return false;
+    bool rc = false;
+    if (flash_write (fbh, &newfbh, sizeof (newfbh)) &&
+        flash_write (fbh + 1, data, align_size_up2 (size)))
+    {
+        g_fss.last = fbh;
+        rc = true;
+    }
 
-    fss.last = fbh;
+    flash_end ();
 
-    return true;
+    return rc;
 }
 
-const void *flash_get (uint16_t id, uint16_t *size)
+const void *flash_get (uint16_t id, flash_off_t *size)
 {
-    flash_block_header_t *fbh = fss.last;
+    flash_block_header_t *fbh = g_fss.last;
     while (fbh)
     {
         if (fbh->id == id)
         {
-            if (fbh->csum == ip_crc (&fbh->seqno, fbh->size + sizeof (uint16_t) * 3))
+            if (fbh->csum == ip_crc (&fbh->seqno, CSUM_HEADER_SIZE + fbh->size))
             {
                 *size = fbh->size;
                 return fbh->data;
@@ -207,7 +256,7 @@ const void *flash_get (uint16_t id, uint16_t *size)
         }
 
         // move backwards in chain till we find a valid block with requested id
-        if (fbh->prev == 0xffff)
+        if (fbh->prev == FLASH_OFF_MAX)
             break;
         flash_block_header_t *prev = (flash_block_header_t *)(storage_start + fbh->prev);
         if (!check_header (prev))
@@ -221,16 +270,16 @@ const void *flash_get (uint16_t id, uint16_t *size)
     return 0;
 }
 
-const void *flash_enum (uint32_t idx, uint16_t *id, uint16_t *size)
+const void *flash_enum (uint32_t idx, uint16_t *id, flash_off_t *size)
 {
-    flash_block_header_t *fbh = fss.last;
+    flash_block_header_t *fbh = g_fss.last;
     if (!fbh)
         return 0;
 
     while (idx)
     {
         // move backwards in chain
-        if (fbh->prev == 0xffff)
+        if (fbh->prev == FLASH_OFF_MAX)
             return 0;
         flash_block_header_t *prev = (flash_block_header_t *)(storage_start + fbh->prev);
         if (!check_header (prev))
@@ -249,5 +298,3 @@ const void *flash_enum (uint32_t idx, uint16_t *id, uint16_t *size)
     *size = fbh->size;
     return fbh->data;
 }
-
-#endif // FLASH_TYPE_2

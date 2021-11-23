@@ -22,7 +22,7 @@ void gpio_setup (gpio_config_t conf)
     if (conf & _GPIO_INIT_1)
         gpio->BSRR = 1 << b;
     else
-        gpio->BSRR = 16 << b;
+        gpio->BSRR = (1 << 16) << b;
 #else
     if (conf & _GPIO_INIT_1)
         gpio->BSRR = 1 << b;
@@ -57,12 +57,9 @@ void gpio_setup (gpio_config_t conf)
     gpio->OSPEEDR = (gpio->OSPEEDR & m) | n;
 
     n = conf & _GPIO_AF_MASK;
-    if (n != _GPIO_AF_X)
-    {
-        n = (n >> _GPIO_AF_SHIFT) << ((b & 7) * 4);
-        m = ~((_GPIO_AF_MASK >> _GPIO_AF_SHIFT) << ((b & 7) * 4));
-        gpio->AFR [b >> 3] = (gpio->AFR [b >> 3] & m) | n;
-    }
+    n = (n >> _GPIO_AF_SHIFT) << ((b & 7) * 4);
+    m = ~((_GPIO_AF_MASK >> _GPIO_AF_SHIFT) << ((b & 7) * 4));
+    gpio->AFR [b >> 3] = (gpio->AFR [b >> 3] & m) | n;
 #endif
 }
 
@@ -97,8 +94,9 @@ gpio_config_t gpio_get_setup (gpio_config_t pp)
         pp |= _GPIO_OTYPE_MASK;
     pp |= ((gpio->PUPDR >> (b * 2)) << _GPIO_PUD_SHIFT) & _GPIO_PUD_MASK;
     pp |= ((gpio->OSPEEDR >> (b * 2)) << _GPIO_SPEED_SHIFT) & _GPIO_SPEED_MASK;
-    if (pp & _GPIO_MODE_AF)
-        pp |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << _GPIO_AF_SHIFT) & _GPIO_AF_MASK;
+    pp |= ((gpio->AFR [b >> 3] >> ((b & 7) * 4)) << _GPIO_AF_SHIFT) & _GPIO_AF_MASK;
+    if (gpio->ODR & (1 << b))
+        pp |= _GPIO_INIT_1;
 #endif
 
     return pp;

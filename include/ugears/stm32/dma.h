@@ -91,7 +91,7 @@
 #if defined DMA_TYPE_1
 
 /// Return the IRQ number corresponding to this DMA stream
-#define DMA_IRQ(x)		JOIN5 (DMA, DMA_NUM(x), _Channel, DMA_STRM (x), _IRQn)
+#define DMA_IRQ_NUM(x)		JOIN5 (DMA, DMA_NUM(x), _Channel, DMA_STRM (x), _IRQn)
 /// Return the IRQ handler name corresponding to this DMA channel
 #define DMA_IRQ_HANDLER(x)	JOIN5 (DMA, DMA_NUM(x), _Channel, DMA_STRM (x), _IRQHandler)
 
@@ -106,7 +106,7 @@
 /// Get the DMA channel number (0-7) given hardware feature name
 #define DMA_CHAN(x)		JOIN2 (x, _DMA_CHAN)
 /// Return the IRQ number corresponding to this DMA channel
-#define DMA_IRQ(x)		JOIN5 (DMA, DMA_NUM(x), _Stream, DMA_STRM (x), _IRQn)
+#define DMA_IRQ_NUM(x)		JOIN5 (DMA, DMA_NUM(x), _Stream, DMA_STRM (x), _IRQn)
 /// Return the IRQ handler name corresponding to this DMA channel
 #define DMA_IRQ_HANDLER(x)	JOIN5 (DMA, DMA_NUM(x), _Stream, DMA_STRM (x), _IRQHandler)
 
@@ -251,7 +251,7 @@ INLINE_ALWAYS uint32_t dma_SxCR_chsel (uint32_t n)
  *
  * @param x Hardware feature name
  */
-#define DMA_SxCR_CHSEL(x)	dma_SxCR_chsel (JOIN2 (x, _DMA_CHAN))
+#define DMA_SxCR_CHSEL(x)	dma_SxCR_chsel (DMA_CHAN (x))
 
 /**
  * Returns the address of either DMA_LISR or DMA_HISR depending on stream number

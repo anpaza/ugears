@@ -15,9 +15,8 @@
  *
  * Influenced by atomic.h from AVR-libc.
  *
- * These macros will allow you to block interrupts (PRIMASK) for some
- * sections of code, with guaranteed exit action, no matter how you
- * leave the code section.
+ * These macros will allow you to block interrupts for some sections of code,
+ * with guaranteed exit action, no matter how you leave the code section.
  *
  * Additionaly, since this is implemented internally with a 'for' loop,
  * you can use the 'break' operator as an alias to 'goto atomic block end'.
@@ -27,8 +26,8 @@
 
 /**
  * Creates a block of code that is executed atomically.
- * Upon entering the block the PRIMASK bit in PRIMASK register is set,
- * blocking any exceptions and interrupts except NMI.
+ * Upon entering the block any exceptions and interrupts are blocked
+ * except NMI.
  *
  * When leaving the block exceptions and interrupts are either restored 
  * to the state they were before entering the block (if RESTORE keyword
@@ -62,13 +61,12 @@
  *      to always enable interrupts after the block.
  */
 #define ATOMIC_BLOCK(type) \
-    for (JOIN2 (ATOMIC_, type), __pass = 1, __unused = (__disable_irq (), 0); \
-         __pass ; (void)primask_save, (void)__unused, __pass = 0)
+    for (JOIN2 (ATOMIC_, type), _pass = 1, _unused = (atomic_irq_set_state (ATOMIC_IRQ_STATE_DIS), 0); \
+         _pass ; (void)irq_state_save, (void)_unused, _pass = 0)
 
 /**
  * Creates a block of code that is executed non-atomically.
- * Upon entering the block the PRIMASK bit in PRIMASK register is cleared,
- * allowing any exceptions and interrupts.
+ * Upon entering the block any exceptions and interrupts are allowed.
  *
  * When leaving the block exceptions and interrupts are either restored 
  * to the state they were before entering the block (if RESTORE keyword
@@ -78,24 +76,21 @@
  * @param type RESTORE or FORCEOFF
  */
 #define NONATOMIC_BLOCK(type) \
-    for (JOIN2 (NONATOMIC_, type), __pass = 1, __unused = (__enable_irq (), 0); \
-         __pass ; (void)primask_save, (void)__unused, __pass = 0)
+    for (JOIN2 (NONATOMIC_, type), _pass = 1, _unused = (atomic_irq_set_state (ATOMIC_IRQ_STATE_ENA), 0); \
+         _pass ; (void)irq_state_save, (void)_unused, _pass = 0)
 
-static __inline void __set_primask (uint32_t *val)
+static inline void _atomic_irq_set_state (atomic_irq_state_t *val)
 {
-    if (*val & 1)
-        __disable_irq ();
-    else
-        __enable_irq ();
+    atomic_irq_set_state (*val);
 }
 
 #define ATOMIC_RESTORE \
-    uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = __get_PRIMASK ()
+    atomic_irq_state_t irq_state_save __attribute__((__cleanup__(_atomic_irq_set_state))) = atomic_irq_get_state ()
 #define ATOMIC_FORCEON \
-    uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = 0
+    atomic_irq_state_t irq_state_save __attribute__((__cleanup__(_atomic_irq_set_state))) = ATOMIC_IRQ_STATE_ENA
 #define NONATOMIC_RESTORE \
-    uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = __get_PRIMASK ()
+    atomic_irq_state_t irq_state_save __attribute__((__cleanup__(_atomic_irq_set_state))) = atomic_irq_get_state ()
 #define NONATOMIC_FORCEOFF \
-    uint32_t primask_save __attribute__((__cleanup__(__set_primask))) = 1
+    atomic_irq_state_t irq_state_save __attribute__((__cleanup__(_atomic_irq_set_state))) = ATOMIC_IRQ_STATE_DIS
 
 #endif // _STM32_ATOMIC_H

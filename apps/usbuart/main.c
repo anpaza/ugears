@@ -370,11 +370,11 @@ static void serial_init ()
     serial_setup ();
     // Enable IDLE interrupts
     USART (SERIAL)->CR1 |= USART_CR1_IDLEIE;
-    nvic_setup (USART_IRQ (SERIAL), USART_IRQ_PRIO (SERIAL));
+    nvic_setup (USART_IRQ_NUM (SERIAL), USART_IRQ_PRIO (SERIAL));
 
     // Set up and enable DMA interrupts
-    nvic_setup (DMA_IRQ (SERIAL_TX), DMA_IRQ_PRIO (SERIAL_TX));
-    nvic_setup (DMA_IRQ (SERIAL_RX), DMA_IRQ_PRIO (SERIAL_RX));
+    nvic_setup (DMA_IRQ_NUM (SERIAL_TX), DMA_IRQ_PRIO (SERIAL_TX));
+    nvic_setup (DMA_IRQ_NUM (SERIAL_RX), DMA_IRQ_PRIO (SERIAL_RX));
 
     // Set up DMA & USART for receiving
     serial_rx ();
@@ -384,8 +384,8 @@ static void serial_stop ()
 {
     DMA_STOP (SERIAL_TX);
     DMA_STOP (SERIAL_RX);
-    nvic_disable (DMA_IRQ (SERIAL_TX));
-    nvic_disable (DMA_IRQ (SERIAL_RX));
+    nvic_disable (DMA_IRQ_NUM (SERIAL_TX));
+    nvic_disable (DMA_IRQ_NUM (SERIAL_RX));
 
     ser_ena = false;
 }
