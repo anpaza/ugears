@@ -4,48 +4,47 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define _JOIN2(a,b)		a##b
-/// Join two tokens together and interpret the result as a new token
-#define JOIN2(a,b)		_JOIN2(a, b)
+#define _ATOMIC_IRQ_STATE
 
-// 0: interrupts enabled, 1: disabled
-unsigned primask = 0;
+// No generic cross-platform way to handle IRQ state, so no-ops
 
-static void __enable_irq ()
+/// A datatype to hold the current IRQ enabled state
+typedef uint8_t atomic_irq_state_t;
+
+/// A value meaning "IRQs are enabled"
+#define ATOMIC_IRQ_STATE_ENA 1
+/// A value meaning "IRQs are disabled"
+#define ATOMIC_IRQ_STATE_DIS 0
+
+static atomic_irq_state_t g_irq_state;
+
+/**
+ * Get current IRQ enabled state
+ * @return a value of atomic_irq_state_t type
+ */
+static inline atomic_irq_state_t atomic_irq_get_state ()
 {
-    primask = 0;
-    printf ("\t%s -> %u\n", __FUNCTION__, primask);
+    printf ("\t%s -> %u\n", __FUNCTION__, g_irq_state);
+    return g_irq_state;
 }
 
-static void __disable_irq ()
+/**
+ * Set IRQ enabled state according to passed value.
+ * @param state The new IRQ enabled state
+ */
+static inline void atomic_irq_set_state (atomic_irq_state_t state)
 {
-    primask = 1;
-    printf ("\t%s -> %u\n", __FUNCTION__, primask);
+    g_irq_state = state;
+    printf ("\t%s -> %u\n", __FUNCTION__, state);
 }
 
-static uint32_t __get_PRIMASK ()
-{
-    printf ("\t%s -> %u\n", __FUNCTION__, primask);
-    return primask;
-}
-
-static __inline void __set_primask (uint32_t *val)
-{
-    primask = *val & 1;
-    printf ("\trestoring PRIMASK to %d\n", primask);
-}
-
-// fool atomic.h
-#define HARDWARE_H <stdint.h>
-#define __set_primask __set_primask_
 #include "useful/atomic.h"
-#undef __set_primask
 
 int main ()
 {
     for (unsigned val = 0; val < 2; val++)
     {
-        printf ("--- SET PRIMASK TO %u\n", primask = val);
+        printf ("--- SET IRQ STATE TO %u\n", g_irq_state = val);
 
         printf ("--- ATOMIC_BLOCK (RESTORE)\n");
         ATOMIC_BLOCK (RESTORE)
