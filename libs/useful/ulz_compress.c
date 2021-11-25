@@ -132,7 +132,7 @@ bool ulz_compress (const void *idata, unsigned isize,
         int ref_rating = 0;
         while (low < high)
         {
-            uint8_t *ptr = (uint8_t *)_memrchr (low, *cur, high - low);
+            uint8_t *ptr = (uint8_t *)memrchr (low, *cur, high - low);
             if (!ptr)
                 break;
 

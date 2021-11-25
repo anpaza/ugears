@@ -41,6 +41,18 @@ proprietary products.
 All in all, using uGears will permit you write code with better
 portability, easier, faster and less error-prone.
 
+uGears has a companion library, libuseful, which provides
+platform-independent utility functions (some of which are similar
+to those provided by libc). Some useful components of libuseful
+that could be even borrowed into projects not using uGears:
+
+* fixed-point arcsin, arccos, arctan and square root functions
+* 64-bit by 32-bit division function, using 32-by-32-bit divisions
+* Unix time to year/month/date
+* Small-but-gifted printf implementation
+* A pretty interesting random number generator
+* The uLZ packer, with a small and fast decompressor, which gives
+  compression rates on a par with the widely known LZ4.
 
 ## Documentation
 

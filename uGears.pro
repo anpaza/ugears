@@ -113,7 +113,7 @@ SOURCES += \
     tests/tmemchr/tmemchr.c \
     tests/tmemset/tmemset.c \
     tests/tsh/main.c \
-    tests/ulz/ulz.c \
+    tools/ulz/ulz.c \
     tibs/extra/stm32/__libc_init_array.c
 
 DISTFILES += \
@@ -259,7 +259,7 @@ DISTFILES += \
     tests/tmemchr/tmemchr.mak \
     tests/tmemset/tmemset.mak \
     tests/tsh/tsh.mak \
-    tests/ulz/ulz.mak \
+    tools/ulz/ulz.mak \
     tibs/README.md \
     tibs/compiler/data.mak \
     tibs/compiler/doxygen.mak \

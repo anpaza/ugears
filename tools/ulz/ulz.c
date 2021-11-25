@@ -9,6 +9,9 @@
 
 static const char *g_program;
 static int g_verbose = 0;
+static bool g_overwrite = false;
+static bool g_decompress = false;
+static const char *g_ofn = NULL;
 
 static void display_version ()
 {
@@ -19,9 +22,12 @@ static void display_help ()
 {
     display_version ();
     printf ("\nUsage: %s [option...] [file...]\n\n", g_program);
-    printf ("  -v  --verbose  Increase verbosity level\n");
-    printf ("  -V  --version  Display program version number\n");
-    printf ("  -h  --help     Show this info\n");
+    printf ("  -o# --output=#   Set alternative output file name\n");
+    printf ("  -d  --decompress Force decompress (normally detected by extension)\n");
+    printf ("  -f  --force      Force overwrite output file\n");
+    printf ("  -v  --verbose    Increase verbosity level\n");
+    printf ("  -V  --version    Display program version number\n");
+    printf ("  -h  --help       Show this info\n");
 }
 
 static bool process (const char *fn)
@@ -32,10 +38,16 @@ static bool process (const char *fn)
         fflush (stdout);
     }
 
-    bool compress = true;
     const char *dot = strrchr (fn, '.');
-    if (dot)
-        compress = (strcmp (dot, ".ulz") != 0);
+    if (!dot)
+        dot = strchr (fn, 0);
+
+    bool decompress = g_decompress;
+    if (!decompress && dot)
+    {
+        // auto-detect whether to compress or decompress
+        decompress = (strcmp (dot, ".ulz") == 0);
+    }
 
     FILE *inf = fopen (fn, "rb");
     if (!inf)
@@ -64,28 +76,14 @@ static bool process (const char *fn)
         return false;
     }
 
-    char ofn [FILENAME_MAX + 1];
+    char ofn_buff [FILENAME_MAX + 1];
+    const char *ofn = g_ofn ? g_ofn : ofn_buff;
+
     void *outf_buf;
     unsigned outf_size = 0;
-    if (compress)
+    if (decompress)
     {
-        snprintf (ofn, sizeof (ofn), "%s.ulz", fn);
-        outf_buf = malloc (outf_size = inf_size);
-        if (!ulz_compress (inf_buf, inf_size, outf_buf, &outf_size))
-        {
-            free (inf_buf);
-            free (outf_buf);
-            if (g_verbose)
-                printf ("incompressible\n");
-            else
-                fprintf (stderr, "%s: File '%s' does not compress\n",
-                         g_program, fn);
-            return false;
-        }
-    }
-    else
-    {
-        snprintf (ofn, sizeof (ofn), "%.*s_", (int)(dot - fn), fn);
+        snprintf (ofn_buff, sizeof (ofn_buff), "%.*s", (int)(dot - fn), fn);
         outf_size = ulz_decompress_size (inf_buf, inf_size);
         outf_buf = malloc (outf_size);
         if (!ulz_decompress (inf_buf, inf_size, outf_buf, &outf_size))
@@ -100,11 +98,39 @@ static bool process (const char *fn)
             return false;
         }
     }
+    else
+    {
+        snprintf (ofn_buff, sizeof (ofn_buff), "%s.ulz", fn);
+        outf_buf = malloc (outf_size = inf_size);
+        if (!ulz_compress (inf_buf, inf_size, outf_buf, &outf_size))
+        {
+            free (inf_buf);
+            free (outf_buf);
+            if (g_verbose)
+                printf ("incompressible\n");
+            else
+                fprintf (stderr, "%s: File '%s' does not compress\n",
+                         g_program, fn);
+            return false;
+        }
+    }
 
     free (inf_buf);
 
     if (g_verbose)
         printf ("%.1f%%\n", (100.0 * outf_size) / inf_size);
+
+    if (!g_overwrite)
+    {
+        inf = fopen (ofn, "r");
+        if (inf)
+        {
+            fclose (inf);
+            fprintf (stderr, "%s: Output file '%s' already exist, use -f to overwrite\n",
+                     g_program, ofn);
+            return false;
+        }
+    }
 
     FILE *outf = fopen (ofn, "wb");
     if (!outf)
@@ -114,7 +140,7 @@ static bool process (const char *fn)
         return false;
     }
 
-    ulong bytes_written = fwrite (outf_buf, 1, outf_size, inf);
+    ulong bytes_written = fwrite (outf_buf, 1, outf_size, outf);
     fclose (outf);
     free (outf_buf);
 
@@ -182,6 +208,9 @@ int main (int argc, char *const *argv)
 
     static struct option long_options [] =
     {
+        {"decompress", no_argument, 0, 'd'},
+        {"force", no_argument, 0, 'f'},
+        {"output", required_argument, 0, 'o'},
         {"verbose", no_argument, 0, 'v'},
         {"help", no_argument, 0, 'h'},
         {"version", no_argument, 0, 'V'},
@@ -191,12 +220,24 @@ int main (int argc, char *const *argv)
     g_program = argv [0];
 
     int c;
-    while ((c = getopt_long (argc, argv, "vhV", long_options, 0)) != EOF)
+    while ((c = getopt_long (argc, argv, "dfo:vhV", long_options, 0)) != EOF)
         switch (c)
         {
             case '?':
                 // unknown option
                 return EXIT_FAILURE;
+
+            case 'd':
+                g_decompress = true;
+                break;
+
+            case 'f':
+                g_overwrite = true;
+                break;
+
+            case 'o':
+                g_ofn = optarg;
+                break;
 
             case 'v':
                 g_verbose++;

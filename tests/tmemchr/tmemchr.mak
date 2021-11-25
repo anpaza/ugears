@@ -3,7 +3,7 @@
 ifeq ($(TARGET),posix)
 
 TESTS += tmemchr
-DESCRIPTION.tmemchr = Проверка корректности реализации функции memchr()
+DESCRIPTION.tmemchr = Check implementation of memchr() in libuseful
 
 TARGETS.tmemchr = tmemchr$E
 SRC.tmemchr$E = $(wildcard tests/tmemchr/*.c)

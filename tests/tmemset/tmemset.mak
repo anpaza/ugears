@@ -3,7 +3,7 @@
 ifeq ($(TARGET),posix)
 
 TESTS += tmemset
-DESCRIPTION.tmemset = Проверка корректности реализации функции memset()
+DESCRIPTION.tmemset = Check implementation of memset() in libuseful
 
 TARGETS.tmemset = tmemset$E
 SRC.tmemset$E = $(wildcard tests/tmemset/*.c)
