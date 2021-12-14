@@ -46,3 +46,21 @@ bool ost16_expired (volatile ost16_t *timer)
     ost_disable (timer);
     return true;
 }
+
+clock_t ost32_remaining (ost32_t timer)
+{
+    if (!ost_enabled (timer))
+        return CLOCK_MAX;
+
+    int32_t r = timer - clock;
+    return (r <= 0) ? 0 : r;
+}
+
+clock_t ost16_remaining (ost16_t timer)
+{
+    if (!ost_enabled (timer))
+        return CLOCK_MAX;
+
+    int16_t r = timer - clock;
+    return (r <= 0) ? 0 : r;
+}

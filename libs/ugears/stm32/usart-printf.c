@@ -28,7 +28,7 @@ static void usart_backend_putc (printf_backend_t *backend, char c)
 
 void usart_printf (USART_TypeDef *usart)
 {
-    usart_stdout.be.putc = usart_backend_putc;
+    usart_stdout.be.putch = usart_backend_putc;
     usart_stdout.usart = usart;
 
     init_printf (&usart_stdout.be);

@@ -51,12 +51,12 @@ uint32_t xs_rand (xs_rng_t xsr)
 
 static xs_rng_t rng;
 
-void _srand (unsigned seed)
+void CLIKE_P (srand) (unsigned seed)
 {
     xs_init (rng, seed);
 }
 
-unsigned _rand ()
+unsigned CLIKE_P (rand) ()
 {
     return xs_rand (rng);
 }

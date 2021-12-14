@@ -62,7 +62,7 @@ typedef struct
  * @param buff Source bitstream data or pointer to destination buffer
  * @param size Source data or destination buffer size
  */
-extern void bs_init (bitstream_t *bs, void *buff, unsigned size);
+EXTERN_C void bs_init (bitstream_t *bs, void *buff, unsigned size);
 
 // -------------------------------------------------------------------------- //
 
@@ -75,7 +75,7 @@ extern void bs_init (bitstream_t *bs, void *buff, unsigned size);
  * @param size Number of bytes to read
  * @return false if bitstream is exhausted
  */
-extern bool bs_read_bytes (bitstream_t *bs, void *dst, unsigned size);
+EXTERN_C bool bs_read_bytes (bitstream_t *bs, void *dst, unsigned size);
 
 /**
  * Read up to 32 bits from bitstream (from the bit substream).
@@ -88,7 +88,7 @@ extern bool bs_read_bytes (bitstream_t *bs, void *dst, unsigned size);
  * @param bits Number of bits to read (must be <= 32!)
  * @return the bits read
  */
-extern uint32_t bs_read_bits (bitstream_t *bs, unsigned bits);
+EXTERN_C uint32_t bs_read_bits (bitstream_t *bs, unsigned bits);
 
 // -------------------------------------------------------------------------- //
 
@@ -100,7 +100,7 @@ extern uint32_t bs_read_bits (bitstream_t *bs, unsigned bits);
  * @param size Data size
  * @return false if data does not fit into the output buffer
  */
-extern bool bs_write_bytes (bitstream_t *bs, const void *src, unsigned size);
+EXTERN_C bool bs_write_bytes (bitstream_t *bs, const void *src, unsigned size);
 
 /**
  * Write bits into the bitstream (to the bits substream).
@@ -110,7 +110,7 @@ extern bool bs_write_bytes (bitstream_t *bs, const void *src, unsigned size);
  * @param val The bits to be written (starting from lower bits)
  * @return false if data does not fit into the output buffer
  */
-extern bool bs_write_bits (bitstream_t *bs, unsigned bits, uint32_t val);
+EXTERN_C bool bs_write_bits (bitstream_t *bs, unsigned bits, uint32_t val);
 
 /**
  * Finish writing to a bytestream. This will remove the internal gap
@@ -128,6 +128,6 @@ extern bool bs_write_bits (bitstream_t *bs, unsigned bits, uint32_t val);
  * @param size The size of the buffer, initially passed to bs_init.
  * @return The size of compacted bitstream data. On error this will return 0.
  */
-extern unsigned bs_write_finish (bitstream_t *bs, void *buff, unsigned size);
+EXTERN_C unsigned bs_write_finish (bitstream_t *bs, void *buff, unsigned size);
 
 #endif // _BITSTREAM_H

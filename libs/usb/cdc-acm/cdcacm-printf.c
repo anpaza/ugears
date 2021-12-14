@@ -69,7 +69,7 @@ static void uca_backend_putc (printf_backend_t *backend, char c)
 
 void uca_printf ()
 {
-    backend.be.putc = uca_backend_putc;
+    backend.be.putch = uca_backend_putc;
 
     init_printf (&backend.be);
 }

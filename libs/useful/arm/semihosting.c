@@ -118,7 +118,7 @@ static void sh_backend_putc (printf_backend_t *backend, char c)
 
 void sh_printf (bool buffered)
 {
-    semihosting_stdout.be.putc = sh_backend_putc;
+    semihosting_stdout.be.putch = sh_backend_putc;
     semihosting_stdout.be.flush = sh_backend_flush;
     // number of used chars in buffer
     semihosting_stdout.top = buffered ? 0 : -1;

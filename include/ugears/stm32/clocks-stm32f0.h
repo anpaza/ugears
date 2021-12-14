@@ -179,8 +179,8 @@
 #  endif
 #endif
 
-#define HCLK_FREQ			(SYSCLK_FREQ/HCLK_DIV)
-#define PCLK_FREQ			(HCLK_FREQ/PCLK_DIV)
+#define HCLK_FREQ			(SYSCLK_FREQ / HCLK_DIV)
+#define PCLK_FREQ			(HCLK_FREQ / PCLK_DIV)
 
 #if SYSCLK_FREQ > 24000000
 #  error "System clock frequency should not exceed 24MHz!"

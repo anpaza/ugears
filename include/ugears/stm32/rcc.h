@@ -13,10 +13,12 @@
  * @file rcc.h
  *      Some handy macros to deal with the reset and clock control
  *      circuit of the STM32 microcontroller.
+ *
+ * This is an attempt to wrap around the Reset and Enable bits into
+ * something more platform-independent.
  */
 
-// --- // This is an attempt to wrap around the Reset and Enable
-// --- // bits into something more platform-independent.
+#include "cmsis.h"
 
 /// On some MCUs ADC1RST is named ADCRST
 #if defined RCC_APB2RSTR_ADCRST && !defined RCC_APB2RSTR_ADC1RST

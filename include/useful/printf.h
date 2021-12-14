@@ -10,6 +10,7 @@
 #define _PRINTF_H
 
 #include "useful.h"
+#include "clike-defs.h"
 #include <stdarg.h>
 
 /**
@@ -61,12 +62,18 @@
 
 #ifndef PRINTF_LONG_SUPPORT
 // Set to 1 for long format support (%l and %ll)
-#define PRINTF_LONG_SUPPORT 1
+#define PRINTF_LONG_SUPPORT	1
 #endif
-// Uncomment for short format support (%h and %hh)
-#define PRINTF_SHORT_SUPPORT
-// Uncomment for fixed-point support (%[width].[fracdigits].[fracbits](f|F))
-#define PRINTF_FP_SUPPORT
+
+#ifndef PRINTF_SHORT_SUPPORT
+// Set to 1 for short format support (%h and %hh)
+#define PRINTF_SHORT_SUPPORT	1
+#endif
+
+#ifndef PRINTF_FP_SUPPORT
+// Set to 1 for fixed-point support (%[width].[fracdigits].[fracbits](f|F))
+#define PRINTF_FP_SUPPORT	1
+#endif
 
 /**
  * This defines the backend functions that do actual low-level output.
@@ -97,7 +104,7 @@ typedef struct _printf_backend_t
      * @param self A pointer to this printf_backend_t structure
      * @param c The character to echo
      */
-    void (*putc) (struct _printf_backend_t *self, char c);
+    void (*putch) (struct _printf_backend_t *self, char c);
 
     /**
      * Flush the accumulation buffer, if supported.
@@ -129,15 +136,16 @@ INLINE_ALWAYS void init_printf (printf_backend_t *stdout)
  *
  * @param fmt The C-style format string
  */
-EXTERN_C void _vgprintf (printf_backend_t *backend,
-                       const char *fmt, va_list va);
+EXTERN_C void CLIKE_P (vgprintf) (
+        printf_backend_t *backend, const char *fmt, va_list va);
 
 /**
  * A general printf (), using a backend as the first argument
  *
  * @param fmt The C-style format string
  */
-EXTERN_C void _gprintf (printf_backend_t *backend, const char *fmt, ...);
+EXTERN_C void CLIKE_P (gprintf) (
+        printf_backend_t *backend, const char *fmt, ...);
 
 /**
  * This is a snprintf () using same format strings as printf ().
@@ -149,7 +157,8 @@ EXTERN_C void _gprintf (printf_backend_t *backend, const char *fmt, ...);
  * @param fmt The C-style format string
  * @return The size of resulting string in buf, without zero terminator
  */
-EXTERN_C size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
+EXTERN_C int CLIKE_P (snprintf) (
+        char *buf, size_t size, const char *fmt, ...);
 
 /**
  * A variant of snprintf using va_list instead of varargs.
@@ -160,29 +169,30 @@ EXTERN_C size_t _snprintf (char *buf, size_t size, const char *fmt, ...);
  * @param va A pointer to variable arguments list
  * @return The size of resulting string in buf, without zero terminator
  */
-EXTERN_C size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va);
+EXTERN_C int CLIKE_P (vsnprintf) (
+        char *buf, size_t size, const char *fmt, va_list va);
 
 /**
  * The usual printf (), outputs via printf_stdout.
  *
  * @param fmt The C-style format string
  */
-EXTERN_C void _printf (const char *fmt, ...);
+EXTERN_C int CLIKE_P (printf) (const char *fmt, ...);
 
 /**
  * Output a single character via the stdout backend.
  */
-EXTERN_C void _putchar (char c);
+EXTERN_C int CLIKE_P (putchar) (int c);
 
 /**
  * Output a string followed by \n.
  * @arg str The string.
  */
-EXTERN_C void _puts (const char *str);
+EXTERN_C int CLIKE_P (puts) (const char *str);
 
 /**
  * Flush the stdout buffer, if any
  */
-EXTERN_C void _fflush (void);
+EXTERN_C void CLIKE_P (fflush) (void);
 
 #endif // _PRINTF_H

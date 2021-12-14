@@ -31,6 +31,11 @@
  * Note this does not work on USB peripherials as those use a separate
  * fixed 48MHz clock.
  *
+ * Please use the respective XXX_CLOCK_FREQ (where XXX stands for DMA,
+ * I2C, TIM, SPI, etc...) because some peripherials use additional clock
+ * modifiers which aren't taken into account by this macro (e.g. timers
+ * have a bus clock X2 multiplier if APB prescaler > 0 etc).
+ *
  * @param x The name of the peripherial device with a underscore prepended
  *      (e.g. _SPI1, _USART4 etc). Underscore is required so that preprocessor
  *      won't expand SPI1, USART1 macros which are defined in cmsis headers.

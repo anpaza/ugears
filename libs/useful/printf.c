@@ -11,7 +11,7 @@
 
 printf_backend_t *printf_stdout;
 
-#ifdef PRINTF_LONG_SUPPORT
+#if PRINTF_LONG_SUPPORT
 typedef signed long int_t;
 typedef unsigned long uint_t;
 #define __SIZEOF_INT_T__  __SIZEOF_LONG__
@@ -30,7 +30,7 @@ static char *u2a (uint_t num, unsigned base, bool upper, char *out)
         // Find the order of magnitude of the number
         uint_t value = base;
         unsigned order = 1;
-        while (value < num)
+        while (value <= num)
         {
             uint_t old_value = value;
             value *= base;
@@ -64,7 +64,7 @@ static char *s2a (int_t num, char *out)
     return u2a (num, 10, 0, out);
 }
 
-#ifdef PRINTF_FP_SUPPORT
+#if PRINTF_FP_SUPPORT
 
 static uint8_t log2 [] = {4, 7, 10, 14, 17, 20, 24, 27, 30};
 
@@ -128,21 +128,24 @@ static void format_out (printf_backend_t *backend,
         value_len = width;
 
     char fill = ' ';
-    if (leading_zeros && *value == '-')
+    if (leading_zeros)
     {
-        backend->putc (backend, *value++);
-        width--; value_len--;
         fill = '0';
+        if (*value == '-')
+        {
+            backend->putch (backend, *value++);
+            width--; value_len--;
+        }
     }
 
     for (; width > value_len; width--)
-        backend->putc (backend, fill);
+        backend->putch (backend, fill);
 
     for (; width != 0; width--)
-        backend->putc (backend, *value++);
+        backend->putch (backend, *value++);
 }
 
-void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
+void CLIKE_P (vgprintf) (printf_backend_t *backend, const char *fmt, va_list va)
 {
     if (!backend)
         return;
@@ -159,7 +162,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
 
         if (ch != '%')
         {
-            backend->putc (backend, ch);
+            backend->putch (backend, ch);
             continue;
         }
 
@@ -167,16 +170,16 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
         bool leading_zeros = false;
         enum
         {
-#ifdef PRINTF_SHORT_SUPPORT
+#if PRINTF_SHORT_SUPPORT
             fbyte,
             fshort,
 #endif
             fint,
-#ifdef PRINTF_LONG_SUPPORT
+#if PRINTF_LONG_SUPPORT
             flong,
 #endif
         } argsize = fint;
-#ifdef PRINTF_FP_SUPPORT
+#if PRINTF_FP_SUPPORT
         uint8_t fdig = 0;
         uint8_t fbits = 12;
 #endif
@@ -191,7 +194,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
         {
             ch = a2i (ch, &fmt, &width);
         }
-#ifdef PRINTF_FP_SUPPORT
+#if PRINTF_FP_SUPPORT
         if (ch == '.')
         {
             ch = a2i ('0', &fmt, &fdig);
@@ -201,14 +204,14 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
             ch = a2i ('0', &fmt, &fbits);
         }
 #endif
-#ifdef PRINTF_LONG_SUPPORT
+#if PRINTF_LONG_SUPPORT
         if (ch == 'l')
         {
             argsize = flong;
             ch = *fmt++;
         }
 #endif
-#ifdef PRINTF_SHORT_SUPPORT
+#if PRINTF_SHORT_SUPPORT
         if (ch == 'h')
         {
             argsize = fshort;
@@ -228,7 +231,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
             case 'd' :
             case 'u' :
             case 'x': case 'X' :
-#ifdef PRINTF_FP_SUPPORT
+#if PRINTF_FP_SUPPORT
             case 'f' :
             case 'F' :
 #endif
@@ -251,7 +254,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
                 char *end;
 
                 val.u =
-#if defined (PRINTF_LONG_SUPPORT) && (__SIZEOF_LONG__ > __SIZEOF_INT__)
+#if PRINTF_LONG_SUPPORT && (__SIZEOF_LONG__ > __SIZEOF_INT__)
                         (argsize == flong) ? va_arg (va, unsigned long) :
 #endif
                         va_arg (va, unsigned);
@@ -260,12 +263,12 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
                 if (ch == 'd' || ch == 'f')
                 {
                     if (0) ;
-#if defined (PRINTF_LONG_SUPPORT) &&  (__SIZEOF_LONG__ > __SIZEOF_INT__)
+#if PRINTF_LONG_SUPPORT &&  (__SIZEOF_LONG__ > __SIZEOF_INT__)
                     else if (argsize == fint)
                         // sign extend int -> long
                         val.s = val.sint;
 #endif
-#ifdef PRINTF_SHORT_SUPPORT
+#if PRINTF_SHORT_SUPPORT
                     else if (argsize == fshort)
                         val.s = val.sshort;
                     else if (argsize == fbyte)
@@ -275,7 +278,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
                 else
                 {
                     if (0) ;
-#ifdef PRINTF_SHORT_SUPPORT
+#if PRINTF_SHORT_SUPPORT
                     else if (argsize == fshort)
                         val.u = val.ushort;
                     else if (argsize == fbyte)
@@ -287,7 +290,7 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
                 {
                     case 'd': end = s2a (val.s, buff); break;
                     case 'u': end = u2a (val.u, 10, false, buff); break;
-#ifdef PRINTF_FP_SUPPORT
+#if PRINTF_FP_SUPPORT
                     case 'F': end = ufp2a (val.s, fdig, fbits, buff); break;
                     case 'f': end = sfp2a (val.s, fdig, fbits, buff); break;
 #endif
@@ -306,11 +309,11 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
             }
 
             case 'c' :
-                backend->putc (backend, (char)(va_arg (va, int)));
+                backend->putch (backend, (char)(va_arg (va, int)));
                 break;
 
             case '%' :
-                backend->putc (backend, ch);
+                backend->putch (backend, ch);
                 break;
 
             default:
@@ -321,20 +324,21 @@ void _vgprintf (printf_backend_t *backend, const char *fmt, va_list va)
 abort:;
 }
 
-void _gprintf (printf_backend_t *backend, const char *fmt, ...)
+void CLIKE_P (gprintf) (printf_backend_t *backend, const char *fmt, ...)
 {
     va_list va;
     va_start (va, fmt);
-    _vgprintf (backend, fmt, va);
+    CLIKE_P (vgprintf) (backend, fmt, va);
     va_end (va);
 }
 
-void _printf (const char *fmt, ...)
+int CLIKE_P (printf) (const char *fmt, ...)
 {
     va_list va;
     va_start (va, fmt);
-    _vgprintf (printf_stdout, fmt, va);
+    CLIKE_P (vgprintf) (printf_stdout, fmt, va);
     va_end (va);
+    return 0; // not standard, but who cares...
 }
 
 typedef struct
@@ -351,42 +355,44 @@ static void sprintf_putc (printf_backend_t *backend, char c)
         *myself->cur++ = c;
 }
 
-size_t _vsnprintf (char *buf, size_t size, const char *fmt, va_list va)
+int CLIKE_P (vsnprintf) (char *buf, size_t size, const char *fmt, va_list va)
 {
     sprintf_backend_t sprintf_backend;
-    sprintf_backend.be.putc = sprintf_putc;
+    sprintf_backend.be.putch = sprintf_putc;
     sprintf_backend.cur = buf;
     sprintf_backend.end = buf + size - 1;
 
-    _vgprintf (&sprintf_backend.be, fmt, va);
+    CLIKE_P (vgprintf) (&sprintf_backend.be, fmt, va);
 
     *sprintf_backend.cur = 0;
     return sprintf_backend.cur - buf;
 }
 
-size_t _snprintf (char *buf, size_t size, const char *fmt, ...)
+int CLIKE_P (snprintf) (char *buf, size_t size, const char *fmt, ...)
 {
     va_list va;
     va_start (va, fmt);
-    size_t ret = _vsnprintf (buf, size, fmt, va);
+    size_t ret = CLIKE_P (vsnprintf) (buf, size, fmt, va);
     va_end (va);
 
     return ret;
 }
 
-void _putchar (char c)
+int CLIKE_P (putchar) (int c)
 {
-    printf_stdout->putc (printf_stdout, c);
+    printf_stdout->putch (printf_stdout, c);
+    return c;
 }
 
-void _puts (const char *s)
+int CLIKE_P (puts) (const char *s)
 {
     while (*s)
-        _putchar (*s++);
-    _putchar ('\n');
+        CLIKE_P (putchar) (*s++);
+    CLIKE_P (putchar) ('\n');
+    return 1;
 }
 
-void _fflush ()
+void CLIKE_P (fflush) ()
 {
     if (printf_stdout->flush)
         printf_stdout->flush (printf_stdout);

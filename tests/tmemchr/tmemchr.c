@@ -1,19 +1,9 @@
-#ifdef TARGET_POSIX
-#define USE_LIBC
-#endif
-
+#define _GNU_SOURCE
 #include <useful/clike.h>
 #include <useful/usefun.h>
 
-#ifdef USE_LIBC
-#include <stdio.h>
-#include <string.h>
-#endif
-
 int main ()
 {
-    printf ("Please stand by ...\n");
-
     xs_rng_t rng;
     xs_init (rng, 0xaabbccdd);
 
@@ -25,7 +15,7 @@ int main ()
 
         for (unsigned t = 0; t < 100; t++)
         {
-            uint8_t needle = xs_rand (rng);
+            char needle = xs_rand (rng);
             unsigned size = xs_rand (rng) & 255;
             unsigned offs = xs_rand (rng) % (ARRAY_LEN (haystack) - size);
 
@@ -33,7 +23,7 @@ int main ()
             const void *r2 = _memchr (haystack + offs, needle, size);
             if (r1 != r2)
             {
-                printf ("memchr (%p, 0x%02x, %d) failed, %p != %p!\n",
+                printf ("memchr (%p, %d, %d) failed, %p != %p!\n",
                         haystack + offs, needle, size, r1, r2);
                 return 1;
             }
@@ -42,14 +32,12 @@ int main ()
             r2 = _memrchr (haystack + offs, needle, size);
             if (r1 != r2)
             {
-                printf ("memrchr (%p, 0x%02x, %d) failed, %p != %p!\n",
+                printf ("memrchr (%p, %d, %d) failed, %p != %p!\n",
                         haystack + offs, needle, size, r1, r2);
                 return 1;
             }
         }
     }
-
-    printf ("Tests complete\n");
 
     return 0;
 }

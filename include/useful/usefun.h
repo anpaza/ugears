@@ -31,7 +31,7 @@ typedef uint32_t xs_rng_t [5];
  * @arg xsr The Random Number Generator state
  * @arg seed Initial seed
  */
-extern void xs_init (xs_rng_t xsr, uint32_t seed);
+EXTERN_C void xs_init (xs_rng_t xsr, uint32_t seed);
 
 /**
  * Feed additional randomness into the random pool.
@@ -42,12 +42,12 @@ extern void xs_init (xs_rng_t xsr, uint32_t seed);
  * @arg xsr An initialized Random Number Generator state
  * @arg seed Additional seed to mix into the random pool
  */
-extern void xs_seed (xs_rng_t xsr, uint32_t seed);
+EXTERN_C void xs_seed (xs_rng_t xsr, uint32_t seed);
 
 /**
  * Get next random number in series
  */
-extern uint32_t xs_rand (xs_rng_t xsr);
+EXTERN_C uint32_t xs_rand (xs_rng_t xsr);
 
 /**
  * Decode a number in the unsigned LEB128 format
@@ -55,7 +55,7 @@ extern uint32_t xs_rand (xs_rng_t xsr);
  *      is updated to point past the encoded data.
  * @return The decoded number
  */
-extern uint32_t uleb128 (const uint8_t **data);
+EXTERN_C uint32_t uleb128 (const uint8_t **data);
 
 /**
  * Decode a number in the signed LEB128 format
@@ -63,7 +63,7 @@ extern uint32_t uleb128 (const uint8_t **data);
  *      is updated to point past the encoded data.
  * @return The decoded number
  */
-extern int32_t sleb128 (const uint8_t **data);
+EXTERN_C int32_t sleb128 (const uint8_t **data);
 
 /**
  * Skip an (unused) LEB128 value
@@ -89,14 +89,14 @@ INLINE_ALWAYS int32_t sign (int32_t x)
  * @arg len Data length in bytes
  * @return @a sum updated according to the contents of data block
  */
-extern uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
+EXTERN_C uint32_t ip_crc_block (uint32_t sum, const void *data, unsigned len);
 
 /**
  * Finalize checksum computations.
  * @arg sum The value returned by ip_crc_block().
  * @return The 16-bit checksum in network endian format
  */
-extern uint16_t ip_crc_fin (uint32_t sum);
+EXTERN_C uint16_t ip_crc_fin (uint32_t sum);
 
 /**
  * Compute and finalize the checksum of a data block.
@@ -112,28 +112,28 @@ INLINE_ALWAYS uint16_t ip_crc (void *data, unsigned len)
  * @arg data The unaligned address
  * @return The memory value at given address
  */
-extern uint16_t uget16le (const void *data);
+EXTERN_C uint16_t uget16le (const void *data);
 
 /**
  * Load a 16-bit big-endian value from an unaligned address
  * @arg data The unaligned address
  * @return The memory value at given address
  */
-extern uint16_t uget16be (const void *data);
+EXTERN_C uint16_t uget16be (const void *data);
 
 /**
  * Load a 32-bit little-endian value from an unaligned address
  * @arg data The unaligned address
  * @return The memory value at given address
  */
-extern uint32_t uget32le (const void *data);
+EXTERN_C uint32_t uget32le (const void *data);
 
 /**
  * Load a 32-bit big-endian value from an unaligned address
  * @arg data The unaligned address
  * @return The memory value at given address
  */
-extern uint32_t uget32be (const void *data);
+EXTERN_C uint32_t uget32be (const void *data);
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define uget16		uget16le

@@ -203,16 +203,15 @@
 #  define PLL48CK_FREQ			0
 
 #elif JOIN2 (CLKSRC_,SYSCLK_SOURCE) == CLKSRC_PLL
-#  define VCO_IN_FREQ			(JOIN2 (PLL_SOURCE,_VALUE) / PLL_M)
-#  if (VCO_IN_FREQ < 1000000) || (VCO_IN_FREQ > 2000000)
+#  define VCO_FREQ(mul,div)		((mul * JOIN2 (PLL_SOURCE,_VALUE)) / (div * PLL_M))
+#  if (VCO_FREQ(1, 1) < 1000000) || (VCO_FREQ(1, 1) > 2000000)
 #    error "VCO input frequency must be from 1 to 2 MHz!"
 #  endif
-#  define VCO_OUT_FREQ			(VCO_IN_FREQ * PLL_N)
-#  if (VCO_OUT_FREQ < 100000000)
+#  if (VCO_FREQ(PLL_N, 1) < 100000000)
 #    error "VCO output frequency must not be less than 100MHz!"
 #  endif
-#  define SYSCLK_FREQ			(VCO_OUT_FREQ / PLL_P)
-#  define PLL48CK_FREQ			(VCO_OUT_FREQ / PLL_Q)
+#  define SYSCLK_FREQ			(VCO_FREQ (PLL_N, PLL_P))
+#  define PLL48CK_FREQ			(VCO_FREQ (PLL_N, PLL_Q))
 
 #else
 #  if !defined __MAKEDEP__
@@ -220,9 +219,9 @@
 #  endif
 #endif
 
-#define HCLK_FREQ			(SYSCLK_FREQ/HCLK_DIV)
-#define PCLK1_FREQ			(HCLK_FREQ/PCLK1_DIV)
-#define PCLK2_FREQ			(HCLK_FREQ/PCLK2_DIV)
+#define HCLK_FREQ			(SYSCLK_FREQ / HCLK_DIV)
+#define PCLK1_FREQ			(HCLK_FREQ / PCLK1_DIV)
+#define PCLK2_FREQ			(HCLK_FREQ / PCLK2_DIV)
 
 #if SYSCLK_FREQ > SYSCLK_FREQ_MAX
 #  error "System clock frequency is too high!"

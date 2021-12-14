@@ -6,6 +6,7 @@
     you may not use this file except in compliance with the License.
 */
 
+#define _GNU_SOURCE
 #include "useful/clike.h"
 #include "useful/ulz.h"
 #include "useful/bitstream.h"

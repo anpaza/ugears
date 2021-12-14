@@ -91,9 +91,13 @@ bool can_init (CAN_TypeDef *can, uint32_t mode, uint32_t bus_freq)
     bs1 -= bs2 + 3;
 
     // Запишем вычисленные тайминги в регистр
-    can->BTR = (mode & (CAN_BTR_LBKM | CAN_BTR_SILM)) |
-               (sjw << 24) | (bs2 << 20) | (bs1 << 16) |
-               (prescaler - 1);
+    uint32_t btr = (sjw << 24) | (bs2 << 20) | (bs1 << 16) |
+            (prescaler - 1);
+    if (mode & CAN_MODE_LOOPBACK)
+        btr |= CAN_BTR_LBKM;
+    if (mode & CAN_MODE_SILENT)
+        btr |= CAN_BTR_SILM;
+    can->BTR = btr;
 
     // Leave initialization mode
     can->MCR &= ~CAN_MCR_INRQ;

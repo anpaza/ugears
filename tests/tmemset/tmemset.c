@@ -1,19 +1,8 @@
-#ifdef TARGET_POSIX
-#define USE_LIBC
-#endif
-
-#include <useful/usefun.h>
 #include <useful/clike.h>
-
-#ifdef USE_LIBC
-#include <stdio.h>
-#include <string.h>
-#endif
+#include <useful/usefun.h>
 
 int main ()
 {
-    printf ("Please stand by ...\n");
-
     xs_rng_t rng;
     xs_init (rng, 0xaabbccdd);
 
@@ -37,8 +26,6 @@ int main ()
             return 1;
         }
     }
-
-    printf ("Tests complete\n");
 
     return 0;
 }

@@ -8,31 +8,22 @@
 
 #include "ugears/ugears.h"
 
-// convert timer base to a 8-bit value to shorten code
-#define TIM_ID(tim)		((((uint32_t)tim) >> 10) & 0xff)
-
-// timer features
-
-// clock divisor for dead-time and sampling clock
-#define F_CKD			0x00000001
-// one-pulse-mode
-#define F_OPM			0x00000002
-// has repetition counter
-#define F_RCR			0x00000004
-
-/*
-static uint32_t features (TIM_TypeDef *tim)
+bool tim_init (TIM_TypeDef *tim, uint16_t prescaler, uint16_t period,
+               uint32_t mode)
 {
-    uint32_t r = 0;
-    uint32_t tid = TIM_ID (tim);
+    tim_stop (tim);
+    tim_set_prescaler (tim, prescaler);
+    tim_set_period (tim, period);
+    tim_set_direction (tim, (mode & TIM_CONF_DIR) == TIM_CONF_DIR_UP);
+    tim_reset_counter (tim);
 
-    if (tid != TIM_ID (TIM6) && tid != TIM_ID (TIM7))
-        r |= F_CKD;
+    switch (mode & TIM_CONF_MODE)
+    {
+        case TIM_CONF_MODE_REPEATED: tim_set_repeated (tim); break;
+        case TIM_CONF_MODE_ONESHOT:  tim_set_oneshot (tim);  break;
+    }
 
-    if (tid == TIM_ID (TIM1) || tid == TIM_ID (TIM8) ||
-        tid == TIM_ID (TIM15) || tid == TIM_ID (TIM16) || tid == TIM_ID (TIM17))
-        r |= F_RCR;
+    tim_set_irq (tim, (mode & TIM_CONF_IRQ) != 0);
 
-    return r;
+    return true;
 }
-*/

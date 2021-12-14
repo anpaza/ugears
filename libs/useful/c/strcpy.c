@@ -1,5 +1,5 @@
 /*
-    Simple assert() implementation for microcontrollers
+    C implementation for strcpy()
     Copyright (C) 2021 Andrey Zabolotnyi
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -8,8 +8,16 @@
 
 #include "useful/clike.h"
 
-void _assert_abort (const char *msg)
+char *CLIKE_P (strcpy) (char *dest, const char *src)
 {
-    puts (msg);
-    for (;;) DEBUG_BREAK;
+    char *ret = dest;
+    char c;
+
+    do
+    {
+        c = *src++;
+        *dest++ = c;
+    } while (c);
+
+    return ret;
 }

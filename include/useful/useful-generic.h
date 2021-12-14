@@ -153,13 +153,13 @@ DECLARE_CMPXCHG (u64, uint64_t)
 #endif
 
 #if __UINTPTR_MAX__ == __UINT16_MAX__
-#  define cmpxchg_p(v,e,d) cmpxchg_u16((uintptr_t *)v, (uintptr_t *)e, (uintptr_t)d)
+#  define cmpxchg_p(v,e,d) cmpxchg_u16((uint16_t *)v, (uint16_t *)e, (uint16_t)d)
 #elif __UINTPTR_MAX__ == __UINT32_MAX__
-#  define cmpxchg_p(v,e,d) cmpxchg_u32((uintptr_t *)v, (uintptr_t *)e, (uintptr_t)d)
+#  define cmpxchg_p(v,e,d) cmpxchg_u32((uint32_t *)v, (uint32_t *)e, (uint32_t)d)
 #elif __UINTPTR_MAX__ == __UINT64_MAX__
-#  define cmpxchg_p(v,e,d) cmpxchg_u64((uintptr_t *)v, (uintptr_t *)e, (uintptr_t)d)
+#  define cmpxchg_p(v,e,d) cmpxchg_u64((uint64_t *)v, (uint64_t *)e, (uint64_t)d)
 #else
-#  error "Unknown size of uintptr_t type"
+#  error "Unknown pointer type size"
 #endif
 
 // -------------------------------------------------------------------------- //

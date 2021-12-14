@@ -6,23 +6,25 @@
     you may not use this file except in compliance with the License.
 */
 
+#include "useful/clike-defs.h"
+
 	.syntax unified
 	.cpu cortex-m3
 	.thumb
 
 // void memclr (void *dest, unsigned len)
 	.section .text,"ax",%progbits
-	.global	memclr
-	.type	memclr, %function
-memclr:
+	.global	CLIKE_P (memclr)
+	.type	CLIKE_P (memclr), %function
+CLIKE_P (memclr):
 	mov	r2, r1
 	mov	r1, #0
 
 // void _memset (void *dest, char c, unsigned len)
-	.global	_memset
-	.type	_memset, %function
+	.global	CLIKE_P (memset)
+	.type	CLIKE_P (memset), %function
 
-_memset:
+CLIKE_P (memset):
 // Align target address to word boundary first
 1:	cbz	r2, 4f		// quit if len=0
 	tst	r0, #3

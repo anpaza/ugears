@@ -68,9 +68,10 @@ ifeq ($(MODE),release)
 DEFINES += NDEBUG
 endif
 
-ifneq ($(TARGET),posix)
-# Uncomment these to use system libc on non-embedded systems
-#DEFINES += USE_LIBC _GNU_SOURCE
+ifeq ($(TARGET),posix)
+# Define USE_LIBC to use standard libc functions instead of useful/clike.h.
+# clike functions are still available underscored, e.g. _memchr() etc.
+DEFINES += USE_LIBC
 endif
 
 # Additiona files (except sources) to include in distribution

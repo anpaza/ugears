@@ -45,11 +45,11 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 
 /// Get the offset of member m in compound type t
-#define OFFSETOF(t, m)		__builtin_offsetof (t, m)
+#define OFFSETOF(t, m)		((uintptr_t)&(((const t *)(0))->m))
 
 /// Get a pointer to the container structure from an offset of a field
 #define CONTAINER_OF(ptr, type, member) \
-	((type *)((char *)ptr - offsetof (type, member)))
+	((type *)((char *)ptr - OFFSETOF (type, member)))
 
 #define _STRINGIFY(x)		#x
 /// Convert x -> "x"
@@ -138,6 +138,7 @@
 
 typedef union
 {
+    uint16_t u8;
     uint16_t u16;
     uint32_t u32;
 }
@@ -147,25 +148,25 @@ typedef union
     __aliasing_through;
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-/// Получить little-endian uint32_t из массива data со смещением ofs байт.
+/// Get little-endian uint32_t from 'data' at offset 'ofs'.
 #  define GET_UINT32_LE(data,ofs)	((__aliasing_through *)((char *)(data) + (ofs)))->u32
-/// Получить big-endian uint32_t из массива data со смещением ofs байт.
+/// Get big-endian uint32_t from 'data' at offset 'ofs'.
 #  define GET_UINT32_BE(data,ofs)	bswap32 (GET_UINT32_LE ((data), (ofs)))
-/// Записать little-endian uint32_t в массива data по смещению ofs байт.
+/// Put little-endian uint32_t to 'data' at offset 'ofs'.
 #  define PUT_UINT32_LE(data,ofs,x)	(((__aliasing_through *)((char *)(data) + (ofs)))->u32 = (x))
-/// Записать big-endian uint32_t в массива data по смещению ofs байт.
+/// Put big-endian uint32_t to 'data' at offset 'ofs'.
 #  define PUT_UINT32_BE(data,ofs,x)	PUT_UINT32_LE (data, ofs, bswap32 (x))
-/// Получить little-endian uint16_t из массива data со смещением ofs байт.
+/// Get little-endian uint16_t from 'data' at offset 'ofs'.
 #  define GET_UINT16_LE(data,ofs)	((__aliasing_through *)((char *)(data) + (ofs)))->u16
-/// Получить big-endian uint16_t из массива data со смещением ofs байт.
+/// Get big-endian uint16_t from 'data' at offset 'ofs'.
 #  define GET_UINT16_BE(data,ofs)	bswap16 (GET_UINT16_LE ((data), (ofs)))
-/// Преобразовать 32-х битное число в формат little-endian.
+/// Convert 32-bit number from host format to little-endian.
 #  define UINT32_LE(x)			(x)
-/// Преобразовать 32-х битное число в формат big-endian.
+/// Convert 32-bit number from host format to big-endian.
 #  define UINT32_BE(x)			bswap32 (x)
-/// Преобразовать 16-х битное число в формат little-endian.
+/// Convert 16-bit number from host format to little-endian.
 #  define UINT16_LE(x)			(x)
-/// Преобразовать 16-х битное число в формат big-endian.
+/// Convert 16-bit number from host format to big-endian.
 #  define UINT16_BE(x)			bswap16 (x)
 #else
 #  define GET_UINT32_LE(data,ofs)	bswap32 (GET_UINT32_BE ((data), (ofs)))
@@ -179,5 +180,19 @@ typedef union
 #  define UINT16_LE(x)			bswap16 (x)
 #  define UINT16_BE(x)			(x)
 #endif
+
+/// Get uint32_t from 'data' at offset 'ofs' bytes.
+#define GET_UINT32(data,ofs)		((__aliasing_through *)((char *)(data) + (ofs)))->u32
+/// Get uint16_t from 'data' at offset 'ofs' bytes.
+#define GET_UINT16_LE(data,ofs)		((__aliasing_through *)((char *)(data) + (ofs)))->u16
+/// Get uint8_t from 'data' at offset 'ofs' bytes.
+#define GET_UINT8_LE(data,ofs)		((__aliasing_through *)((char *)(data) + (ofs)))->u8
+
+/// Put uint32_t to 'data' at offset 'ofs' bytes.
+#define PUT_UINT32(data,ofs,x)		(((__aliasing_through *)((char *)(data) + (ofs)))->u32 = (x))
+/// Put uint16_t to 'data' at offset 'ofs' bytes.
+#define PUT_UINT16(data,ofs,x)		(((__aliasing_through *)((char *)(data) + (ofs)))->u16 = (x))
+/// Put uint8_t to 'data' at offset 'ofs' bytes.
+#define PUT_UINT8(data,ofs,x)		(((__aliasing_through *)((char *)(data) + (ofs)))->u8 = (x))
 
 #endif // _USEFUL_H

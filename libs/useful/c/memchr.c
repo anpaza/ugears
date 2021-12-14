@@ -10,10 +10,11 @@
 
 #define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
-void *_memchr (const void *mem, uint8_t val, size_t size)
+void *CLIKE_P (memchr) (const void *mem, int c, size_t size)
 {
     register const uint8_t *src = (const uint8_t *)mem;
     register const uint8_t *end;
+    register uint8_t val = c;
 
 #if USEFUL_OPTIMIZE == 1
 

@@ -10,7 +10,7 @@
 
 #define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
-void _memset (void *dest, char c, unsigned len)
+void *CLIKE_P (memset) (void *dest, int c, size_t len)
 {
     register uint8_t *d = (uint8_t *)dest;
 
@@ -19,7 +19,7 @@ void _memset (void *dest, char c, unsigned len)
     for (;;)
     {
         if (len == 0)
-            return;
+            return dest;
 
         if ((((uintptr_t)d) & LONG_ALIGN_MASK) == 0)
             break;
@@ -58,4 +58,6 @@ void _memset (void *dest, char c, unsigned len)
         d++;
         len--;
     }
+
+    return dest;
 }

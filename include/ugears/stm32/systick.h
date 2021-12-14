@@ -167,7 +167,7 @@ void _delay_few_const_clocks (uint32_t clocks)
 	(__builtin_constant_p (secs) ? \
 	    (__builtin_constant_p (SYSCLK_FREQ) ? \
 	        ((uint32_t)(SYSCLK_FREQ * secs)) : \
-	        umul_h32 (SYSCLK_FREQ, (uint32_t)(secs * 4294967296.0))\
+	        umul_h32 (SYSCLK_FREQ, (uint32_t)(secs * 4294967296.0)) \
 	    ) : \
 	    0 \
 	)

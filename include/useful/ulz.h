@@ -31,7 +31,7 @@
  *      of the output buffer.
  * @return true if compressed data does not fit into output buffer.
  */
-extern bool ulz_compress (const void *idata, unsigned isize,
+EXTERN_C bool ulz_compress (const void *idata, unsigned isize,
                           void *odata, unsigned *osize);
 
 /**
@@ -42,7 +42,7 @@ extern bool ulz_compress (const void *idata, unsigned isize,
  * @param isize The size of compressed block in bytes.
  * @return The size of the uncompressed data or 0 if data seems damaged.
  */
-extern unsigned ulz_decompress_size (const void *idata, unsigned isize);
+EXTERN_C unsigned ulz_decompress_size (const void *idata, unsigned isize);
 
 /**
  * Uncompress a compressed block of data.
@@ -55,7 +55,7 @@ extern unsigned ulz_decompress_size (const void *idata, unsigned isize);
  *      of the output buffer.
  * @return true if uncompressed data does not fit into output buffer.
  */
-extern bool ulz_decompress (const void *idata, unsigned isize,
+EXTERN_C bool ulz_decompress (const void *idata, unsigned isize,
                             void *odata, unsigned *osize);
 
 #endif // _ULZ_H

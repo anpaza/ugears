@@ -19,23 +19,23 @@
  * are much like the functions from libC (there's no guarantee they
  * fully follow the standards, but enough for most uses).
  *
- * The functions are declared underscored (e.g. _memcpy, _printf etc),
- * and macros are used to give them the normally expected names.
- * There are a few macros that influence this behavior:
+ * The functions can be declared underscored (e.g. _memcpy, _printf etc),
+ * if they conflict with some other library you use (e.g. newlib etc).
+ * The following macros can be used to influence this behavior:
  *
- * * CLIKE_ORIG - declare only original function names (e.g. underscored).
- *      Use this if macros interfers with something else you're using
- *      (perhaps a real libc or whatever).
- * * USE_LIBC (implies CLIKE_ORIG) - include the standard libc header
- *      files implementing functions declared here. This way, you can use
- *      libc when compiling for a "real" OS, and use these simplified
- *      implementations when compiling for embedded systems by just
- *      including "useful/clike.h".
+ * * USE_CLIKE - all functions are declared with their native libc-like
+ *      names (e.g. memset(), strlen(), printf etc).
+ * * USE_LIBC (conflicts with USE_CLIKE) - all functions are declared
+ *      with an underscore prefix (e.g. _memset(), _strlen(), _printf()).
+ *
+ *      If USE_LIBC is defined, including <useful/clike.h> will include
+ *      the respective libc header files so that both underscored and
+ *      libc's non-underscored functions will be available for use.
+ *      This is especially useful e.g. when testing function
+ *      implementations in a "real" OS like Linux.
  */
 
-#ifdef USE_LIBC
-#   define CLIKE_ORIG
-#endif
+#include "clike-defs.h"
 
 // -------------------------------------------------------------------------- //
 
@@ -44,14 +44,6 @@
 #endif
 
 #include "printf.h"
-
-#ifndef CLIKE_ORIG
-#  define printf    _printf
-#  define snprintf  _snprintf
-#  define putchar   _putchar
-#  define puts      _puts
-#  define fflush    _fflush
-#endif
 
 // -------------------------------------------------------------------------- //
 
@@ -65,7 +57,7 @@
  *
  * @arg seed The number that determines the pseudo-random sequence.
  */
-extern void _srand (unsigned seed);
+EXTERN_C void CLIKE_P (srand) (unsigned seed);
 
 /**
  * Get a pseudo-random number.
@@ -73,12 +65,7 @@ extern void _srand (unsigned seed);
  *
  * @return A new random number in the range 0..MAX_UNSIGNED_INT
  */
-extern unsigned _rand ();
-
-#ifndef CLIKE_ORIG
-#  define srand         _srand
-#  define rand          _rand
-#endif
+EXTERN_C unsigned CLIKE_P (rand) ();
 
 // -------------------------------------------------------------------------- //
 
@@ -89,12 +76,35 @@ extern unsigned _rand ();
 #endif
 
 /**
- * Return the length of a zero-terminated string
+ * Return the length of a zero-terminated string.
+ * This is an underscored function because strlen() is an optimized macro
+ * that may call _strlen() in some cases.
  *
  * @param str A pointer to a string
  * @return String length, bytes
  */
-extern size_t _strlen (const char *str);
+EXTERN_C size_t _strlen (const char *str);
+
+/**
+ * Copy string from @a src to @a dest.
+ *
+ * @param dest Destination string
+ * @param src Source string
+ * @return destination string
+ */
+EXTERN_C char *CLIKE_P (strcpy) (char *dest, const char *src);
+
+/**
+ * Copy at most @a destlen characters from src to dest.
+ * The resulting string may be non-zero-terminated if src doesn't contain
+ * a zero amongst first @a destlen bytes.
+ *
+ * @param dest Destination string
+ * @param src Source string
+ * @param destlen Maximum capacity of dest, in bytes
+ * @return destination string
+ */
+EXTERN_C char *CLIKE_P (strncpy) (char *dest, const char *src, size_t destlen);
 
 /**
  * Fill the first @a len bytes of the memory area pointed to by
@@ -103,7 +113,7 @@ extern size_t _strlen (const char *str);
  * @arg c The value to fill with
  * @arg len Number of bytes to fill
  */
-extern void _memset (void *dest, char c, unsigned len);
+EXTERN_C void *CLIKE_P (memset) (void *dest, int c, size_t len);
 
 /**
  * Fill the first @a len bytes of the memory area pointed to by
@@ -111,7 +121,7 @@ extern void _memset (void *dest, char c, unsigned len);
  * @arg dest A pointer of memory to fill
  * @arg len Number of bytes to fill
  */
-extern void memclr (void *dest, unsigned len);
+EXTERN_C void CLIKE_P (memclr) (void *dest, unsigned len);
 
 /**
  * Optimized traditional memcpy().
@@ -119,7 +129,7 @@ extern void memclr (void *dest, unsigned len);
  * @arg src Source pointer
  * @arg len Number of bytes to copy
  */
-extern void _memcpy (void *dest, const void *src, unsigned len);
+EXTERN_C void *CLIKE_P (memcpy) (void *dest, const void *src, size_t len);
 
 /**
  * Optimized traditional memcmp().
@@ -133,7 +143,7 @@ extern void _memcpy (void *dest, const void *src, unsigned len);
  *      a positive number if first different byte in s1 is greater than
  *      corresponding byte from s2.
  */
-extern int _memcmp (const void *s1, const void *s2, size_t n);
+EXTERN_C int CLIKE_P (memcmp) (const void *s1, const void *s2, size_t n);
 
 /**
  * Scan given memory area, bottom-up, looking for given byte.
@@ -144,7 +154,7 @@ extern int _memcmp (const void *s1, const void *s2, size_t n);
  * @return A pointer to found value, or NULL if there's no byte with this
  *      value in searched memory area.
  */
-extern void *_memchr (const void *mem, uint8_t val, size_t size);
+EXTERN_C void *CLIKE_P (memchr) (const void *mem, int c, size_t size);
 
 /**
  * Scan given memory area, top-down, looking for given byte.
@@ -155,15 +165,10 @@ extern void *_memchr (const void *mem, uint8_t val, size_t size);
  * @return A pointer to found value, or NULL if there's no byte with this
  *      value in searched memory area.
  */
-extern void *_memrchr (const void *mem, uint8_t val, size_t size);
+EXTERN_C void *CLIKE_P (memrchr) (const void *mem, int c, size_t size);
 
-#ifndef CLIKE_ORIG
-#  define strlen(s)     (__builtin_constant_p (*s) ? __builtin_strlen (s) : _strlen (s))
-#  define memset        _memset
-#  define memcpy        _memcpy
-#  define memcmp        _memcmp
-#  define memchr        _memchr
-#  define memrchr       _memrchr
+#ifdef USE_CLIKE
+#   define strlen(s)    (__builtin_constant_p (*s) ? __builtin_strlen (s) : _strlen (s))
 #endif
 
 // -------------------------------------------------------------------------- //
@@ -172,7 +177,9 @@ extern void *_memrchr (const void *mem, uint8_t val, size_t size);
 #   include <assert.h>
 #endif
 
-#define _assert(cond)   do { if (!(cond)) _assert_abort (#cond); } while (0)
+#ifdef USE_CLIKE
+#   define assert(cond) do { if (!(cond)) _assert_abort (#cond); } while (0)
+#endif
 
 /**
  * This is what assert calls if condition is false.
@@ -180,10 +187,6 @@ extern void *_memrchr (const void *mem, uint8_t val, size_t size);
  * in a endless loop.
  * @param msg A message (usually the expression that caused trouble)
  */
-extern void _assert_abort (const char *msg) __attribute__((noreturn));
-
-#ifndef CLIKE_ORIG
-#   define assert(c)    _assert(c)
-#endif
+EXTERN_C void _assert_abort (const char *msg) __attribute__((noreturn));
 
 #endif // _CLIKE_H

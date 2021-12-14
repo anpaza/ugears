@@ -10,7 +10,7 @@
 
 #define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
-void _memcpy (void *dest, const void *src, unsigned len)
+void *CLIKE_P (memcpy) (void *dest, const void *src, size_t len)
 {
     register uint8_t *d = (uint8_t *)dest;
     register const uint8_t *s = (const uint8_t *)src;
@@ -21,7 +21,7 @@ void _memcpy (void *dest, const void *src, unsigned len)
     for (;;)
     {
         if (len == 0)
-            return;
+            return dest;
 
         if ((((uintptr_t)d) & LONG_ALIGN_MASK) == 0)
             break;
@@ -49,4 +49,6 @@ void _memcpy (void *dest, const void *src, unsigned len)
         *d++ = *s++;
         len--;
     }
+
+    return dest;
 }

@@ -26,13 +26,18 @@
  * was connected to channel 5.
  *
  * In STM32F4 DMA always have 8 streams (numbered from 0 to 7) and every stream
- * has 8 input channels from up to 8 different peripherials. You choose one
- * of the channels when setting up the stream, and then it works just like
- * in earlier versions.
+ * can connect to one of 8 channels from up to 8 different peripherials.
+ * You choose one of the channels when setting up the stream, and then
+ * it works just like in earlier versions.
  *
- * So, we will stick to the newer terminology and will call "channels" of the
- * earlier DMA models "streams". And "channels" refer to the selectable DMA
- * request at the entry of every DMA stream for later DMA versions.
+ * So, we will stick to the newer terminology and will always call (even for
+ * STM32F0,F1,F3) "channels" what the earlier microcontrollers called "streams".
+ * And "channels" refer to the selectable DMA request at the entry of every DMA
+ * stream for later DMA versions (and there are no "channels" on STM32F0,F1,F3).
+ *
+ * You may think of it like this: streams work concurrently (e.g. there can be
+ * multiple streams flowing at the same time) while channels do not (you may
+ * select only one active channel per every stream).
  *
  * The following macros are expected to be defined in your HARDWARE_H
  * in order to use DMA functionality:
@@ -163,12 +168,24 @@
 #define  DMA_CCR_PL_VERYHIGH	(DMA_CCR_PL_1 | DMA_CCR_PL_0)	/*!< Channel Priority level is very high */
 
 /**
+ * Returns reference to DMAx->ISR
+ * @param x Hardware feature name
+ */
+#define DMA_ISR(x)		(DMA (x)->ISR)
+
+/**
  * DMA interrupt status flag (ISR global DMA register)
  * Example: DMA_ISR_IF (USART1_TX, G) -> DMA_ISR_GIF4
  * @param f One of G, TC, HT, TE
  * @param x Hardware feature name
  */
 #define DMA_ISR_IF(f,x)		JOIN4 (DMA_ISR_, f, IF, DMA_STRM (x))
+
+/**
+ * Returns reference to DMAx->IFCR
+ * @param x Hardware feature name
+ */
+#define DMA_IFCR(x)		(DMA (x)->IFCR)
 
 /**
  * DMA interrupt status clear flag (IFCR global DMA register)
@@ -242,8 +259,7 @@
  *
  * @param n Active channel number (0-7)
  */
-INLINE_ALWAYS uint32_t dma_SxCR_chsel (uint32_t n)
-{ return ((n) << DMA_SxCR_CHSEL_Pos) & DMA_SxCR_CHSEL_Msk; }
+#define DMA_SxCR_CHSEL_(n)	(((n) << DMA_SxCR_CHSEL_Pos) & DMA_SxCR_CHSEL_Msk)
 
 /**
  * Similar to DMA_SxCR_CHSEL_, but uses hardware feature name to pick the
@@ -251,7 +267,7 @@ INLINE_ALWAYS uint32_t dma_SxCR_chsel (uint32_t n)
  *
  * @param x Hardware feature name
  */
-#define DMA_SxCR_CHSEL(x)	dma_SxCR_chsel (DMA_CHAN (x))
+#define DMA_SxCR_CHSEL(x)	DMA_SxCR_CHSEL_(DMA_CHAN (x))
 
 /**
  * Returns the address of either DMA_LISR or DMA_HISR depending on stream number
@@ -299,7 +315,7 @@ INLINE_ALWAYS __IO uint32_t *dma_ifcr (DMA_TypeDef *dma, uint32_t strm)
  * @param f One of TC, HT, TE, DME, FE.
  * @param x Hardware feature name
  */
-#define DMA_ISR_IF(f,x)	DMA_ISR_IF_ (f, DMA_STRM (x))
+#define DMA_ISR_IF(f,x)		DMA_ISR_IF_ (f, DMA_STRM (x))
 
 /**
  * Expands to one of the DMA_(L|H)IFCR_C(TC|HT|TE|DME|FE)IF(0-7) flags.

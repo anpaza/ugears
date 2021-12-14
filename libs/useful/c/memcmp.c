@@ -10,7 +10,7 @@
 
 #define LONG_ALIGN_MASK (__SIZEOF_LONG__ - 1)
 
-int _memcmp (const void *s1, const void *s2, size_t n)
+int CLIKE_P (memcmp) (const void *s1, const void *s2, size_t n)
 {
     register const uint8_t *a = (const uint8_t *)s1;
     register const uint8_t *b = (const uint8_t *)s2;

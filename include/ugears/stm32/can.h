@@ -60,9 +60,9 @@
 /// If set, send msgs in the order they are loaded into FIFO; otherwise, sort by msg priority
 #define CAN_MODE_TX_SEQ		0x02000000
 /// In loopback mode RX receives what's sent through TX
-#define CAN_MODE_LOOPBACK	CAN_BTR_LBKM
+#define CAN_MODE_LOOPBACK	0x04000000
 /// In silent mode, TX pin does not output anything
-#define CAN_MODE_SILENT		CAN_BTR_SILM
+#define CAN_MODE_SILENT		0x08000000
 
 /**
  * Initialize the bxCAN hardware.

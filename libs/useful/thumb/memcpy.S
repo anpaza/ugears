@@ -6,16 +6,18 @@
     you may not use this file except in compliance with the License.
 */
 
+#include "useful/clike-defs.h"
+
 	.syntax unified
 	.cpu cortex-m3
 	.thumb
 
 // extern void _memcpy (void *dest, const void *src, unsigned len);
 	.section .text,"ax",%progbits
-	.global	_memcpy
-	.type	_memcpy, %function
+	.global	CLIKE_P (memcpy)
+	.type	CLIKE_P (memcpy), %function
 
-_memcpy:
+CLIKE_P (memcpy):
 	cbz	r2, 6f		// quit if len=0
 
 // Check if src and dest can be aligned to 4-byte boundary
